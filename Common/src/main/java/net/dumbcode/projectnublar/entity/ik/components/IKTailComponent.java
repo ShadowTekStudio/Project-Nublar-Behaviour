@@ -2,13 +2,13 @@ package net.dumbcode.projectnublar.entity.ik.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.dumbcode.projectnublar.Constants;
 import net.dumbcode.projectnublar.entity.ik.components.debug_renderers.IKTailDebugRenderer;
 import net.dumbcode.projectnublar.entity.ik.model.BoneAccessor;
 import net.dumbcode.projectnublar.entity.ik.model.ModelAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.parts.WorldCollidingSegment;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.IKChain;
+import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.Entity;
@@ -51,14 +51,26 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
         }
 
         if (Objects.equals(this.tailTarget, new Vec3(0, 0, 0))) {
-            this.tailTarget = model.getBone("tail1_base").getPosition(entity);
+            if (model.getBone("tail1_base").isEmpty()) {
+                return;
+            }
+            this.tailTarget = model.getBone("tail1_base").get().getPosition();
         }
 
-        Vec3 headPos = model.getBone("head").getPosition(entity);
+        if (model.getBone("head").isEmpty()) {
+            return;
+        }
+        Vec3 headPos = model.getBone("head").get().getPosition();
 
-        Vec3 centerDirection = model.getBone("center_of_mass").getPosition(entity).subtract(headPos).normalize();
+        if (model.getBone("center_of_mass").isEmpty()) {
+            return;
+        }
+        Vec3 centerDirection = model.getBone("center_of_mass").get().getPosition().subtract(headPos).normalize();
 
-        Vec3 tailStart = model.getBone("tail1_base").getPosition(entity);
+        if (model.getBone("tail1_base").isEmpty()) {
+            return;
+        }
+        Vec3 tailStart = model.getBone("tail1_base").get().getPosition();
 
         this.tailTarget = this.getMovedTailPos(tailStart.add(centerDirection.scale(this.getLimb().getMaxLength())), entity);
 
@@ -67,11 +79,14 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
         for (int i = 0; i < this.limbs.get(0).getJoints().size() - 1; i++) {
             Segment currentSegment = this.getLimb().segments.get(i);
 
-            BoneAccessor bone = model.getBone("tail" + 1 + "_seg" + (i + 1));
+            if (model.getBone("tail" + 1 + "_seg" + (i + 1)).isEmpty()) {
+                return;
+            }
+            BoneAccessor bone = model.getBone("tail" + 1 + "_seg" + (i + 1)).get();
 
             Vec3 endPos = this.getLimb().getJoints().get(i + 1);
 
-            if (Constants.shouldRenderDebugLegs) {
+            if (PrAnCommonClass.shouldRenderDebugLegs) {
                 bone.moveTo(currentSegment.getPosition().subtract(0, 200, 0), endPos.subtract(0, 200, 0), entity);
                 continue;
             }

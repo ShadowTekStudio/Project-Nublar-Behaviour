@@ -56,8 +56,8 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                         .movementSpeed(0.4).build(),
                 List.of(new ServerLimb(0.7, 0, 0.3),
                         new ServerLimb(-0.7, 0, 0.3)),
-                new EntityLegWithFoot(new WorldCollidingSegment(new Segment.Builder().length(0.5625).angleOffset(70).angleSize(40)), new Segment.Builder().length(1).angleSize(40).angleOffset(110).build(), new Segment.Builder().length(1.3).angleOffset(80).build(), new Segment.Builder().length(0.94).angleOffset(-130).angleSize(40).build()),
-                new EntityLegWithFoot(new WorldCollidingSegment(new Segment.Builder().length(0.5625).angleOffset(70).angleSize(40)), new Segment.Builder().length(1).angleSize(40).angleOffset(110).build(), new Segment.Builder().length(1.3).angleOffset(80).build(), new Segment.Builder().length(0.94).angleOffset(-130).angleSize(40).build())));
+                new EntityLegWithFoot(new WorldCollidingSegment(new Segment.Builder().length(0.5625).angleOffset(70).angleSize(40)), new Segment.Builder().length(1).angleSize(40).angleOffset(0).build(), new Segment.Builder().length(1.3).angleOffset(80).build(), new Segment.Builder().length(0.94).angleOffset(-130).angleSize(40).build()),
+                new EntityLegWithFoot(new WorldCollidingSegment(new Segment.Builder().length(0.5625).angleOffset(70).angleSize(40)), new Segment.Builder().length(1).angleSize(40).angleOffset(0).build(), new Segment.Builder().length(1.3).angleOffset(80).build(), new Segment.Builder().length(0.94).angleOffset(-130).angleSize(40).build())));
 
         this.addComponent(new IKTailComponent<>(new StretchingIKChain(new WorldCollidingSegment(new Segment.Builder().length(1.4)), new WorldCollidingSegment(new Segment.Builder().length(1.7)), new WorldCollidingSegment(new Segment.Builder().length(1.3))) {
             @Override

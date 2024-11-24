@@ -1,6 +1,7 @@
 package net.dumbcode.projectnublar.mixin;
 
 import net.dumbcode.projectnublar.Constants;
+import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.client.KeyboardHandler;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -19,7 +20,7 @@ public abstract class DinoDebugRendererMixin {
     @Inject(method = "handleDebugKeys", at = @At("HEAD"), cancellable = true)
     private void onHandleDebugKeys(int keyCode, CallbackInfoReturnable<Boolean> cir) {
         if (keyCode == L) {
-            Constants.shouldRenderDebugLegs = !Constants.shouldRenderDebugLegs;
+            PrAnCommonClass.shouldRenderDebugLegs = !PrAnCommonClass.shouldRenderDebugLegs;
             this.debugFeedbackTranslated("debug.toggled_joint_debug.message");
             cir.setReturnValue(true);
         }

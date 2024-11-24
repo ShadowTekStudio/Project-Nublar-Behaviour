@@ -6,7 +6,7 @@ import net.minecraft.resources.ResourceLocation;
 import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 
-public class DinosaurGeoModel extends DefaultedEntityGeoModel<net.dumbcode.projectnublar.entity.Dinosaur> {
+public class DinosaurGeoModel extends DefaultedEntityGeoModel<Dinosaur> {
 
 
     public DinosaurGeoModel(ResourceLocation assetSubpath) {

@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.dumbcode.projectnublar.Constants;
 import net.dumbcode.projectnublar.entity.Dinosaur;
+import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
@@ -23,7 +24,7 @@ public class IKDebugRenderLayer extends GeoRenderLayer<Dinosaur> {
 
     @Override
     public void render(PoseStack poseStack, Dinosaur animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-        if (!(animatable instanceof Dinosaur) || !Constants.shouldRenderDebugLegs) {
+        if (!(animatable instanceof Dinosaur) || !PrAnCommonClass.shouldRenderDebugLegs) {
             return;
         }
 

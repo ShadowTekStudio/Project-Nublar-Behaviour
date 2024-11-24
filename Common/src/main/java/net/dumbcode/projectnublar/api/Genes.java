@@ -40,6 +40,7 @@ public class Genes {
         GENE_STORAGE.add(gene);
         return gene;
     }
+    
     public static void addToGene(Gene gene, EntityType<?> type, double value) {
         for(Gene g : GENE_STORAGE) {
             if(g.equals(gene)) {

@@ -4,8 +4,7 @@ import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-
-import static net.dumbcode.projectnublar.entity.ik.util.MathUtil.getFlatRotationVector;
+import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 
 public class EntityLeg extends AngleConstraintIKChain {
     public Entity entity;
@@ -20,7 +19,7 @@ public class EntityLeg extends AngleConstraintIKChain {
 
     @Override
     public Vec3 getReferencePoint() {
-        Vec3 referencePoint = getFlatRotationVector(this.entity.getYRot() + 90);
+        Vec3 referencePoint = MathUtil.getFlatRotationVector(this.entity.getYRot() + 90);
         return this.getFirst().getPosition().add(referencePoint.scale(100));
     }
 

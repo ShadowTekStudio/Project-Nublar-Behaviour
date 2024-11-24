@@ -2,7 +2,6 @@ package net.dumbcode.projectnublar.entity.ik.components.debug_renderers;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.entity.ik.components.IKAnimatable;
 import net.dumbcode.projectnublar.entity.ik.components.IKLegComponent;
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
@@ -13,6 +12,7 @@ import net.dumbcode.projectnublar.entity.ik.parts.sever_limbs.ServerLimb;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
@@ -20,7 +20,7 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> extends IKChainDebugRenderer<E, IKLegComponent<C, E>> {
-    private static <C extends IKChain> void drawAngleConstraintsForBase(Segment currentSegment, C chain, Dinosaur entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+    private static <C extends IKChain> void drawAngleConstraintsForBase(Segment currentSegment, C chain, Entity entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
         Vec3 entityPos = entity.position();
 
         Vec3 C = chain.getFirst().getPosition().subtract(0, 1, 0);
@@ -30,12 +30,18 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
 
         Vec3 normal = MathUtil.getClosestNormalRelativeToEntity(chain.segments.get(1).getPosition(), chain.getFirst().getPosition(), chain.segments.get(2).getPosition(), entity);
         Vec3 newPos = MathUtil.rotatePointOnAPlaneAround(chain.segments.get(1).getPosition(), chain.getFirst().getPosition(), angleDelta, normal);
+
+        /*
         Vec3 otherNewPos = MathUtil.rotatePointOnAPlaneAround(chain.segments.get(1).getPosition(), chain.getFirst().getPosition(), (angleDelta - (chain.getFirst().angleSize * 2)), normal);
         Vec3 middlePos = MathUtil.rotatePointOnAPlaneAround(chain.segments.get(1).getPosition(), chain.getFirst().getPosition(), (angleDelta - chain.getFirst().angleSize), normal);
+        */
 
+        /*
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), newPos, 255, 0, 0, 127);
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), middlePos, 180, 180, 180, 127);
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), otherNewPos, 0, 255, 0, 127);
+
+         */
     }
 
     @Override
@@ -43,7 +49,7 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
         super.renderDebug(component, animatable, poseStack, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 
         for (C limb : component.getLimbs()) {
-            if (!(animatable instanceof Dinosaur entity)) {
+            if (!(animatable instanceof Entity entity)) {
                 return;
             }
 
@@ -82,14 +88,19 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
         }
     }
 
-    private void renderLeg(PoseStack poseStack, MultiBufferSource bufferSource, C chain, Dinosaur entity) {
+    private void renderLeg(PoseStack poseStack, MultiBufferSource bufferSource, C chain, Entity entity) {
         Vec3 entityPos = entity.position();
+        if (chain.entity == null) {
+            return;
+        }
 
         drawAngleConstraintsForBase(chain.getFirst(), chain, entity, poseStack, bufferSource);
         for (int i = 0; i < chain.getJoints().size() - 1; i++) {
             if (i > 0) {
                 this.drawAngleConstraints(i, chain, entity, poseStack, bufferSource);
+                continue;
             }
+            this.drawAngleConstraintsForBase(chain, entity, poseStack, bufferSource);
         }
 
         if (chain instanceof EntityLegWithFoot entityLegWithFoot) {
@@ -105,7 +116,33 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
         }
     }
 
-    private void drawAngleConstraints(int i, C chain, Dinosaur entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+    private void drawAngleConstraintsForBase(C chain, Entity entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+        Vec3 entityPos = entity.position();
+
+        Vec3 base = chain.getFirst().getPosition();
+
+        Vec3 referencePoint = chain.rotatePointOnLegPlane(base.add(chain.getDownNormalOnLegPlane()), base, chain.getFirst().angleOffset);
+
+        Vec3 dotBaseDir = referencePoint.subtract(base).normalize();
+        Vec3 dotTargetDir = chain.get(1).getPosition().subtract(base).normalize();
+
+        double angle = Math.toDegrees(Math.acos(dotBaseDir.dot(dotTargetDir)));
+
+        double angleDifference = chain.getFirst().angleSize - angle;
+
+        Vec3 rotatedPos = MathUtil.rotatePointOnAPlaneAround(chain.getFirst().getPosition().add(chain.getDownNormalOnLegPlane()), chain.getFirst().getPosition(), chain.getFirst().angleSize, chain.getLegPlane());
+        Vec3 rotatedPos2 = MathUtil.rotatePointOnAPlaneAround(chain.getFirst().getPosition().add(chain.getDownNormalOnLegPlane()), chain.getFirst().getPosition(), -chain.getFirst().angleSize, chain.getLegPlane());
+        Vec3 newPos = MathUtil.rotatePointOnAPlaneAround(chain.get(1).getPosition(), chain.getFirst().getPosition(), angleDifference, chain.getLegPlane());
+
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), rotatedPos, 255, 0, 0, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), rotatedPos2, 0, 255, 0, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), newPos, 0, 0, 255, 127);
+
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), chain.getFirst().getPosition().add(chain.getDownNormalOnLegPlane()), 180, 180, 180, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), chain.getFirst().getPosition().add(chain.getLegPlane()), 12, 12, 12, 127);
+    }
+
+    private void drawAngleConstraints(int i, C chain, Entity entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
         Vec3 entityPos = entity.position();
 
         Segment currentSegment = chain.get(i);

@@ -32,6 +32,12 @@ public class DinosaurRenderer extends GeoEntityRenderer<Dinosaur> {
     }
 
     @Override
+    public void render(Dinosaur pEntity, float pEntityYaw, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight) {
+        super.render(pEntity, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight);
+
+    }
+
+    @Override
     public void renderRecursively(PoseStack poseStack, Dinosaur animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight,
                                   int packedOverlay, float red, float green, float blue, float alpha) {
         if (bone == null) return;

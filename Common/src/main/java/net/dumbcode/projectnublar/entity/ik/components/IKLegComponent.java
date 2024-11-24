@@ -2,14 +2,13 @@ package net.dumbcode.projectnublar.entity.ik.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import net.dumbcode.projectnublar.Constants;
-import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.entity.ik.components.debug_renderers.LegDebugRenderer;
 import net.dumbcode.projectnublar.entity.ik.model.BoneAccessor;
 import net.dumbcode.projectnublar.entity.ik.model.ModelAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLeg;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLegWithFoot;
 import net.dumbcode.projectnublar.entity.ik.parts.sever_limbs.ServerLimb;
+import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
@@ -41,14 +40,14 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
         return !entity.position().equals(oldPos);
     }
 
-    public static BlockHitResult rayCastToGround(Vec3 rotatedLimbOffset, PathfinderMob entity, ClipContext.Fluid fluid) {
+    public static BlockHitResult rayCastToGround(Vec3 rotatedLimbOffset, Entity entity, ClipContext.Fluid fluid) {
         Level world = entity.level();
         return world.clip(new ClipContext(rotatedLimbOffset.relative(Direction.UP, 3), rotatedLimbOffset.relative(Direction.DOWN, 10), ClipContext.Block.COLLIDER, fluid, entity));
     }
 
     @Override
     public void tickClient(E animatable, ModelAccessor model) {
-        if (!(animatable instanceof Dinosaur entity)) {
+        if (!(animatable instanceof Entity entity)) {
             return;
         }
 
@@ -60,16 +59,22 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
 
         double average = sum / this.endPoints.size();
 
-        BoneAccessor entityBase = model.getBone("entity_base");
+        if (model.getBone("entity_base").isEmpty()) {
+            return;
+        }
+        BoneAccessor entityBase = model.getBone("entity_base").get();
 
-        double newY = average;//Mth.lerp(2, entityBase.getPosition(entity).y(), average);
+        double newY = average; //Mth.lerp(2, entityBase.getPosition(entity).y(), average);
 
         //entityBase.moveTo(new Vec3(entity.position().x(), newY, entity.position().z()), null, entity);
 
         for (int i = 0; i < this.limbs.size(); i++) {
-            BoneAccessor baseAccessor = model.getBone("base_" + "leg" + (i + 1));
+            if (model.getBone("base_" + "leg" + (i + 1)).isEmpty()) {
+                return;
+            }
+            BoneAccessor baseAccessor = model.getBone("base_" + "leg" + (i + 1)).get();
 
-            Vec3 basePosWorldSpace = baseAccessor.getPosition(entity);
+            Vec3 basePosWorldSpace = baseAccessor.getPosition();
 
             C limb = this.setLimb(i, basePosWorldSpace, entity);
 
@@ -77,9 +82,12 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
                 Vec3 modelPosWorldSpace = limb.getJoints().get(k);
                 Vec3 targetVecWorldSpace = limb.getJoints().get(k + 1);
 
-                BoneAccessor legSegmentAccessor = model.getBone("seg" + (k + 1) + "_leg" + (i + 1));
+                if (model.getBone("seg" + (k + 1) + "_leg" + (i + 1)).isEmpty()) {
+                    return;
+                }
+                BoneAccessor legSegmentAccessor = model.getBone("seg" + (k + 1) + "_leg" + (i + 1)).get();
 
-                if (Constants.shouldRenderDebugLegs) {
+                if (PrAnCommonClass.shouldRenderDebugLegs) {
                     modelPosWorldSpace = modelPosWorldSpace.subtract(0, 200, 0);
                     targetVecWorldSpace = targetVecWorldSpace.subtract(0, 200, 0);
                 }
@@ -87,13 +95,16 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
                 legSegmentAccessor.moveTo(modelPosWorldSpace, targetVecWorldSpace, entity);
 
                 if (limb instanceof EntityLegWithFoot entityLegWithFoot) {
-                    BoneAccessor footSegmentAccessor = model.getBone("foot_leg" + (i + 1));
+                    if (model.getBone("foot_leg" + (i + 1)).isEmpty()) {
+                        return;
+                    }
+                    BoneAccessor footSegmentAccessor = model.getBone("foot_leg" + (i + 1)).get();
 
                     Vec3 shortenedEndPoint = limb.getLast().getPosition().add(limb.endJoint.subtract(limb.getLast().getPosition()).normalize().scale(limb.getLast().length * 0.8));
 
                     double yOffset = shortenedEndPoint.subtract(limb.endJoint).y;
 
-                    footSegmentAccessor.moveTo(Constants.shouldRenderDebugLegs ? shortenedEndPoint.subtract(0, 200, 0) : shortenedEndPoint, entityLegWithFoot.getFootPosition().add(0, yOffset, 0), entity);
+                    footSegmentAccessor.moveTo(PrAnCommonClass.shouldRenderDebugLegs ? shortenedEndPoint.subtract(0, 200, 0) : shortenedEndPoint, entityLegWithFoot.getFootPosition().add(0, yOffset, 0), entity);
                 }
             }
         }

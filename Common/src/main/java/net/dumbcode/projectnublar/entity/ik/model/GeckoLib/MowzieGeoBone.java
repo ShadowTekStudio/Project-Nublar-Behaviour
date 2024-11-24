@@ -10,6 +10,7 @@ import org.joml.Vector3d;
 import software.bernie.geckolib.cache.object.GeoBone;
 
 import javax.annotation.Nullable;
+import java.util.List;
 
 /**
  * Provided by Bob Mowzie from <a href="https://www.curseforge.com/minecraft/mc-mods/mowzies-mobs">Mowzie's Mobs</a>
@@ -196,7 +197,7 @@ public class MowzieGeoBone extends GeoBone implements BoneAccessor /* only the i
     }
 
     @Override
-    public Vec3 getPosition(Entity entity) {
+    public Vec3 getPosition() {
         return MathUtil.toVec3(this.getWorldPosition());
     }
 
@@ -231,5 +232,10 @@ public class MowzieGeoBone extends GeoBone implements BoneAccessor /* only the i
         }
 
         this.setWorldSpaceMatrix(xformOverride);
+    }
+
+    @Override
+    public List<BoneAccessor> getChildren() {
+        return this.getChildBones().stream().map(bone -> (BoneAccessor) bone).toList();
     }
 }

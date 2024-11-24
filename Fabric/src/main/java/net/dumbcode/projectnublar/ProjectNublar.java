@@ -4,6 +4,7 @@ import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
 import net.dumbcode.projectnublar.api.FossilPiece;
 import net.dumbcode.projectnublar.api.FossilPieces;
 import net.dumbcode.projectnublar.config.FossilsConfig;
+import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.dumbcode.projectnublar.init.EntityInit;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
@@ -22,9 +23,9 @@ public class ProjectNublar implements ModInitializer {
     @Override
     public void onInitialize() {
         if (FabricLoader.getInstance().isDevelopmentEnvironment()) {
-            Constants.isDevEnv = true;
-            Constants.shouldRenderDebugLegs = true;
-            Constants.LOG.info("Started in a development environment. Debug renderers will be activated by default.");
+            PrAnCommonClass.isDev = true;
+            PrAnCommonClass.shouldRenderDebugLegs = true;
+            PrAnCommonClass.LOGGER.info("Started in a development environment. Debug renderers will be activated by default.");
         }
 
         ForgeConfigRegistry.INSTANCE.register(Constants.MODID, ModConfig.Type.COMMON, FossilsConfig.CONFIG_SPEC);

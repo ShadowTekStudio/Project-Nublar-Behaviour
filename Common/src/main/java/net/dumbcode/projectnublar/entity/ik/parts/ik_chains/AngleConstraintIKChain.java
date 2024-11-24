@@ -2,7 +2,9 @@ package net.dumbcode.projectnublar.entity.ik.parts.ik_chains;
 
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
+import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.world.phys.Vec3;
+import org.apache.logging.log4j.core.pattern.NotANumber;
 
 public abstract class AngleConstraintIKChain extends StretchingIKChain {
 
@@ -13,7 +15,48 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
     public AngleConstraintIKChain(Segment... segments) {
         super(segments);
     }
+    
+    @Override
+    public void reachBackwards(Vec3 base) {
+        this.getFirst().move(base);
 
+        Vec3 targetDir = this.get(1).getPosition().subtract(base).normalize();
+        Vec3 newPos = base.add(targetDir.scale(this.getFirst().length));
+
+        this.segments.get(1).move(newPos);
+
+        Vec3 referencePoint = this.rotatePointOnLegPlane(base.add(this.getDownNormalOnLegPlane()), base, this.getFirst().angleOffset);
+
+        Vec3 dotBaseDir = referencePoint.subtract(base).normalize();
+        Vec3 dotTargetDir = this.get(1).getPosition().subtract(base).normalize();
+
+        double angle = Math.toDegrees(Math.acos(dotBaseDir.dot(dotTargetDir)));
+
+        if (angle > this.getFirst().angleSize) {
+            double angleDifference = this.getFirst().angleSize - angle;
+
+            Vec3 rotatedPos = this.rotatePointOnLegPlane(this.get(1).getPosition(), base, angleDifference);
+
+            this.segments.get(1).move(rotatedPos);
+        }
+
+        for (int i = 0; i < this.segments.size() - 1; i++) {
+            Segment currentSegment = this.segments.get(i);
+            Segment nextSegment = this.segments.get(i + 1);
+
+            nextSegment.move(this.moveSegment(nextSegment.getPosition(), currentSegment.getPosition(), currentSegment.length));
+        }
+
+        this.endJoint = this.moveSegment(this.endJoint, this.getLast().getPosition(), this.getLast().length);
+    }
+
+    public abstract Vec3 getDownNormalOnLegPlane();
+
+    public Vec3 rotatePointOnLegPlane(Vec3 point, Vec3 base, double angle) {
+        return MathUtil.rotatePointOnAPlaneAround(point, base, angle, this.getLegPlane());
+    }
+
+    /*
     @Override
     public void reachBackwards(Vec3 base) {
         this.getFirst().move(base);
@@ -34,6 +77,7 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
         this.endJoint = this.moveSegment(this.endJoint, this.getLast().getPosition(), this.getLast().length);
         this.endJoint = this.getConstrainedPositions(this.get(this.segments.size() - 2).getPosition(), this.getLast(), this.endJoint);
     }
+     */
 
     /*
     @Override
@@ -59,6 +103,34 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
     public Vec3 getConstrainedPosForRootSegment() {
         Vec3 C = new Vec3(0, 1, 0);
         return this.getConstrainedPosForRootSegment(C);
+    }
+
+    /**
+     * Get the angle at the given index in degrees
+     * @param index the index of the segment you want to get the angle of
+     * @return the angle at the given index in degrees
+     */
+    public double getAngleAt(int index) {
+        if (index < 1) {
+            PrAnCommonClass.throwInDevOnly(new IllegalArgumentException("Called **getAngleAt** with an index of 0. The index always needs to be at least 1" +
+                    "Min Example: this.getAngleAt(1)"));
+            return 0;
+        }
+        
+        if (index > this.segments.size() - 2) {
+            PrAnCommonClass.throwInDevOnly(new IllegalArgumentException("Called **getAngleAt** with an index bigger then the segment about -1. The index always needs to be at least 1 less then the total segments." +
+                    "Max Example: this.getAngleAt(this.segments.size() - 2)"));
+            return 0;
+        }
+        
+        Segment previousSegment = this.segments.get(index - 1);
+        Segment currentSegment = this.segments.get(index);
+        Segment nextSegment = this.segments.get(index + 1);
+
+        Vec3 baseDir = previousSegment.getPosition().subtract(currentSegment.getPosition()).normalize();
+        Vec3 targetDir = nextSegment.getPosition().subtract(currentSegment.getPosition()).normalize();
+
+        return Math.toDegrees(Math.acos(baseDir.dot(targetDir)));
     }
 
     public Vec3 getConstrainedPosForRootSegment(Vec3 downVector) {

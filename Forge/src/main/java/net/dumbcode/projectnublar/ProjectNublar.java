@@ -10,6 +10,7 @@ import net.dumbcode.projectnublar.datagen.ModRecipeProvider;
 import net.dumbcode.projectnublar.datagen.ModSoundProvider;
 import net.dumbcode.projectnublar.datagen.ModTagProvider;
 import net.dumbcode.projectnublar.datagen.ModWorldGenProvider;
+import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -27,9 +28,9 @@ public class ProjectNublar {
     public ProjectNublar() {
         Constants.LOG.info("Hello Forge world!");
         if (!FMLEnvironment.production) {
-            Constants.isDevEnv = true;
-            Constants.shouldRenderDebugLegs = true;
-            Constants.LOG.info("Started in a development environment. Debug renderers will be activated by default.");
+            PrAnCommonClass.isDev = true;
+            PrAnCommonClass.shouldRenderDebugLegs = true;
+            PrAnCommonClass.LOGGER.info("Started in a development environment. Debug renderers will be activated by default.");
         }
 
         CommonClass.init();

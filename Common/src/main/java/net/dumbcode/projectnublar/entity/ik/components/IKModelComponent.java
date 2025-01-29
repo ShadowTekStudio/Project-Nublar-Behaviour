@@ -11,5 +11,7 @@ public interface IKModelComponent<E extends IKAnimatable<E>> {
 
     void tickClient(E animatable, ModelAccessor model);
 
+    void getModelPositions(E animatable, ModelAccessor model);
+
     void renderDebug(PoseStack poseStack, E animatable, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay);
 }

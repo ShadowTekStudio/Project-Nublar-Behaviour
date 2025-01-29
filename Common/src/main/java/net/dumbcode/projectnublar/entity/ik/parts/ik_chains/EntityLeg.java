@@ -29,14 +29,15 @@ public class EntityLeg extends AngleConstraintIKChain {
     }
 
     public Vec3 getDownNormalOnLegPlane() {
-        Vec3 baseRotated = this.getFirst().getPosition().yRot(-this.entity.getYRot());
-        Vec3 targetRotated = this.endJoint.yRot(-this.entity.getYRot());
+
+        Vec3 baseRotated = this.getFirst().getPosition().yRot((float) Math.toRadians(this.entity.getYRot()));
+        Vec3 targetRotated = this.endJoint.yRot((float) Math.toRadians(this.entity.getYRot()));
 
         Vec3 flatRotatedBase = new Vec3(baseRotated.x(), baseRotated.y(), 0);
         Vec3 flatRotatedTarget = new Vec3(targetRotated.x(), targetRotated.y(), 0);
 
-        Vec3 flatBase = flatRotatedBase.yRot(this.entity.getYRot());
-        Vec3 flatTarget = flatRotatedTarget.yRot(this.entity.getYRot());
+        Vec3 flatBase = flatRotatedBase.yRot((float) Math.toRadians(-this.entity.getYRot()));
+        Vec3 flatTarget = flatRotatedTarget.yRot((float) Math.toRadians(-this.entity.getYRot()));
 
         return flatTarget.subtract(flatBase).normalize();
     }

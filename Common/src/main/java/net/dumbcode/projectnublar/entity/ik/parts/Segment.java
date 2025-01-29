@@ -38,7 +38,7 @@ public class Segment {
         private double length;
         private StretchDirection stretchDirection = StretchDirection.TARGET;
         private boolean hasAngleConstraints = true;
-        private double angleOffset = 90; // plus is forwards and minus is backwards
+        private double angleOffset = 0; // plus is forwards and minus is backwards
         private double angleSize = 30;
 
         public Builder length(double length) {

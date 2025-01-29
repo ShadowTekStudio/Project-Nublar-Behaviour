@@ -7,6 +7,7 @@ import net.minecraft.world.phys.Vec3;
 import org.joml.Matrix4f;
 import org.joml.Quaternionf;
 import org.joml.Vector3d;
+import org.joml.Vector3f;
 import software.bernie.geckolib.cache.object.GeoBone;
 
 import javax.annotation.Nullable;
@@ -201,32 +202,29 @@ public class MowzieGeoBone extends GeoBone implements BoneAccessor /* only the i
         return MathUtil.toVec3(this.getWorldPosition());
     }
 
+
     @Override
-    public void moveTo(Vec3 to, @Nullable Vec3 facing, Entity entity) {
+    public void moveTo(Vec3 to, @org.jetbrains.annotations.Nullable Vec3 facing, Entity entity) {
         this.setForceMatrixTransform(true);
 
         Matrix4f xformOverride = new Matrix4f();
 
-        Vec3 newModelPosWorldSpace = MathUtil.rotatePointOnAPlaneAround(to, entity.position(), -180 + entity.getYRot(), new Vec3(0, 1, 0));
+        Vec3 newModelPosWorldSpace = MathUtil.rotatePointOnAPlaneAround(to, entity.position(), entity.getYRot() - 180, new Vec3(0, 1, 0));
         // Translation
-        xformOverride = xformOverride.translate((float) newModelPosWorldSpace.x, (float) newModelPosWorldSpace.y, (float) newModelPosWorldSpace.z);
+        xformOverride = xformOverride.translate(newModelPosWorldSpace.toVector3f());
 
         if (facing != null) {
-            Vec3 newTargetVecWorldSpace = MathUtil.rotatePointOnAPlaneAround(facing, entity.position(), -180 + entity.getYRot(), new Vec3(0, 1, 0));
+            Vec3 newTargetVecWorldSpace = MathUtil.rotatePointOnAPlaneAround(facing, entity.position(), entity.getYRot()  - 180, new Vec3(0, 1, 0));
 
             Quaternionf q;
-            Vector3d p1 = MathUtil.toVector3d(newModelPosWorldSpace);
-            Vector3d p2 = MathUtil.toVector3d(newTargetVecWorldSpace);
-            Vector3d desiredDir = p2.sub(p1, new Vector3d()).normalize();
+            Vector3f desiredDir = newTargetVecWorldSpace.toVector3f().sub(newModelPosWorldSpace.toVector3f(),  new Vector3f()).normalize();
 
-            Vector3d startingDir = new Vector3d(0, -1, 0);
+            Vector3f startingDir = new Vector3f(0, -1, 0);
             double dot = desiredDir.dot(startingDir);
             if (dot > 0.9999999) {
                 q = new Quaternionf();
             } else {
-                Vector3d cross = startingDir.cross(desiredDir);
-                double w = Math.sqrt(desiredDir.lengthSquared() * startingDir.lengthSquared()) + dot;
-                q = new Quaternionf(cross.x, cross.y, cross.z, w).normalize();
+                q = new Quaternionf().rotateTo(startingDir, desiredDir).normalize();
             }
             xformOverride.rotate(q);
         }

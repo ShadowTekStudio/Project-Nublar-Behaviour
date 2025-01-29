@@ -34,6 +34,10 @@ public interface IKAnimatable<E extends IKAnimatable<E>> {
         this.getComponents().forEach(ikModelComponent -> ikModelComponent.tickServer(animatable));
     }
 
+    default void getModelPositions(E animatable, ModelAccessor model) {
+        this.getComponents().forEach(ikModelComponent -> ikModelComponent.getModelPositions(animatable, model));
+    }
+
     default void renderDebug(PoseStack poseStack, E animatable, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         this.getComponents().forEach(eikModelComponent -> eikModelComponent.renderDebug(poseStack, animatable, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay));
     }

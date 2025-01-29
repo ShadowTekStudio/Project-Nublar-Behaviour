@@ -19,11 +19,14 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> extends IKChainComponent<C, E> {
     /// summon projectnublar:tyrannosaurus_rex ~ ~ ~ {NoAI:1b}
     private final List<ServerLimb> endPoints;
+    private List<Vec3> bases;
     private final LegSetting settings;
     public double scale = 1;
     private int stillStandCounter = 0;
@@ -33,6 +36,10 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
         this.limbs.addAll(List.of(limbs));
         this.settings = settings;
         this.endPoints = endpoints;
+        this.bases = new ArrayList<>();
+        Arrays.stream(limbs).forEach(
+                limb -> this.bases.add(new Vec3(0,0,0))
+        );
     }
 
     private static boolean hasMovedOverLastTick(PathfinderMob entity) {
@@ -59,22 +66,18 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
 
         double average = sum / this.endPoints.size();
 
-        if (model.getBone("entity_base").isEmpty()) {
-            return;
-        }
-        BoneAccessor entityBase = model.getBone("entity_base").get();
-
-        double newY = average; //Mth.lerp(2, entityBase.getPosition(entity).y(), average);
-
-        //entityBase.moveTo(new Vec3(entity.position().x(), newY, entity.position().z()), null, entity);
-
         for (int i = 0; i < this.limbs.size(); i++) {
             if (model.getBone("base_" + "leg" + (i + 1)).isEmpty()) {
                 return;
             }
-            BoneAccessor baseAccessor = model.getBone("base_" + "leg" + (i + 1)).get();
+            //BoneAccessor baseAccessor = model.getBone("base_" + "leg" + (i + 1)).get();//
 
-            Vec3 basePosWorldSpace = baseAccessor.getPosition();
+            //Vec3 basePosWorldSpace = baseAccessor.getPosition();
+            if (this.bases.isEmpty()) {
+                return;
+            }
+
+            Vec3 basePosWorldSpace = this.bases.get(i);
 
             C limb = this.setLimb(i, basePosWorldSpace, entity);
 
@@ -82,10 +85,10 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
                 Vec3 modelPosWorldSpace = limb.getJoints().get(k);
                 Vec3 targetVecWorldSpace = limb.getJoints().get(k + 1);
 
-                if (model.getBone("seg" + (k + 1) + "_leg" + (i + 1)).isEmpty()) {
+                if (model.getBone("segment" + (k + 1) + "_leg" + (i + 1)).isEmpty()) {
                     return;
                 }
-                BoneAccessor legSegmentAccessor = model.getBone("seg" + (k + 1) + "_leg" + (i + 1)).get();
+                BoneAccessor legSegmentAccessor = model.getBone("segment" + (k + 1) + "_leg" + (i + 1)).get();
 
                 if (PrAnCommonClass.shouldRenderDebugLegs) {
                     modelPosWorldSpace = modelPosWorldSpace.subtract(0, 200, 0);
@@ -107,6 +110,21 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
                     footSegmentAccessor.moveTo(PrAnCommonClass.shouldRenderDebugLegs ? shortenedEndPoint.subtract(0, 200, 0) : shortenedEndPoint, entityLegWithFoot.getFootPosition().add(0, yOffset, 0), entity);
                 }
             }
+        }
+    }
+
+    @Override
+    public void getModelPositions(E animatable, ModelAccessor model) {
+        for (int i = 0; i < this.limbs.size(); i++) {
+            if (model.getBone("base_" + "leg" + (i + 1)).isEmpty()) {
+                return;
+            }
+
+            BoneAccessor baseAccessor = model.getBone("base_" + "leg" + (i + 1)).get();
+
+            Vec3 basePosWorldSpace = baseAccessor.getPosition();
+
+            this.bases.set(i, basePosWorldSpace);
         }
     }
 

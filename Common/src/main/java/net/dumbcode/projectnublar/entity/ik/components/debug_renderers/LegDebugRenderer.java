@@ -12,6 +12,7 @@ import net.dumbcode.projectnublar.entity.ik.parts.sever_limbs.ServerLimb;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
+import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
@@ -20,30 +21,6 @@ import net.minecraft.world.phys.Vec3;
 import java.util.List;
 
 public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> extends IKChainDebugRenderer<E, IKLegComponent<C, E>> {
-    private static <C extends IKChain> void drawAngleConstraintsForBase(Segment currentSegment, C chain, Entity entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
-        Vec3 entityPos = entity.position();
-
-        Vec3 C = chain.getFirst().getPosition().subtract(0, 1, 0);
-
-        double angle = Math.toDegrees(MathUtil.calculateAngle(chain.getFirst().getPosition(), chain.segments.get(1).getPosition(), C));
-        double angleDelta = chain.getFirst().angleSize - angle;
-
-        Vec3 normal = MathUtil.getClosestNormalRelativeToEntity(chain.segments.get(1).getPosition(), chain.getFirst().getPosition(), chain.segments.get(2).getPosition(), entity);
-        Vec3 newPos = MathUtil.rotatePointOnAPlaneAround(chain.segments.get(1).getPosition(), chain.getFirst().getPosition(), angleDelta, normal);
-
-        /*
-        Vec3 otherNewPos = MathUtil.rotatePointOnAPlaneAround(chain.segments.get(1).getPosition(), chain.getFirst().getPosition(), (angleDelta - (chain.getFirst().angleSize * 2)), normal);
-        Vec3 middlePos = MathUtil.rotatePointOnAPlaneAround(chain.segments.get(1).getPosition(), chain.getFirst().getPosition(), (angleDelta - chain.getFirst().angleSize), normal);
-        */
-
-        /*
-        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), newPos, 255, 0, 0, 127);
-        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), middlePos, 180, 180, 180, 127);
-        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), otherNewPos, 0, 255, 0, 127);
-
-         */
-    }
-
     @Override
     public void renderDebug(IKLegComponent<C, E> component, E animatable, PoseStack poseStack, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         super.renderDebug(component, animatable, poseStack, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
@@ -94,14 +71,10 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
             return;
         }
 
-        drawAngleConstraintsForBase(chain.getFirst(), chain, entity, poseStack, bufferSource);
-        for (int i = 0; i < chain.getJoints().size() - 1; i++) {
-            if (i > 0) {
-                this.drawAngleConstraints(i, chain, entity, poseStack, bufferSource);
-                continue;
-            }
-            this.drawAngleConstraintsForBase(chain, entity, poseStack, bufferSource);
-        }
+        drawAngleConstraintsForBase(chain, entity, poseStack, bufferSource);
+
+        this.drawAngleConstraints(chain, entity, poseStack, bufferSource);
+
 
         if (chain instanceof EntityLegWithFoot entityLegWithFoot) {
             Vec3 footPos = entityLegWithFoot.foot.getPosition();
@@ -123,51 +96,88 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
 
         Vec3 referencePoint = chain.rotatePointOnLegPlane(base.add(chain.getDownNormalOnLegPlane()), base, chain.getFirst().angleOffset);
 
-        Vec3 dotBaseDir = referencePoint.subtract(base).normalize();
-        Vec3 dotTargetDir = chain.get(1).getPosition().subtract(base).normalize();
-
-        double angle = Math.toDegrees(Math.acos(dotBaseDir.dot(dotTargetDir)));
-
-        double angleDifference = chain.getFirst().angleSize - angle;
-
-        Vec3 rotatedPos = MathUtil.rotatePointOnAPlaneAround(chain.getFirst().getPosition().add(chain.getDownNormalOnLegPlane()), chain.getFirst().getPosition(), chain.getFirst().angleSize, chain.getLegPlane());
-        Vec3 rotatedPos2 = MathUtil.rotatePointOnAPlaneAround(chain.getFirst().getPosition().add(chain.getDownNormalOnLegPlane()), chain.getFirst().getPosition(), -chain.getFirst().angleSize, chain.getLegPlane());
-        Vec3 newPos = MathUtil.rotatePointOnAPlaneAround(chain.get(1).getPosition(), chain.getFirst().getPosition(), angleDifference, chain.getLegPlane());
+        Vec3 rotatedPos = chain.rotatePointOnLegPlane(referencePoint, chain.getFirst().getPosition(), chain.getFirst().angleSize);
+        Vec3 rotatedPos2 = chain.rotatePointOnLegPlane(referencePoint, chain.getFirst().getPosition(), -chain.getFirst().angleSize);
 
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), rotatedPos, 255, 0, 0, 127);
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), rotatedPos2, 0, 255, 0, 127);
-        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), newPos, 0, 0, 255, 127);
 
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), chain.getFirst().getPosition().add(chain.getDownNormalOnLegPlane()), 180, 180, 180, 127);
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), chain.getFirst().getPosition().add(chain.getLegPlane()), 12, 12, 12, 127);
     }
 
-    private void drawAngleConstraints(int i, C chain, Entity entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+    private void drawAngleConstraints(C chain, Entity entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
         Vec3 entityPos = entity.position();
 
-        Segment currentSegment = chain.get(i);
+        for (int i = 1; i < chain.segments.size() - 1; i++) {
+            Segment currentSegment = chain.get(i);
+            Segment nextSegment = chain.get(i + 1);
 
-        List<Vec3> positions = this.getConstrainedPositions(chain.get(i - 1).getPosition(), currentSegment, chain.getJoints().get(i + 1), chain);
+            Vec3 targetDir = nextSegment.getPosition().subtract(currentSegment.getPosition()).normalize();
+            Vec3 newPos = currentSegment.getPosition().add(targetDir.scale(currentSegment.length));
 
-        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), positions.get(0), 255, 0, 0, 127);
-        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), positions.get(1), 180, 180, 180, 127);
-        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), positions.get(2), 0, 255, 0, 127);
-    }
+            Vec3 referencePoint = chain.rotatePointOnLegPlane(chain.get(i - 1).getPosition(), currentSegment.getPosition(), currentSegment.angleOffset);
 
-    private List<Vec3> getConstrainedPositions(Vec3 reference, Segment middle, Vec3 endpoint, C chain) {
-        //Vec3 normal = MathUtil.getClosestNormalRelativeToEntity(endpoint, middle.getPosition(), reference, entity);
+            Vec3 dotBaseDir = referencePoint.subtract(currentSegment.getPosition()).normalize();
+            Vec3 dotTargetDir = newPos.subtract(currentSegment.getPosition()).normalize();
 
-        Vec3 normal = chain.getLegPlane();
+            double angle = Math.toDegrees(Math.acos(dotBaseDir.dot(dotTargetDir)));
 
-        Vec3 referencePoint = MathUtil.rotatePointOnAPlaneAround(reference, middle.getPosition(), middle.angleOffset, normal);
+            double angleDifference = angle - currentSegment.angleSize;
 
-        double angle = Math.toDegrees(MathUtil.calculateAngle(middle.getPosition(), endpoint, referencePoint));
-        double angleDelta = middle.angleSize - angle;
+            Vec3 rotationAxis = MathUtil.getUpDirection(currentSegment.getPosition(), newPos, referencePoint);
 
-        Vec3 newPos = MathUtil.rotatePointOnAPlaneAround(endpoint, middle.getPosition(), angleDelta, normal);
-        Vec3 otherNewPos = MathUtil.rotatePointOnAPlaneAround(endpoint, middle.getPosition(), (angleDelta - (middle.angleSize * 2)), normal);
-        Vec3 middlePos = MathUtil.rotatePointOnAPlaneAround(endpoint, middle.getPosition(), (angleDelta - middle.angleSize), normal);
+            newPos = MathUtil.rotatePointOnAPlaneAround(newPos, currentSegment.getPosition(), angleDifference, nextSegment.angleOffset > 0 ? rotationAxis : rotationAxis.reverse());
+            Vec3 endNewPos1 = MathUtil.rotatePointOnAPlaneAround(newPos, currentSegment.getPosition(), angleDifference + nextSegment.angleSize * 2, nextSegment.angleOffset > 0 ? rotationAxis : rotationAxis.reverse());
+            Vec3 center = MathUtil.rotatePointOnAPlaneAround(newPos, currentSegment.getPosition(), angleDifference + nextSegment.angleSize, nextSegment.angleOffset > 0 ? rotationAxis : rotationAxis.reverse());
 
-        return List.of(newPos, middlePos, otherNewPos);
+            IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), center, 255, 0, 100, 127);
+            IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), newPos, 0, 255, 0, 127);
+            IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), endNewPos1, 255, 0, 0, 127);
+        }
+
+        Segment previouseSegment = chain.get(chain.segments.size() - 2);
+        Segment currentSegment = chain.getLast();
+
+        Vec3 referencePoint = chain.rotatePointOnLegPlane(previouseSegment.getPosition(), currentSegment.getPosition(), currentSegment.angleOffset);
+
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), referencePoint, 255, 0, 100, 127);
+
+        Vec3 rotationAxis = MathUtil.getUpDirection(currentSegment.getPosition(), previouseSegment.getPosition(), referencePoint);
+
+        Vec3 rotatedPos = MathUtil.rotatePointOnAPlaneAround(referencePoint, currentSegment.getPosition(), -currentSegment.angleSize, currentSegment.angleOffset > 0 ? rotationAxis.reverse() : rotationAxis);
+        Vec3 rotatedPos1 = MathUtil.rotatePointOnAPlaneAround(referencePoint, currentSegment.getPosition(), currentSegment.angleSize, currentSegment.angleOffset > 0 ? rotationAxis.reverse() : rotationAxis);
+
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), rotatedPos, 255, 0, 0, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), rotatedPos1, 0, 255, 0, 127);
+        /*
+        Vec3 entityPos = entity.position();
+
+        Vec3 endCurrentSegment = chain.endJoint;
+        Segment endNextSegment = chain.getLast();
+
+        Vec3 endTargetDir = endNextSegment.getPosition().subtract(endCurrentSegment).normalize();
+        Vec3 endNewPos = endCurrentSegment.add(endTargetDir.scale(endNextSegment.length));
+
+        Vec3 referencePoint = chain.rotatePointOnLegPlane(chain.get(chain.segments.size() - 2).getPosition(), endCurrentSegment, endNextSegment.angleOffset);
+
+        Vec3 dotBaseDir = referencePoint.subtract(endCurrentSegment).normalize();
+        Vec3 dotTargetDir = endNewPos.subtract(endCurrentSegment).normalize();
+
+        double angle = Math.toDegrees(Math.acos(dotBaseDir.dot(dotTargetDir)));
+
+        double angleDifference = angle - endNextSegment.angleSize;
+
+        Vec3 rotationAxis = MathUtil.getUpDirection(endCurrentSegment, endNewPos, referencePoint);
+
+        endNewPos = MathUtil.rotatePointOnAPlaneAround(endNewPos, endCurrentSegment, angleDifference, endNextSegment.angleOffset > 0 ? rotationAxis : rotationAxis.reverse());
+        Vec3 endNewPos1 = MathUtil.rotatePointOnAPlaneAround(endNewPos, endCurrentSegment, angleDifference + endNextSegment.angleSize * 2, endNextSegment.angleOffset > 0 ? rotationAxis : rotationAxis.reverse());
+        Vec3 center = MathUtil.rotatePointOnAPlaneAround(endNewPos, endCurrentSegment, angleDifference + endNextSegment.angleSize, endNextSegment.angleOffset > 0 ? rotationAxis : rotationAxis.reverse());
+
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, endCurrentSegment, center, 255, 0, 100, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, endCurrentSegment, endNewPos, 0, 255, 0, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, endCurrentSegment, endNewPos1, 255, 0, 0, 127);
+
+         */
     }
 }

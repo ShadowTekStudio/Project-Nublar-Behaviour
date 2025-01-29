@@ -14,7 +14,7 @@ public interface BoneAccessor {
 
     /**
      * @param to     the point to move to
-     * @param facing at wha the bone should face, if null, the bone will not rotate
+     * @param facing at what the bone should face, if null, the bone will not rotate
      * @param entity the entity the model of the bone belongs to
      */
     void moveTo(Vec3 to, @Nullable Vec3 facing, Entity entity);

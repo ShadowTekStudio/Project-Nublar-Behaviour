@@ -5,6 +5,7 @@ import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.dumbcode.projectnublar.api.Genes;
 import net.dumbcode.projectnublar.client.renderer.entity.layer.IKDebugRenderLayer;
 import net.dumbcode.projectnublar.entity.Dinosaur;
+import net.dumbcode.projectnublar.entity.ik.model.GeckoLib.GeoModelAccessor;
 import net.dumbcode.projectnublar.entity.ik.model.GeckoLib.MowzieGeoBone;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -34,7 +35,7 @@ public class DinosaurRenderer extends GeoEntityRenderer<Dinosaur> {
     @Override
     public void render(Dinosaur pEntity, float pEntityYaw, float pPartialTick, PoseStack pPoseStack, MultiBufferSource pBuffer, int pPackedLight) {
         super.render(pEntity, pEntityYaw, pPartialTick, pPoseStack, pBuffer, pPackedLight);
-
+        pEntity.getModelPositions(pEntity, new GeoModelAccessor(this.model));
     }
 
     @Override

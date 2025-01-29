@@ -31,7 +31,6 @@ public class EntityLegWithFoot extends EntityLeg {
             this.foot.setLevel(this.entity.level());
         }
 
-
         Vec3 referencePoint = MathUtil.rotatePointOnAPlaneAround(this.endJoint.add(this.getDownNormalOnLegPlane()), this.endJoint, this.foot.angleOffset, this.getLegPlane());
         this.footAngel = Math.toDegrees(MathUtil.calculateAngle(this.endJoint, this.foot.getPosition(), referencePoint));
 
@@ -60,8 +59,6 @@ public class EntityLegWithFoot extends EntityLeg {
     }
 
     public Vec3 getFootPosition(double angle) {
-        //Vec3 normal = MathUtil.getNormalClosestTo(this.endJoint, this.getLast().getPosition(), this.get(this.segments.size() - 2).getPosition(), this.getReferencePoint());
-
-        return MathUtil.rotatePointOnAPlaneAround(this.endJoint.add(this.getDownNormalOnLegPlane().scale(this.foot.length * this.getScale())), this.endJoint, angle + this.foot.angleOffset, this.getLegPlane());
+        return this.rotatePointOnLegPlane(this.endJoint.add(this.getDownNormalOnLegPlane().scale(this.foot.length * this.getScale())), this.endJoint, angle + this.foot.angleOffset);
     }
 }

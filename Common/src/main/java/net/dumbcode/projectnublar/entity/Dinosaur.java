@@ -17,11 +17,18 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.util.SmoothDouble;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.ai.goal.RandomStrollGoal;
+import net.minecraft.world.entity.ai.navigation.PathNavigation;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.Vec3;
+import net.tslat.smartbrainlib.api.core.navigation.SmoothGroundNavigation;
+import org.jetbrains.annotations.NotNull;
 import software.bernie.geckolib.animatable.GeoEntity;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
@@ -47,6 +54,11 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         this.setUpLimbs();
     }
 
+    @Override
+    protected @NotNull PathNavigation createNavigation(@NotNull Level pLevel) {
+        return new SmoothGroundNavigation(this, pLevel);
+    }
+
     protected void setUpLimbs() {
         this.addComponent(new IKLegComponent<>(
                 new IKLegComponent.LegSetting.Builder()
@@ -56,8 +68,21 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                         .movementSpeed(0.4).build(),
                 List.of(new ServerLimb(0.7, 0, 0.3),
                         new ServerLimb(-0.7, 0, 0.3)),
-                new EntityLegWithFoot(new WorldCollidingSegment(new Segment.Builder().length(0.5625).angleOffset(70).angleSize(40)), new Segment.Builder().length(1).angleSize(40).angleOffset(0).build(), new Segment.Builder().length(1.3).angleOffset(80).build(), new Segment.Builder().length(0.94).angleOffset(-130).angleSize(40).build()),
-                new EntityLegWithFoot(new WorldCollidingSegment(new Segment.Builder().length(0.5625).angleOffset(70).angleSize(40)), new Segment.Builder().length(1).angleSize(40).angleOffset(0).build(), new Segment.Builder().length(1.3).angleOffset(80).build(), new Segment.Builder().length(0.94).angleOffset(-130).angleSize(40).build())));
+                new EntityLegWithFoot(
+                        new WorldCollidingSegment(
+                                new Segment.Builder().length(0.5625).angleSize(40).angleOffset(70)
+                        ),
+                        new Segment.Builder().length(1.1).angleSize(70).build(),
+                        new Segment.Builder().length(1.4).angleSize(30).angleOffset(100).build(),
+                        new Segment.Builder().length(1.3).angleSize(40).angleOffset(-90).build()),
+                new EntityLegWithFoot(
+                        new WorldCollidingSegment(
+                                new Segment.Builder().length(0.5625).angleSize(40).angleOffset(70)
+                        ),
+                        new Segment.Builder().length(1.1).angleSize(70).build(),
+                        new Segment.Builder().length(1.4).angleSize(30).angleOffset(100).build(),
+                        new Segment.Builder().length(1.3).angleSize(40).angleOffset(-90).build())
+        ));
 
         this.addComponent(new IKTailComponent<>(new StretchingIKChain(new WorldCollidingSegment(new Segment.Builder().length(1.4)), new WorldCollidingSegment(new Segment.Builder().length(1.7)), new WorldCollidingSegment(new Segment.Builder().length(1.3))) {
             @Override
@@ -113,6 +138,7 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
 
     @Override
     protected void registerGoals() {
+        this.goalSelector.addGoal(1, new RandomStrollGoal(this,1, 20));
     }
 
     protected PlayState predicate(AnimationState<GeoAnimatable> state) {
@@ -139,6 +165,10 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
     @Override
     public void tick() {
         super.tick();
+        Player nearestPlayer = this.level().getNearestPlayer(this, 10);
+        if (nearestPlayer != null && nearestPlayer.getMainHandItem().is(Items.BONE)) {
+            this.navigation.moveTo(nearestPlayer, 1.0);
+        }
         this.tickComponentsServer(this);
     }
 

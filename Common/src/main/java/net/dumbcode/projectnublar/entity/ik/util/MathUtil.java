@@ -107,23 +107,24 @@ public class MathUtil {
         return Math.acos(cosA);
     }
 
-    public static Vec3 rotatePointOnAPlaneAround(Vec3 RotatedPoint, Vec3 stationaryPoint, double angle, Vec3 rotationAxis) {
-        Vector3d A = new Vector3d(stationaryPoint.x(), stationaryPoint.y(), stationaryPoint.z()); // Point A
-        //rotated vector
-        Vector3d C = new Vector3d(RotatedPoint.x(), RotatedPoint.y(), RotatedPoint.z()); // Point C
+    public static Vec3 rotatePointOnAPlaneAround(Vec3 rotatedPoint, Vec3 stationaryPoint, double angle, Vec3 rotationAxis) {
+        Vector3d A = MathUtil.toVector3d(stationaryPoint); // Point A
+        Vector3d C = MathUtil.toVector3d(rotatedPoint);   // Point C
 
         // Create the rotation quaternion
-        Quaterniond rotation = new Quaterniond().rotateAxis(Math.toRadians(angle), rotationAxis.x, rotationAxis.y, rotationAxis.z);
+        Quaterniond rotation = new Quaterniond(); // Initialized as identity
+        rotation.rotateAxis(Math.toRadians(angle), rotationAxis.x, rotationAxis.y, rotationAxis.z);
 
-        // Rotate the vector
+        Vector3d relative = new Vector3d(C).sub(A);
         Vector3d rotatedV1 = new Vector3d();
-        rotation.transform(new Vector3d(C).sub(A), rotatedV1);
+        rotation.transform(relative, rotatedV1);
 
-        return new Vec3(new Vector3d(rotatedV1).add(A).x(), new Vector3d(rotatedV1).add(A).y(), new Vector3d(rotatedV1).add(A).z());
+        rotatedV1.add(A);
+
+        return MathUtil.toVec3(rotatedV1);
     }
 
     public static Vec3 getUpDirection(Vec3 v1, Vec3 v2, Vec3 v3) {
-        // Calculate AB and AC
         Vec3 AB = v2.subtract(v1);
         Vec3 AC = v3.subtract(v1);
 

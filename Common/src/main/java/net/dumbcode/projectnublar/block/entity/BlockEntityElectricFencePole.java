@@ -118,7 +118,7 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
             }
             getEnergyStorage().internalExtract(10, false);
             BlockState state = this.level.getBlockState(this.getBlockPos());
-            if (state.getBlock() instanceof ElectricFencePostBlock && state.getValue(((ElectricFencePostBlock) state.getBlock()).indexProperty) == 0) {
+            if (state.getBlock() instanceof ElectricFencePostBlock && state.getValue(((ElectricFencePostBlock) state.getBlock()).getIndexProperty()) == 0) {
                 if (update) {
                     for (int y = 0; y < ((ElectricFencePostBlock) state.getBlock()).getType().getHeight(); y++) {
                         BlockPos pos = this.getBlockPos().above(y);
@@ -191,7 +191,7 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
         BlockState state = this.level.getBlockState(this.getBlockPos());
         if (state.getBlock() instanceof ElectricFencePostBlock) {
             ElectricFencePostBlock pole = (ElectricFencePostBlock) state.getBlock();
-            BlockEntity te = this.level.getBlockEntity(this.getBlockPos().below(state.getValue((pole).indexProperty)));
+            BlockEntity te = this.level.getBlockEntity(this.getBlockPos().below(state.getValue((pole).getIndexProperty())));
             if (te instanceof BlockEntityElectricFencePole) {
                 BlockEntityElectricFencePole ef = (BlockEntityElectricFencePole) te;
                 if (!ef.getConnections().isEmpty()) {

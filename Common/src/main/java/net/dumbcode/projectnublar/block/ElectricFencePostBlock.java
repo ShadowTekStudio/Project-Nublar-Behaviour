@@ -49,25 +49,18 @@ import java.util.List;
 public class ElectricFencePostBlock extends BlockConnectableBase implements EntityBlock {
 
     private final ConnectionType type;
-    public final IntegerProperty indexProperty;
+    private final IntegerProperty indexProperty;
     public static final BooleanProperty POWERED_PROPERTY = BooleanProperty.create("powered");
-    private final StateDefinition<Block, BlockState> stateDefinition;
 
     private static boolean destroying = false;
 
     public static final int LIMIT = 15;
 
-    public ElectricFencePostBlock(Properties properties, ConnectionType type) {
+    public ElectricFencePostBlock(Properties properties, ConnectionType type, IntegerProperty indexProperty) {
         super(properties);
         this.type = type;
-        this.indexProperty = IntegerProperty.create("index", 0, type.getHeight() - 1);
-
-        StateDefinition.Builder<Block, BlockState> builder = new StateDefinition.Builder<>(this);
-        this.createBlockStateDefinition(builder);
-        builder.add(indexProperty);
-        this.stateDefinition = builder.create(Block::defaultBlockState, BlockState::new);
-
-        this.registerDefaultState(this.stateDefinition.any().setValue(indexProperty, 0).setValue(POWERED_PROPERTY, false));
+        this.indexProperty = indexProperty;
+        this.registerDefaultState(this.stateDefinition.any().setValue(POWERED_PROPERTY, false).setValue(indexProperty,0));
     }
 
     @Override
@@ -80,12 +73,6 @@ public class ElectricFencePostBlock extends BlockConnectableBase implements Enti
     public RenderShape getRenderShape(BlockState pState) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }
-
-    @Override
-    public StateDefinition<Block, BlockState> getStateDefinition() {
-        return this.stateDefinition;
-    }
-
 
     @Override
     protected VoxelShape getDefaultShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {

@@ -1,13 +1,9 @@
 package net.dumbcode.projectnublar.init;
 
 import net.dumbcode.projectnublar.Constants;
+import net.dumbcode.projectnublar.LowSecurityElectricFencePostBlock;
 import net.dumbcode.projectnublar.api.FossilCollection;
-import net.dumbcode.projectnublar.block.ElectricFencePostBlock;
-import net.dumbcode.projectnublar.block.ElectricFenceBlock;
-import net.dumbcode.projectnublar.block.EggPrinterBlock;
-import net.dumbcode.projectnublar.block.GeneratorBlock;
-import net.dumbcode.projectnublar.block.IncubatorBlock;
-import net.dumbcode.projectnublar.block.SequencerBlock;
+import net.dumbcode.projectnublar.block.*;
 import net.dumbcode.projectnublar.block.api.EnumConnectionType;
 import net.dumbcode.projectnublar.block.entity.BlockEntityElectricFence;
 import net.dumbcode.projectnublar.block.entity.BlockEntityElectricFencePole;
@@ -16,7 +12,6 @@ import net.dumbcode.projectnublar.block.entity.GeneratorBlockEntity;
 import net.dumbcode.projectnublar.block.entity.IncubatorBlockEntity;
 import net.dumbcode.projectnublar.block.entity.ProcessorBlockEntity;
 import net.dumbcode.projectnublar.block.entity.SequencerBlockEntity;
-import net.dumbcode.projectnublar.block.ProcessorBlock;
 import net.dumbcode.projectnublar.item.GeoMultiBlockItem;
 import net.dumbcode.projectnublar.registration.RegistrationProvider;
 import net.dumbcode.projectnublar.registration.RegistryObject;
@@ -39,8 +34,8 @@ public class BlockInit {
     public static RegistryObject<Block> EGG_PRINTER = registerBlock("egg_printer", () -> new EggPrinterBlock(BlockBehaviour.Properties.of().noOcclusion(),1,2, 1), block->()-> new GeoMultiBlockItem(block.get(),ItemInit.getItemProperties(),1,2, 1));
     public static RegistryObject<Block> INCUBATOR = registerBlock("incubator", () -> new IncubatorBlock(BlockBehaviour.Properties.of().noOcclusion(),2,2, 1), block->()-> new GeoMultiBlockItem(block.get(),ItemInit.getItemProperties(),2,2, 1));
     public static RegistryObject<Block> ELECTRIC_FENCE = registerBlock("electric_fence", () -> new ElectricFenceBlock(BlockBehaviour.Properties.of().noLootTable().noOcclusion()));
-    public static RegistryObject<Block> LOW_SECURITY_ELECTRIC_FENCE_POST = registerBlock("low_security_electric_fence_post", () -> new ElectricFencePostBlock(BlockBehaviour.Properties.of().noOcclusion(), EnumConnectionType.LOW_SECURITY));
-    public static RegistryObject<Block> HIGH_SECURITY_ELECTRIC_FENCE_POST = registerBlock("high_security_electric_fence_post", () -> new ElectricFencePostBlock(BlockBehaviour.Properties.of().noOcclusion(), EnumConnectionType.HIGH_SECURITY));
+    public static RegistryObject<Block> LOW_SECURITY_ELECTRIC_FENCE_POST = registerBlock("low_security_electric_fence_post", () -> new LowSecurityElectricFencePostBlock(BlockBehaviour.Properties.of().noOcclusion(), EnumConnectionType.LOW_SECURITY));
+    public static RegistryObject<Block> HIGH_SECURITY_ELECTRIC_FENCE_POST = registerBlock("high_security_electric_fence_post", () -> new HighSecurityElectricFencePostBlock(BlockBehaviour.Properties.of().noOcclusion(), EnumConnectionType.HIGH_SECURITY));
     public static RegistryObject<Block> COAL_GENERATOR = registerBlock("coal_generator", ()-> new GeneratorBlock(BlockBehaviour.Properties.of(),256,16,0));
     public static RegistryObject<Block> CREATIVE_GENERATOR = registerBlock("creative_generator", ()-> new GeneratorBlock(BlockBehaviour.Properties.of(),99999,99999,0));
 

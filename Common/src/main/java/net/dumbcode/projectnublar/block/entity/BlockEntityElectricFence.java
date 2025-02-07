@@ -61,10 +61,11 @@ public class BlockEntityElectricFence extends SyncingBlockEntity implements Conn
         }
     }
 
+    protected static final VoxelShape DEFAULT_SHAPE = Shapes.create(.875 -.03125 * 3,0,.5 - .0625, 1-.03125 * 3,1,.5 + .0625);
     @Override
     public VoxelShape getOrCreateCollision() {
         if(this.collidableCache == null) {
-            VoxelShape shape = Shapes.empty();
+            VoxelShape shape = DEFAULT_SHAPE;
             for (Connection connection : this.fenceConnections) {
                 shape = Shapes.or(shape, connection.getCollisionShape());
             }

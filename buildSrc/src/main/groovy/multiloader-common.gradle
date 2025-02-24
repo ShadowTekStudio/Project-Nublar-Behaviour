@@ -1,6 +1,7 @@
 plugins {
     id 'java-library'
     id 'maven-publish'
+    id 'dev._100media.gradleutils'
 }
 
 base {
@@ -38,11 +39,30 @@ repositories {
         )
         filter { includeGroup('org.parchmentmc.data') }
     }
+
     maven {
-        name = 'BlameJared'
+        name = 'BlameJared Maven (CrT / Bookshelf)'
         url = 'https://maven.blamejared.com'
     }
+    maven {
+        name = "Fuzs Mod Resources"
+        url = "https://raw.githubusercontent.com/Fuzss/modresources/main/maven/"
+    }
+    maven {
+        name = "SmartBrainLib (SBL) Maven Repo"
+        url = "https://dl.cloudsmith.io/public/tslat/sbl/maven/"
+    }
+    maven { url 'https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/' }
+    maven {
+        url = "https://jm.gserv.me/repository/maven-public/"
+    }
+    maven {
+        url "https://maven.resourcefulbees.com/repository/maven-public/"
+    }
+    maven hundredMedia.get100MediaPublicMaven()
+    maven { url = "https://mvn.devos.one/releases/" }
 }
+
 
 // Declare capabilities on the outgoing configurations.
 // Read more about capabilities here: https://docs.gradle.org/current/userguide/component_capabilities.html#sec:declaring-additional-capabilities-for-a-local-component

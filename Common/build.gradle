@@ -17,6 +17,16 @@ legacyForge {
 dependencies {
     compileOnly group: 'org.spongepowered', name: 'mixin', version: '0.8.5'
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
+
+    implementation("com.github.llamalad7.mixinextras:mixinextras-common:0.2.0-rc.3")
+    annotationProcessor("com.github.llamalad7.mixinextras:mixinextras-common:0.2.0-rc.3")
+    implementation "fuzs.forgeconfigapiport:forgeconfigapiport-common:${project.forge_config_api_port_version}"
+    implementation 'com.moandjiezana.toml:toml4j:0.7.2'
+    implementation "net.tslat.smartbrainlib:SmartBrainLib-common-${project.minecraft_version}:${project.sbl_version}"
+    compileOnly "software.bernie.geckolib:geckolib-neoforge-${minecraft_version}:${geckolib_version}"
+    implementation ("com.nyfaria.nyfsguilib:nyfsguilib-common-${minecraft_version}:${ngl_version}") {transitive = false}
+    implementation 'mysticdrew:common-networking-common:1.0.3-1.20.1'
+    implementation "earth.terrarium.botarium:botarium-forge-1.20.1:2.3.4"
 }
 
 configurations {

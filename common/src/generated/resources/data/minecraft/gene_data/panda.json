@@ -1,0 +1,16 @@
+{
+  "colors": {
+    "base": [
+      11711154,
+      2236962
+    ]
+  },
+  "genes": {
+    "projectnublar:defense": 0.5,
+    "projectnublar:eat_rate": 0.9,
+    "projectnublar:fertility": 0.7,
+    "projectnublar:speed": 0.8,
+    "projectnublar:stomach_capacity": 1.75,
+    "projectnublar:strength": 1.25
+  }
+}

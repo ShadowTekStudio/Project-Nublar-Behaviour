@@ -1,0 +1,14 @@
+{
+  "colors": {
+    "base": [
+      11711154
+    ]
+  },
+  "genes": {
+    "projectnublar:defense": 1.75,
+    "projectnublar:health": 1.35,
+    "projectnublar:size": 1.5,
+    "projectnublar:speed": 1.5,
+    "projectnublar:strength": 1.5
+  }
+}

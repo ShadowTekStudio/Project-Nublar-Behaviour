@@ -1,0 +1,10 @@
+{
+  "colors": {
+    "base": []
+  },
+  "genes": {
+    "projectnublar:intelligence": 1.5,
+    "projectnublar:size": 0.6,
+    "projectnublar:tamability": 1.45
+  }
+}

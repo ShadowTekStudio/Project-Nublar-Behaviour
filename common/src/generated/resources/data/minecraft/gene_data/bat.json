@@ -1,0 +1,11 @@
+{
+  "colors": {
+    "base": [
+      1841426
+    ]
+  },
+  "genes": {
+    "projectnublar:nocturnal": 1.25,
+    "projectnublar:size": 0.75
+  }
+}

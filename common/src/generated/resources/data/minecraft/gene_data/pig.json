@@ -1,0 +1,11 @@
+{
+  "colors": {
+    "base": [
+      11711154
+    ]
+  },
+  "genes": {
+    "projectnublar:defense": 1.2,
+    "projectnublar:immunity": 1.25
+  }
+}

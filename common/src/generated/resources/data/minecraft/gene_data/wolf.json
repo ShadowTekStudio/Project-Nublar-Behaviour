@@ -1,0 +1,13 @@
+{
+  "colors": {
+    "base": [
+      11711154
+    ]
+  },
+  "genes": {
+    "projectnublar:intelligence": 1.75,
+    "projectnublar:pack_size": 1.75,
+    "projectnublar:speed": 1.25,
+    "projectnublar:tamability": 2.75
+  }
+}

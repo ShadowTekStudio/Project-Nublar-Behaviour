@@ -17,9 +17,8 @@ import net.minecraft.world.inventory.MenuType;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 
-public class FabricPlatformHelper<T extends AbstractContainerMenu> implements IPlatformHelper<T> {
+public class FabricPlatformHelper<T extends AbstractContainerMenu> implements IPlatformHelper {
 
     @Override
     public String getPlatformName() {

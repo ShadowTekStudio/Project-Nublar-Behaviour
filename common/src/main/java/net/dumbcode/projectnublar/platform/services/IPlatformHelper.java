@@ -5,12 +5,11 @@ import net.dumbcode.projectnublar.menutypes.SequencerMenu;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.MenuProvider;
-import net.minecraft.world.inventory.AbstractContainerMenu;
 import net.minecraft.world.inventory.MenuType;
 
 import java.util.function.Consumer;
 
-public interface IPlatformHelper<T extends AbstractContainerMenu> {
+public interface IPlatformHelper {
 
     /**
      * Gets the name of the current platform

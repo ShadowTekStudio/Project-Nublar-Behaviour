@@ -15,7 +15,7 @@ import net.minecraftforge.network.NetworkHooks;
 
 import java.util.function.Consumer;
 
-public class ForgePlatformHelper<T extends AbstractContainerMenu> implements IPlatformHelper<T> {
+public class ForgePlatformHelper<T extends AbstractContainerMenu> implements IPlatformHelper {
 
     @Override
     public String getPlatformName() {

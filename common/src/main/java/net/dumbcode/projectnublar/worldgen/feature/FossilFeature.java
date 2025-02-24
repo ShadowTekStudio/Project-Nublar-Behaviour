@@ -1,12 +1,12 @@
 package net.dumbcode.projectnublar.worldgen.feature;
 
+import dev.architectury.registry.registries.DeferredSupplier;
 import net.dumbcode.projectnublar.CommonClass;
 import net.dumbcode.projectnublar.api.FossilCollection;
 import net.dumbcode.projectnublar.api.FossilPiece;
 import net.dumbcode.projectnublar.api.Quality;
 import com.mojang.serialization.Codec;
 import net.dumbcode.projectnublar.config.FossilsConfig;
-import net.dumbcode.projectnublar.registration.RegistryObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
@@ -156,15 +156,15 @@ public class FossilFeature extends Feature<FossilConfiguration> {
                                                         BlockState blockstate = levelchunksection.getBlockState(i3, j3, k3);
 
                                                         if (canPlaceOre(blockstate, bulksectionaccess::getBlockState, pRandom, pConfig, blockpos$mutableblockpos)) {
-                                                            Map<Quality, Map<FossilPiece, RegistryObject<Block>>> blockMap = FossilCollection.COLLECTIONS.get(fossil).fossilblocks().getOrDefault(blockstate.getBlock(), null);
+                                                            Map<Quality, Map<FossilPiece, DeferredSupplier<Block>>> blockMap = FossilCollection.COLLECTIONS.get(fossil).fossilblocks().getOrDefault(blockstate.getBlock(), null);
                                                             if(blockMap == null) {
                                                                 continue;
                                                             }
-                                                            Map<FossilPiece, RegistryObject<Block>> quality = blockMap.getOrDefault(Quality.NONE, null);
+                                                            Map<FossilPiece, DeferredSupplier<Block>> quality = blockMap.getOrDefault(Quality.NONE, null);
                                                             if(quality == null) {
                                                                 continue;
                                                             }
-                                                            RegistryObject<Block> state = quality.getOrDefault(CommonClass.WEIGHTED_FOSSIL_BLOCKS_MAP.get(fossil).getRandomValue(pRandom).get(),null);
+                                                            DeferredSupplier<Block> state = quality.getOrDefault(CommonClass.WEIGHTED_FOSSIL_BLOCKS_MAP.get(fossil).getRandomValue(pRandom).get(),null);
                                                             levelchunksection.setBlockState(i3, j3, k3, state == null ? blockstate : state.get().defaultBlockState(), false);
                                                             ++i;
                                                             break;

@@ -1,10 +1,10 @@
 package net.dumbcode.projectnublar.worldgen.feature;
 
+import dev.architectury.registry.registries.DeferredSupplier;
 import net.dumbcode.projectnublar.CommonClass;
 import net.dumbcode.projectnublar.api.FossilCollection;
 import com.mojang.serialization.Codec;
 import net.dumbcode.projectnublar.config.FossilsConfig;
-import net.dumbcode.projectnublar.registration.RegistryObject;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.util.Mth;
@@ -153,11 +153,11 @@ public class AmberFeature extends Feature<FossilConfiguration> {
                                                         BlockState blockstate = levelchunksection.getBlockState(i3, j3, k3);
 
                                                         if (canPlaceOre(blockstate, bulksectionaccess::getBlockState, pRandom, pConfig, blockpos$mutableblockpos)) {
-                                                            RegistryObject<Block> blockRO = FossilCollection.COLLECTIONS.get(fossil).amberBlocks().getOrDefault(blockstate.getBlock(), null);
+                                                            DeferredSupplier<Block> blockRO = FossilCollection.COLLECTIONS.get(fossil).amberBlocks().getOrDefault(blockstate.getBlock(), null);
                                                             if(blockRO == null) {
                                                                 continue;
                                                             }
-                                                            levelchunksection.setBlockState(i3, j3, k3, blockRO == null ? blockstate : blockRO.get().defaultBlockState(), false);
+                                                            levelchunksection.setBlockState(i3, j3, k3, blockRO.get().defaultBlockState(), false);
                                                             ++i;
                                                             break;
                                                         }

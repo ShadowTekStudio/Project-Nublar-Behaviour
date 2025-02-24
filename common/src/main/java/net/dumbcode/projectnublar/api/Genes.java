@@ -4,9 +4,9 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
+import dev.architectury.registry.registries.DeferredSupplier;
 import net.dumbcode.projectnublar.CommonClass;
 import net.dumbcode.projectnublar.init.GeneInit;
-import net.dumbcode.projectnublar.registration.RegistryObject;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
@@ -24,9 +24,9 @@ public class Genes {
     }
 
     public static Gene byName(String name) {
-        for (RegistryObject<Gene> gene : GeneInit.GENES.getEntries()) {
-            if (gene.get().name().equals(name)) {
-                return gene.get();
+        for (Gene gene : GeneInit.getList()) {
+            if (gene.name().equals(name)) {
+                return gene;
             }
         }
         return null;

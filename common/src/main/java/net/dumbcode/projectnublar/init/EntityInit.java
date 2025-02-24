@@ -1,9 +1,9 @@
 package net.dumbcode.projectnublar.init;
 
+import dev.architectury.registry.registries.DeferredRegister;
+import dev.architectury.registry.registries.DeferredSupplier;
 import net.dumbcode.projectnublar.Constants;
 import net.dumbcode.projectnublar.entity.Dinosaur;
-import net.dumbcode.projectnublar.registration.RegistrationProvider;
-import net.dumbcode.projectnublar.registration.RegistryObject;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -17,18 +17,18 @@ import java.util.List;
 import java.util.function.Supplier;
 
 public class EntityInit {
-    public static final RegistrationProvider<EntityType<?>> ENTITIES = RegistrationProvider.get(Registries.ENTITY_TYPE, Constants.MODID);
+    public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Constants.MODID, Registries.ENTITY_TYPE);
     public static final List<AttributesRegister<?>> attributeSuppliers = new ArrayList<>();
 
-    public static final RegistryObject<EntityType<Dinosaur>> TYRANNOSAURUS_REX = registerEntity("tyrannosaurus_rex", ()-> EntityType.Builder.of(Dinosaur::new, MobCategory.MONSTER), Zombie::createAttributes);
+    public static final DeferredSupplier<EntityType<Dinosaur>> TYRANNOSAURUS_REX = registerEntity("tyrannosaurus_rex", ()-> EntityType.Builder.of(Dinosaur::new, MobCategory.MONSTER), Zombie::createAttributes);
 
-    private static <T extends Entity> RegistryObject<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> supplier) {
+    private static <T extends Entity> DeferredSupplier<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> supplier) {
         return ENTITIES.register(name, () -> supplier.get().build(Constants.MODID + ":" + name));
     }
 
-    private static <T extends LivingEntity> RegistryObject<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> supplier,
+    private static <T extends LivingEntity> DeferredSupplier<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> supplier,
                                                                                          Supplier<AttributeSupplier.Builder> attributeSupplier) {
-        RegistryObject<EntityType<T>> entityTypeSupplier = registerEntity(name, supplier);
+        DeferredSupplier<EntityType<T>> entityTypeSupplier = registerEntity(name, supplier);
         attributeSuppliers.add(new AttributesRegister<>(entityTypeSupplier, attributeSupplier));
         return entityTypeSupplier;
     }

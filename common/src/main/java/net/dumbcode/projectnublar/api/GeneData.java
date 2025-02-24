@@ -13,7 +13,7 @@ public record GeneData(Map<Genes.Gene, Double> genes, Map<String,List<Integer>> 
     private static final Map<EntityType<?>,GeneData> GENE_DATA = new HashMap<>();
     public static Codec<GeneData> CODEC = RecordCodecBuilder.create(
             instance -> instance.group(
-                    Codec.unboundedMap(GeneInit.GENES.getRegistry().byNameCodec(), Codec.DOUBLE).fieldOf("genes").forGetter(GeneData::genes),
+                    Codec.unboundedMap(GeneInit.byNameCodec(), Codec.DOUBLE).fieldOf("genes").forGetter(GeneData::genes),
                     Codec.unboundedMap(Codec.STRING, Codec.INT.listOf()).fieldOf("colors").forGetter(GeneData::colors)
             ).apply(instance, GeneData::new)
     );

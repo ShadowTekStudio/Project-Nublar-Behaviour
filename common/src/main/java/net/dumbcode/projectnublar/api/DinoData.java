@@ -112,7 +112,7 @@ public class DinoData {
 
     public void finalizeGenes() {
         finalGenes.clear();
-        for (Genes.Gene gene : GeneInit.GENES.getEntries().stream().map(Supplier::get).toList()) {
+        for (Genes.Gene gene : GeneInit.getList()) {
             double value = getFinalGeneValue(gene);
             if (value != 0) {
                 finalGenes.put(gene, value);

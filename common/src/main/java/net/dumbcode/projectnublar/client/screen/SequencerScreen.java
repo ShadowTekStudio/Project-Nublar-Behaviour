@@ -305,9 +305,9 @@ public class SequencerScreen extends AbstractContainerScreen<SequencerMenu> {
             return ((SequencerBlockEntity) Minecraft.getInstance().level.getBlockEntity(menu.getPos())).isSynthesizing();
         });
         int index = 0;
-        int geneSize = GeneInit.GENES.getEntries().size();
+        int geneSize = GeneInit.GENES.getRegistrar().getIds().size();
         geneButtons.clear();
-        List<Genes.Gene> geneList = GeneInit.GENES.getEntries().stream().map(Supplier::get).toList();
+        List<Genes.Gene> geneList = GeneInit.getList();
         for (int ya = 0; ya < 20; ya++) {
             for (int xa = 0; xa < 4; xa++) {
                 index = xa + (ya * 4);
@@ -867,7 +867,7 @@ public class SequencerScreen extends AbstractContainerScreen<SequencerMenu> {
         if (!getMenu().storageSlot.getItem().hasTag()) {
             return;
         }
-        for (Genes.Gene gene : GeneInit.GENES.getEntries().stream().map(Supplier::get).toList()) {
+        GeneInit.GENES.getRegistrar().forEach(gene -> {
             double totalPercent = 0;
             String geneInfo = CommonClass.checkReplace(gene.name()) + " ";
             for (String key : getMenu().storageSlot.getItem().getTag().getAllKeys()) {
@@ -904,7 +904,7 @@ public class SequencerScreen extends AbstractContainerScreen<SequencerMenu> {
                     }
                 }), true, 0);
             }
-        }
+        });
     }
 
     public void renderSynthIngredientBar(GuiGraphics guiGraphics, int x, int y, float percent) {

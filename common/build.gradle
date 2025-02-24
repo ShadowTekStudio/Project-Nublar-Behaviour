@@ -25,7 +25,8 @@ dependencies {
     implementation ("com.nyfaria.nyfsguilib:nyfsguilib-common-${minecraft_version}:${ngl_version}") {transitive = false}
     implementation 'mysticdrew:common-networking-common:1.0.3-1.20.1'
     implementation "earth.terrarium.botarium:botarium-forge-1.20.1:2.3.4"
-    modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
+   // modImplementation "dev.architectury:architectury:$rootProject.architectury_api_version"
+    compileOnly "dev.architectury:architectury-forge:$rootProject.architectury_api_version"
 }
 
 configurations {

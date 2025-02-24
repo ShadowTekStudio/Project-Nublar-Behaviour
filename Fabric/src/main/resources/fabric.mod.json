@@ -1,35 +1,36 @@
 {
-  "schemaVersion": 1,
-  "id": "${mod_id}",
-  "version": "${mod_version}",
-  "name": "${mod_name}",
-  "description": "${mod_description}",
-  "authors": [
-    "${mod_authors}"
-  ],
-  "license": "ARR",
-  "icon": "assets/modid/icon.png",
-  "environment": "*",
-  "entrypoints": {
-    "main": [
-      "net.dumbcode.projectnublar.ProjectNublar"
+    "schemaVersion": 1,
+    "id": "mod_id",
+    "version": "${version}",
+    "name": "${mod_name}",
+    "description": "${description}",
+    "authors": [
+        "${mod_author}"
     ],
-    "client": [
-      "net.dumbcode.projectnublar.ProjectNublarClient"
-    ]
-  },
-  "mixins": [
-    "${mod_id}.mixins.json"
-  ],
-  "depends": {
-    "fabricloader": "${fabric_loader_version_range}",
-    "fabric": "*",
-    "minecraft": "${minecraft_version}",
-    "java": ">=17"
-  },
-  "suggests": {
-    "another-mod": "*"
-  },
-  "accessWidener" : "accesstransformers.accesswidener"
+    "contact": {
+        "homepage": "https://fabricmc.net/",
+        "sources": "https://github.com/FabricMC/fabric-example-mod"
+    },
+    "license": "${license}",
+    "icon": "assets/modid/${mod_id}.png",
+    "environment": "*",
+    "entrypoints": {
+        "main": [
+            "com.example.examplemod.ExampleMod"
+        ]
+    },
+    "mixins": [
+        "${mod_id}.mixins.json",
+        "${mod_id}.fabric.mixins.json"
+    ],
+    "depends": {
+        "fabricloader": ">=0.14",
+        "fabric": "*",
+        "minecraft": "${minecraft_version}",
+        "java": ">=17"
+    },
+    "suggests": {
+        "another-mod": "*"
+    }
 }
   

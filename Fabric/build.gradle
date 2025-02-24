@@ -1,143 +1,38 @@
 plugins {
-    id 'fabric-loom' version '1.0-SNAPSHOT'
-    id 'maven-publish'
-    id 'idea'
-    id "me.modmuss50.mod-publish-plugin" version "0.3.3"
-    id 'dev._100media.gradleutils' version '1.+'
+    id 'multiloader-loader'
+    id 'fabric-loom'
 }
-
-archivesBaseName = "${mod_id}-fabric-${minecraft_version}"
-
 dependencies {
     minecraft "com.mojang:minecraft:${minecraft_version}"
-    mappings loom.layered() {
+    mappings loom.layered {
         officialMojangMappings()
-        parchment("org.parchmentmc.data:parchment-1.20.1:2023.07.09@zip")
+        parchment("org.parchmentmc.data:parchment-${parchment_minecraft}:${parchment_version}@zip")
     }
     modImplementation "net.fabricmc:fabric-loader:${fabric_loader_version}"
     modImplementation "net.fabricmc.fabric-api:fabric-api:${fabric_version}"
     implementation group: 'com.google.code.findbugs', name: 'jsr305', version: '3.0.1'
-    compileOnly project(":Common")
-    include(implementation(annotationProcessor("io.github.llamalad7:mixinextras-fabric:0.2.0-rc.3")))
-    modApi "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forge_config_api_port_version}"
-    include "fuzs.forgeconfigapiport:forgeconfigapiport-fabric:${project.forge_config_api_port_version}"
-    include(implementation 'com.moandjiezana.toml:toml4j:0.7.2')
-    modImplementation "net.tslat.smartbrainlib:SmartBrainLib-fabric-${project.minecraft_version}:${project.sbl_version}"
-    modImplementation "software.bernie.geckolib:geckolib-fabric-${minecraft_version}:${geckolib_version}"
-    modImplementation "com.nyfaria.nyfsguilib:nyfsguilib-fabric-${minecraft_version}:${ngl_version}"
-    include("com.nyfaria.nyfsguilib:nyfsguilib-fabric-${minecraft_version}:${ngl_version}")
-    modImplementation include('mysticdrew:common-networking-fabric:1.0.5-1.20.1')
-    modImplementation include("earth.terrarium.botarium:botarium-fabric-1.20.1:2.3.4")
+    implementation project(":common")
 }
 
 loom {
-
-    if (project.hasProperty('fabric_aws_enabled') && project.findProperty('fabric_aws_enabled').toBoolean()) {
-        accessWidenerPath = project(":Common").file("src/main/resources/accesstransformers.accesswidener")
+    if (project(":common").file("src/main/resources/${mod_id}.accesswidener").exists()) {
+        accessWidenerPath.set(project(":common").file("src/main/resources/${mod_id}.accesswidener"))
+    }
+    mixin {
+        defaultRefmapName.set("${mod_id}.refmap.json")
     }
     runs {
         client {
             client()
-            vmArgs("-XX:+AllowEnhancedClassRedefinition")
             setConfigName("Fabric Client")
             ideConfigGenerated(true)
-            runDir("clientRun")
+            runDir("run")
         }
         server {
             server()
-            vmArgs("-XX:+AllowEnhancedClassRedefinition")
             setConfigName("Fabric Server")
             ideConfigGenerated(true)
-            runDir("serverRun")
-        }
-    }
-    mixin {
-        defaultRefmapName = "${mod_id}.refmap.json"
-    }
-}
-def resourceTargets = ['META-INF/mods.toml', 'pack.mcmeta', "${mod_id}.mixins.json".toString(), 'fabric.mod.json']
-def intoTargets = ["$rootDir/out/production/resources/", "$rootDir/out/production/${project.name}.main/", "$rootDir/bin/main/"]
-def replaceProperties =
-        [
-                mod_id                     : mod_id,
-                mod_name                   : mod_name,
-                mod_version                : version,
-                mod_authors                : mod_author,
-                mod_description            : mod_description,
-                minecraft_version_range    : minecraft_version_range,
-                forge_version_range        : forge_version_range,
-                loader_version_range       : loader_version_range,
-                fabric_loader_version_range: fabric_loader_version_range,
-                minecraft_version          : minecraft_version
-        ]
-
-processResources {
-    from project(":Common").sourceSets.main.resources
-    inputs.properties replaceProperties
-    replaceProperties.put 'project', project
-
-    filesMatching(resourceTargets) {
-        expand replaceProperties
-    }
-
-    intoTargets.each { target ->
-        if (file(target).exists()) {
-            copy {
-                from(sourceSets.main.resources) {
-                    include resourceTargets
-                    expand replaceProperties
-                }
-                into target
-            }
-        }
-    }
-
-}
-
-tasks.withType(JavaCompile) {
-    source(project(":Common").sourceSets.main.allSource)
-}
-
-publishing {
-    publications {
-        mavenJava(MavenPublication) {
-            groupId project.group
-            artifactId project.archivesBaseName
-            version project.version
-            from components.java
-        }
-    }
-
-    repositories {
-        maven {
-            url "file://" + System.getenv("local_maven")
-        }
-    }
-}
-
-remapJar {
-    destinationDirectory.set(project(":Common").file("build/libs"))
-}
-publishMods {
-    if(publishFabric) {
-        file = remapJar.archiveFile
-        changelog = project(":Common").file("changelog.md").text
-        type = STABLE
-        modLoaders.add("fabric")
-        displayName = "${mod_name}-${minecraft_version}-[Fabric]-${project.property('version')}"
-        if (curseforge_publishing_enabled.toBoolean()) {
-            curseforge {
-                projectId = curseforge_project_id
-                accessToken = curseforge_token
-                minecraftVersions.add(minecraft_version)
-            }
-        }
-        if (modrinth_publishing_enabled.toBoolean()) {
-            modrinth {
-                accessToken = modrinth_token
-                projectId = modrinth_project_id
-                minecraftVersions.add(minecraft_version)
-            }
+            runDir("run")
         }
     }
 }

@@ -20,18 +20,17 @@ import net.dumbcode.projectnublar.init.BlockInit;
 import net.dumbcode.projectnublar.init.EntityInit;
 import net.dumbcode.projectnublar.init.ItemInit;
 import net.dumbcode.projectnublar.init.MenuTypeInit;
-import net.dumbcode.projectnublar.menutypes.GeneratorMenu;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.level.block.entity.BlockEntityType;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.DefaultedBlockGeoModel;
@@ -42,12 +41,10 @@ import java.util.function.Supplier;
 
 public class ClientRegistrationHolder {
 
-    public static Object2ObjectMap<Supplier<? extends EntityType>, EntityRendererProvider> entityRenderers() {
-        Object2ObjectMap<Supplier<? extends EntityType>, EntityRendererProvider> map = new Object2ObjectOpenHashMap<>();
-        map.put(EntityInit.TYRANNOSAURUS_REX, (context) -> new DinosaurRenderer(context, new DefaultedEntityGeoModel(Constants.modLoc("tyrannosaurus_rex")).withAltTexture(
+    public static void registerEntityRenderers() {
+        EntityRenderers.register(EntityInit.TYRANNOSAURUS_REX.get(), (context) -> new DinosaurRenderer(context, new DefaultedEntityGeoModel<>(Constants.modLoc("tyrannosaurus_rex")).withAltTexture(
                 new ResourceLocation(Constants.MODID, "tyrannosaurus_rex/male/base")
         ), CommonClientClass.getDinoLayers(EntityInit.TYRANNOSAURUS_REX.get())));
-        return map;
     }
 
     public static void menuScreens() {
@@ -59,12 +56,11 @@ public class ClientRegistrationHolder {
         Minecraft.getInstance().getTextureManager().register(Constants.modLoc("textures/entity/tyrannosaurus_rex.png"), createTexture());
     }
 
-    public static Object2ObjectMap<Supplier<? extends BlockEntityType>, BlockEntityRendererProvider> getBlockEntityRenderers() {
-        Object2ObjectMap<Supplier<? extends BlockEntityType>, BlockEntityRendererProvider> map = new Object2ObjectOpenHashMap<>();
-        map.put(BlockInit.PROCESSOR_BLOCK_ENTITY, (context) -> new ProcessorRenderer());
-        map.put(BlockInit.SEQUENCER_BLOCK_ENTITY, (context) -> new SequencerRenderer());
-        map.put(BlockInit.EGG_PRINTER_BLOCK_ENTITY, (context) -> new GeoBlockRenderer<>(new DefaultedBlockGeoModel<>(new ResourceLocation(Constants.MODID, "egg_printer"))));
-        map.put(BlockInit.INCUBATOR_BLOCK_ENTITY, (context) -> new GeoBlockRenderer<IncubatorBlockEntity>(new DefaultedBlockGeoModel<>(new ResourceLocation(Constants.MODID, "incubator"))) {
+    public static void registerBlockEntityRenderers() {
+        BlockEntityRenderers.register(BlockInit.PROCESSOR_BLOCK_ENTITY.get(), (context) -> new ProcessorRenderer());
+         BlockEntityRenderers.register(BlockInit.SEQUENCER_BLOCK_ENTITY.get(), (context) -> new SequencerRenderer());
+         BlockEntityRenderers.register(BlockInit.EGG_PRINTER_BLOCK_ENTITY.get(), (context) -> new GeoBlockRenderer<>(new DefaultedBlockGeoModel<>(new ResourceLocation(Constants.MODID, "egg_printer"))));
+         BlockEntityRenderers.register(BlockInit.INCUBATOR_BLOCK_ENTITY.get(), (context) -> new GeoBlockRenderer<IncubatorBlockEntity>(new DefaultedBlockGeoModel<>(new ResourceLocation(Constants.MODID, "incubator"))) {
             @Override
             public void renderRecursively(PoseStack poseStack, IncubatorBlockEntity animatable, GeoBone bone, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, boolean isReRender, float partialTick, int packedLight, int packedOverlay, float red, float green, float blue, float alpha) {
                 if (bone.getName().equals("nest")) {
@@ -88,9 +84,8 @@ public class ClientRegistrationHolder {
                 return RenderType.entityTranslucent(texture);
             }
         });
-        map.put(BlockInit.ELECTRIC_FENCE_POST_BLOCK_ENTITY, (c)-> new ElectricFenceRenderer());
-        map.put(BlockInit.ELECTRIC_FENCE_BLOCK_ENTITY, (c)-> new ElectricWireRenderer());
-        return map;
+         BlockEntityRenderers.register(BlockInit.ELECTRIC_FENCE_POST_BLOCK_ENTITY.get(), (c)-> new ElectricFenceRenderer());
+         BlockEntityRenderers.register(BlockInit.ELECTRIC_FENCE_BLOCK_ENTITY.get(), (c)-> new ElectricWireRenderer());
     }
 
     public static void registerItemProperties() {

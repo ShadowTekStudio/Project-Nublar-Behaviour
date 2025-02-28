@@ -1,7 +1,7 @@
 package net.dumbcode.projectnublar.worldgen.feature;
 
 import dev.architectury.registry.registries.DeferredSupplier;
-import net.dumbcode.projectnublar.CommonClass;
+import net.dumbcode.projectnublar.ProjectNublar;
 import net.dumbcode.projectnublar.api.FossilCollection;
 import net.dumbcode.projectnublar.api.FossilPiece;
 import net.dumbcode.projectnublar.api.Quality;
@@ -127,9 +127,9 @@ public class FossilFeature extends Feature<FossilConfiguration> {
                     }
                     String biome = pLevel.getBiome(new BlockPos(k4,l,i1)).unwrapKey().get().location().toString();
                     String fossil = null;
-                    if (CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.containsKey(period)){
-                        if(CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).containsKey(biome)){
-                            fossil = CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).get(biome).build().getRandomValue(pRandom).get();
+                    if (ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.containsKey(period)){
+                        if(ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).containsKey(biome)){
+                            fossil = ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).get(biome).build().getRandomValue(pRandom).get();
                         }
                     }
                     if(fossil == null) return false;
@@ -164,7 +164,7 @@ public class FossilFeature extends Feature<FossilConfiguration> {
                                                             if(quality == null) {
                                                                 continue;
                                                             }
-                                                            DeferredSupplier<Block> state = quality.getOrDefault(CommonClass.WEIGHTED_FOSSIL_BLOCKS_MAP.get(fossil).getRandomValue(pRandom).get(),null);
+                                                            DeferredSupplier<Block> state = quality.getOrDefault(ProjectNublar.WEIGHTED_FOSSIL_BLOCKS_MAP.get(fossil).getRandomValue(pRandom).get(),null);
                                                             levelchunksection.setBlockState(i3, j3, k3, state == null ? blockstate : state.get().defaultBlockState(), false);
                                                             ++i;
                                                             break;

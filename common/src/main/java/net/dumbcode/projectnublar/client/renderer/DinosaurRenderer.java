@@ -13,6 +13,7 @@ import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.BakedGeoModel;
 import software.bernie.geckolib.core.object.Color;
+import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.model.GeoModel;
 import software.bernie.geckolib.renderer.GeoEntityRenderer;
 import software.bernie.geckolib.renderer.layer.GeoRenderLayer;
@@ -21,7 +22,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class DinosaurRenderer extends GeoEntityRenderer<Dinosaur> {
-    public DinosaurRenderer(EntityRendererProvider.Context renderManager, GeoModel<Dinosaur> model, List<DinoLayer> layers) {
+    public DinosaurRenderer(EntityRendererProvider.Context renderManager, DefaultedEntityGeoModel model, List<DinoLayer> layers) {
         super(renderManager, model);
         for(DinoLayer layer : layers) {
             this.addRenderLayer(new GeoRenderLayer<>(this) {

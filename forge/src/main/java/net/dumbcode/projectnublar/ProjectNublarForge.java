@@ -1,5 +1,9 @@
 package net.dumbcode.projectnublar;
 
+import dev.architectury.platform.forge.EventBuses;
+import dev.architectury.registry.registries.RegistrarBuilder;
+import dev.architectury.registry.registries.RegistrarManager;
+import dev.architectury.registry.registries.forge.RegistrarManagerImpl;
 import net.dumbcode.projectnublar.config.FossilsConfig;
 import net.dumbcode.projectnublar.datagen.GeneDataProvider;
 import net.dumbcode.projectnublar.datagen.ModBlockStateProvider;
@@ -14,22 +18,26 @@ import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
 import net.minecraftforge.data.event.GatherDataEvent;
-import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
+import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
+import net.minecraftforge.registries.NewRegistryEvent;
+import net.minecraftforge.registries.RegistryManager;
 
 @Mod(Constants.MODID)
-@Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ProjectNublar {
+public class ProjectNublarForge {
     
-    public ProjectNublar() {
-        Constants.LOG.info("Hello Forge world!");
-        CommonClass.init();
+    public ProjectNublarForge() {
+        IEventBus bus = FMLJavaModLoadingContext.get().getModEventBus();
+        bus.addListener(ProjectNublarForge::onGatherData);
+        EventBuses.registerModEventBus(Constants.MODID,bus);
+        ProjectNublar.init();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, FossilsConfig.CONFIG_SPEC,"projectnublar-fossils.toml");
     }
 
-    @SubscribeEvent
+
     public static void onGatherData(GatherDataEvent event) {
         PackOutput packOutput = event.getGenerator().getPackOutput();
         DataGenerator generator = event.getGenerator();

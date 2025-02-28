@@ -16,12 +16,12 @@ import net.minecraftforge.fml.config.ModConfig;
 import java.util.HashMap;
 import java.util.List;
 
-public class ProjectNublar implements ModInitializer {
+public class ProjectNublarFabric implements ModInitializer {
 
     @Override
     public void onInitialize() {
         ForgeConfigRegistry.INSTANCE.register(Constants.MODID, ModConfig.Type.COMMON, FossilsConfig.CONFIG_SPEC);
-        CommonClass.init();
+        ProjectNublar.init();
         EntityInit.attributeSuppliers.forEach(
                 p -> FabricDefaultAttributeRegistry.register(p.entityTypeSupplier().get(), p.factory().get().build())
         );
@@ -45,16 +45,16 @@ public class ProjectNublar implements ModInitializer {
                 int weight = set.weights().get().get(i);
                 blockStates.add(FossilPieces.getPieceByName(piece), weight);
             }
-            CommonClass.WEIGHTED_FOSSIL_BLOCKS_MAP.put(type, blockStates.build());
+            ProjectNublar.WEIGHTED_FOSSIL_BLOCKS_MAP.put(type, blockStates.build());
             for (String period : periods) {
                 for (String biome : biomes) {
-                    if (!CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.containsKey(period)) {
-                        CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.put(period, new HashMap<>());
+                    if (!ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.containsKey(period)) {
+                        ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.put(period, new HashMap<>());
                     }
-                    if (!CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).containsKey(biome)) {
-                        CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).put(biome, new SimpleWeightedRandomList.Builder<>());
+                    if (!ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).containsKey(biome)) {
+                        ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).put(biome, new SimpleWeightedRandomList.Builder<>());
                     }
-                    CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).get(biome).add(type, fossil.getWeight().get());
+                    ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).get(biome).add(type, fossil.getWeight().get());
                 }
             }
         });

@@ -13,7 +13,6 @@ public class RecipeInit {
     public static DeferredSupplier<RecipeSerializer<UnincubatedEggRecipe>> UNINCUBATED_EGG = RECIPE_TYPE.register("unincubated_egg", UnincubatedEggRecipe.Serializer::new);
 
     public static void loadClass() {
-
-
+        RECIPE_TYPE.register();
     }
 }

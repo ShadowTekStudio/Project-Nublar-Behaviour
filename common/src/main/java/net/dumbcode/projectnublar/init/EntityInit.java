@@ -34,6 +34,7 @@ public class EntityInit {
     }
 
     public static void loadClass() {
+        ENTITIES.register();
     }
 
 

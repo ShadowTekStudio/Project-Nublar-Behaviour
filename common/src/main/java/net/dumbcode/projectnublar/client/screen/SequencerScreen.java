@@ -4,7 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.math.Axis;
 import com.nyfaria.nyfsguilib.client.widgets.NGLSlider;
 import com.nyfaria.nyfsguilib.client.widgets.ScrollingButtonListWidget;
-import net.dumbcode.projectnublar.CommonClass;
+import net.dumbcode.projectnublar.ProjectNublar;
 import net.dumbcode.projectnublar.Constants;
 import net.dumbcode.projectnublar.api.DNAData;
 import net.dumbcode.projectnublar.api.DinoData;
@@ -53,7 +53,6 @@ import org.joml.Quaternionf;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Supplier;
 
 public class SequencerScreen extends AbstractContainerScreen<SequencerMenu> {
     private static ResourceLocation TEXTURE = Constants.modLoc("textures/gui/sequencer.png");
@@ -869,7 +868,7 @@ public class SequencerScreen extends AbstractContainerScreen<SequencerMenu> {
         }
         GeneInit.GENES.getRegistrar().forEach(gene -> {
             double totalPercent = 0;
-            String geneInfo = CommonClass.checkReplace(gene.name()) + " ";
+            String geneInfo = ProjectNublar.checkReplace(gene.name()) + " ";
             for (String key : getMenu().storageSlot.getItem().getTag().getAllKeys()) {
                 DNAData data = DNAData.loadFromNBT(getMenu().storageSlot.getItem().getTag().getCompound(key));
                 if (Genes.GENE_STORAGE.get(gene).stream().map(Pair::getFirst).toList().contains(data.getEntityType())) {

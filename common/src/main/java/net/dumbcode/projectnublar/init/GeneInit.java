@@ -15,6 +15,7 @@ import net.minecraft.util.ExtraCodecs;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Supplier;
 
 public class GeneInit {
 
@@ -53,7 +54,7 @@ public class GeneInit {
     }
 
     public static void loadClass() {
-
+        GENES.register();
     }
 
     //entries is private

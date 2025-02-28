@@ -22,6 +22,6 @@ public class MenuTypeInit {
     public static DeferredSupplier<MenuType<GeneratorMenu>> GENERATOR_MENU = MENU_TYPES.register("generator", ()-> new MenuType<>(GeneratorMenu::new, FeatureFlags.VANILLA_SET));
 
     public static void loadClass() {
-
+        MENU_TYPES.register();
     }
 }

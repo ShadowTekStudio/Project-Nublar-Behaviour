@@ -1,6 +1,6 @@
 package net.dumbcode.projectnublar.api;
 
-import net.dumbcode.projectnublar.CommonClass;
+import net.dumbcode.projectnublar.ProjectNublar;
 import net.dumbcode.projectnublar.Constants;
 import net.dumbcode.projectnublar.config.FossilsConfig;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -111,7 +111,7 @@ public class DNAData {
                 tooltip.add(Component.translatable("quality." + Constants.MODID + "." + dnaData.getQuality().getName()));
             }
             if (dnaData.variant != null) {
-                tooltip.add(Component.literal(CommonClass.checkReplace(dnaData.variant)));
+                tooltip.add(Component.literal(ProjectNublar.checkReplace(dnaData.variant)));
             }
             dnaData.addTFishTT(tooltip);
         }
@@ -141,9 +141,9 @@ public class DNAData {
         String localVariant = "";
         if (getVariant() != null) {
             if (entityType.getDescription().getString().toLowerCase().contains("parrot"))
-                localVariant = CommonClass.checkReplace(variant);
+                localVariant = ProjectNublar.checkReplace(variant);
             else if (entityType.getDescription().getString().toLowerCase().contains("cat"))
-                localVariant = CommonClass.checkReplace(new ResourceLocation(variant).getPath());
+                localVariant = ProjectNublar.checkReplace(new ResourceLocation(variant).getPath());
         }
         return Component.literal(localVariant + getEntityType().getDescription().getString());
     }

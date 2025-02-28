@@ -4,16 +4,11 @@ import com.google.common.collect.HashMultimap;
 import com.google.common.collect.Multimap;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
-import dev.architectury.registry.registries.DeferredSupplier;
-import net.dumbcode.projectnublar.CommonClass;
+import net.dumbcode.projectnublar.ProjectNublar;
 import net.dumbcode.projectnublar.init.GeneInit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.animal.TropicalFish;
-import net.minecraft.world.item.DyeColor;
-
-import java.util.List;
 
 public class Genes {
     public static Codec<Gene> CODEC = Codec.STRING.xmap(Genes::byName, Gene::name);
@@ -40,11 +35,11 @@ public class Genes {
 
         public Component getTooltip(Double value) {
 
-            return Component.literal(CommonClass.checkReplace(name())).append(Component.literal(": ")).append(Component.literal(String.valueOf(value.intValue())).withStyle(value > 0 ? ChatFormatting.GREEN : ChatFormatting.RED).append(Component.literal("%")));
+            return Component.literal(ProjectNublar.checkReplace(name())).append(Component.literal(": ")).append(Component.literal(String.valueOf(value.intValue())).withStyle(value > 0 ? ChatFormatting.GREEN : ChatFormatting.RED).append(Component.literal("%")));
         }
 
         public Component getTooltip() {
-            return Component.literal(CommonClass.checkReplace(name()));
+            return Component.literal(ProjectNublar.checkReplace(name()));
         }
 
 

@@ -1,11 +1,13 @@
 package net.dumbcode.projectnublar.datagen;
 
+import dev.architectury.registry.registries.DeferredSupplier;
+import net.dumbcode.projectnublar.Constants;
 import net.dumbcode.projectnublar.api.loot.functions.AmberItemFunction;
 import net.dumbcode.projectnublar.api.loot.functions.FossilItemFunction;
 import net.dumbcode.projectnublar.block.AmberBlock;
 import net.dumbcode.projectnublar.block.FossilBlock;
 import net.dumbcode.projectnublar.init.BlockInit;
-import net.dumbcode.projectnublar.registration.RegistryObject;
+import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.data.loot.BlockLootSubProvider;
 import net.minecraft.world.flag.FeatureFlags;
 import net.minecraft.world.item.Items;
@@ -16,7 +18,6 @@ import net.minecraft.world.level.storage.loot.LootTable;
 import net.minecraft.world.level.storage.loot.entries.LootItem;
 import net.minecraft.world.level.storage.loot.providers.number.ConstantValue;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Stream;
 
@@ -30,7 +31,7 @@ public class ModBlockLootTables extends BlockLootSubProvider {
 
         this.getBlockStream().filter(this::shouldDropSelf).filter(b -> b instanceof FossilBlock).map(b -> (FossilBlock) b).forEach(this::fossilDrops);
         this.getBlockStream().filter(this::shouldDropSelf).filter(b -> b instanceof AmberBlock).map(b -> (AmberBlock) b).forEach(this::amberDrops);
-        List.of(
+        Stream.of(
                         BlockInit.PROCESSOR,
                         BlockInit.SEQUENCER,
                         BlockInit.EGG_PRINTER,
@@ -38,8 +39,7 @@ public class ModBlockLootTables extends BlockLootSubProvider {
                         BlockInit.HIGH_SECURITY_ELECTRIC_FENCE_POST,
                         BlockInit.LOW_SECURITY_ELECTRIC_FENCE_POST
                 )
-                .stream()
-                .map(RegistryObject::get)
+                .map(DeferredSupplier::get)
                 .forEach(this::dropSelf);
     }
 
@@ -65,7 +65,7 @@ public class ModBlockLootTables extends BlockLootSubProvider {
     }
 
     protected Stream<Block> getBlockStream() {
-        return BlockInit.BLOCKS.getEntries().stream().map(RegistryObject::get);
+        return BuiltInRegistries.BLOCK.stream().filter(block -> BuiltInRegistries.BLOCK.getKey(block).getNamespace().equals(Constants.MODID));
     }
 
     protected boolean shouldDropSelf(Block block) {

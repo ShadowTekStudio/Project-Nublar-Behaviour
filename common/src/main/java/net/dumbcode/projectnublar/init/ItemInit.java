@@ -75,6 +75,6 @@ public class ItemInit {
         return new Item.Properties();
     }
 
-    public static void loadClass() {
+    public static void loadClass() {ITEMS.register();
     }
 }

@@ -15,5 +15,6 @@ public class FeatureInit {
     public static DeferredSupplier<Feature<FossilConfiguration>> AMBER_FEATURE = FEATURES.register("amber_feature", () -> new AmberFeature(FossilConfiguration.CODEC));
 
     public static void loadClass() {
+        FEATURES.register();
     }
 }

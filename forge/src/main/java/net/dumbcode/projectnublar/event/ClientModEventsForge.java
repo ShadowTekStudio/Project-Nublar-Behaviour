@@ -15,7 +15,7 @@ import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 
 
 @Mod.EventBusSubscriber(modid = Constants.MODID,value= Dist.CLIENT,bus = Mod.EventBusSubscriber.Bus.MOD)
-public class ClientModEvents {
+public class ClientModEventsForge {
 
     @SubscribeEvent
     public static void registerBakedModels(ModelEvent.RegisterGeometryLoaders event) {
@@ -24,8 +24,8 @@ public class ClientModEvents {
     }
     @SubscribeEvent
     public static void registerEntityRenderers(EntityRenderersEvent.RegisterRenderers event){
-        ClientRegistrationHolder.entityRenderers().forEach((key, value) -> event.registerEntityRenderer(key.get(), value));
-        ClientRegistrationHolder.getBlockEntityRenderers().forEach((key, value) -> event.registerBlockEntityRenderer(key.get(), value));
+        ClientRegistrationHolder.registerEntityRenderers();
+        ClientRegistrationHolder.registerBlockEntityRenderers();
     }
     @SubscribeEvent
     public static void onFMLClient(FMLClientSetupEvent event)  {

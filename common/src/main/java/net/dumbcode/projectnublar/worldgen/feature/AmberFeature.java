@@ -1,7 +1,7 @@
 package net.dumbcode.projectnublar.worldgen.feature;
 
 import dev.architectury.registry.registries.DeferredSupplier;
-import net.dumbcode.projectnublar.CommonClass;
+import net.dumbcode.projectnublar.ProjectNublar;
 import net.dumbcode.projectnublar.api.FossilCollection;
 import com.mojang.serialization.Codec;
 import net.dumbcode.projectnublar.config.FossilsConfig;
@@ -124,9 +124,9 @@ public class AmberFeature extends Feature<FossilConfiguration> {
                     }
                     String biome = pLevel.getBiome(new BlockPos(k4,l,i1)).unwrapKey().get().location().toString();
                     String fossil = null;
-                    if (CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.containsKey(period)){
-                        if(CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).containsKey(biome)){
-                            fossil = CommonClass.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).get(biome).build().getRandomValue(pRandom).get();
+                    if (ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.containsKey(period)){
+                        if(ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).containsKey(biome)){
+                            fossil = ProjectNublar.WEIGHTED_PERIOD_BIOME_FOSSIL_MAP.get(period).get(biome).build().getRandomValue(pRandom).get();
                         }
                     }
                     if(fossil == null) return false;

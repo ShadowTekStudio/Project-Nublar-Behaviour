@@ -1,6 +1,5 @@
 package net.dumbcode.projectnublar.block.api;
 
-import net.dumbcode.projectnublar.CommonClass;
 import net.dumbcode.projectnublar.Constants;
 import net.minecraft.resources.ResourceLocation;
 

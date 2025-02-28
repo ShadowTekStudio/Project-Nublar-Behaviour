@@ -216,5 +216,6 @@ public class CreativeTabInit {
             .build());
 
     public static void loadClass() {
+        CREATIVE_MODE_TABS.register();
     }
 }

@@ -14,5 +14,6 @@ public class LootFunctionInit {
     public static final DeferredSupplier<LootItemFunctionType> AMBER_FUNCTION = FUNCTIONS.register("amber", () -> new LootItemFunctionType(new AmberItemFunction.Serializer()));
 
     public static void loadClass() {
+        FUNCTIONS.register();
     }
 }

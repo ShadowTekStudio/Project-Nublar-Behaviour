@@ -1,5 +1,7 @@
 package net.dumbcode.projectnublar;
 
+import dev.architectury.registry.registries.Registrar;
+import dev.architectury.registry.registries.RegistrarManager;
 import net.dumbcode.projectnublar.api.FossilPiece;
 import net.dumbcode.projectnublar.init.BlockInit;
 import net.dumbcode.projectnublar.init.CreativeTabInit;
@@ -20,11 +22,13 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class CommonClass {
+public class ProjectNublar {
     public static Map<String, Map<String, SimpleWeightedRandomList.Builder<String>>> WEIGHTED_PERIOD_BIOME_FOSSIL_MAP = new HashMap<>();
     public static Map<String, SimpleWeightedRandomList<FossilPiece>> WEIGHTED_FOSSIL_BLOCKS_MAP = new HashMap<>();
 
     public static void init() {
+        RegistrarManager registrarManager = RegistrarManager.get(Constants.MODID);
+        Registrar<GeneInit> build = registrarManager.builder(GeneInit.GENE_KEY.registry(), new GeneInit[0]).build();
 
         ItemInit.loadClass();
         BlockInit.loadClass();

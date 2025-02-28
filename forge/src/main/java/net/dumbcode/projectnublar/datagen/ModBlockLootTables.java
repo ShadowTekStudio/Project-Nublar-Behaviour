@@ -37,7 +37,9 @@ public class ModBlockLootTables extends BlockLootSubProvider {
                         BlockInit.EGG_PRINTER,
                         BlockInit.INCUBATOR,
                         BlockInit.HIGH_SECURITY_ELECTRIC_FENCE_POST,
-                        BlockInit.LOW_SECURITY_ELECTRIC_FENCE_POST
+                        BlockInit.LOW_SECURITY_ELECTRIC_FENCE_POST,
+                BlockInit.COAL_GENERATOR,
+                BlockInit.CREATIVE_GENERATOR
                 )
                 .map(DeferredSupplier::get)
                 .forEach(this::dropSelf);

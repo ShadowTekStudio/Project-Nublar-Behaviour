@@ -3,6 +3,7 @@ package net.dumbcode.projectnublar.init;
 import net.dumbcode.projectnublar.api.DinoData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;
+import net.minecraft.network.syncher.EntityDataSerializers;
 
 public class DataSerializerInit {
 
@@ -25,6 +26,8 @@ public class DataSerializerInit {
     };
 
 
-    public static void loadClass(){}
+    public static void loadClass(){
+        EntityDataSerializers.registerSerializer(DINO_DATA);
+    }
 
 }

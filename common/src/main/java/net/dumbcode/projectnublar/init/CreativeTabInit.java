@@ -38,7 +38,7 @@ public class CreativeTabInit {
             })
             .displayItems(
                     (itemDisplayParameters, output) -> {
-                        EntityInit.ENTITIES.getRegistrar().entrySet().forEach( entry -> {
+                        EntityInit.ENTITIES.forEach( entry -> {
                             FossilPieces.getPieces().forEach((fossilPiece) -> {
                                 FossilsConfig.Fossil fossil = FossilsConfig.getFossils().get(entry.getKey().location().toString());
                                 if (FossilsConfig.getSet(fossil.getPieces().get()).pieces.get().contains(fossilPiece.name()) || fossil.getSpecial_pieces().get().contains(fossilPiece.name())) {
@@ -46,7 +46,7 @@ public class CreativeTabInit {
                                         if (value == Quality.NONE) continue;
                                         ItemStack stack = new ItemStack(ItemInit.FOSSIL_ITEM.get());
                                         DNAData dnaData = new DNAData();
-                                        dnaData.setEntityType(entry.getValue());
+                                        dnaData.setEntityType(entry.get());
                                         dnaData.setFossilPiece(fossilPiece);
                                         dnaData.setQuality(value);
                                         stack.getOrCreateTag().put("DNAData", dnaData.saveToNBT(new CompoundTag()));
@@ -56,7 +56,7 @@ public class CreativeTabInit {
                             });
                             ItemStack amberStack = new ItemStack(ItemInit.AMBER_ITEM.get());
                             DNAData dnaData = new DNAData();
-                            dnaData.setEntityType(entry.getValue());
+                            dnaData.setEntityType(entry.get());
                             dnaData.setDnaPercentage(0.8);
                             amberStack.getOrCreateTag().put("DNAData", dnaData.saveToNBT(new CompoundTag()));
                             output.accept(amberStack);
@@ -146,10 +146,10 @@ public class CreativeTabInit {
             .displayItems(
                     (itemDisplayParameters, output) -> {
                         output.accept(ItemInit.TEST_TUBE_ITEM.get());
-                        EntityInit.ENTITIES.getRegistrar().forEach(type ->  {
+                        EntityInit.ENTITIES.forEach(type ->  {
                             ItemStack stack = new ItemStack(ItemInit.TEST_TUBE_ITEM.get());
                             DNAData dnaData = new DNAData();
-                            dnaData.setEntityType(type);
+                            dnaData.setEntityType(type.get());
                             dnaData.setDnaPercentage(0.5);
                             stack.getOrCreateTag().put("DNAData", dnaData.saveToNBT(new CompoundTag()));
                             output.accept(stack);

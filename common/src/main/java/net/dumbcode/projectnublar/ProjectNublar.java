@@ -28,7 +28,7 @@ public class ProjectNublar {
 
     public static void init() {
         RegistrarManager registrarManager = RegistrarManager.get(Constants.MODID);
-        Registrar<GeneInit> build = registrarManager.builder(GeneInit.GENE_KEY.registry(), new GeneInit[0]).build();
+        registrarManager.builder(GeneInit.GENE_KEY.location(), new GeneInit[0]).build();
 
         ItemInit.loadClass();
         BlockInit.loadClass();

@@ -1,6 +1,5 @@
-package net.dumbcode.projectnublar;
+package net.dumbcode.projectnublar.block;
 
-import net.dumbcode.projectnublar.block.ElectricFencePostBlock;
 import net.dumbcode.projectnublar.block.api.ConnectionType;
 import net.dumbcode.projectnublar.block.api.EnumConnectionType;
 import net.minecraft.world.level.block.Block;

@@ -151,7 +151,7 @@ public class FossilsConfig {
     public static Quality getQuality(String quality) {
         return QUALITIES.get(quality);
     }
-    public class Fossil {
+    public static class Fossil {
         ForgeConfigSpec.ConfigValue<String> pieces;
         ForgeConfigSpec.ConfigValue<List<String>> special_pieces;
         ForgeConfigSpec.ConfigValue<List<Integer>> special_weights;

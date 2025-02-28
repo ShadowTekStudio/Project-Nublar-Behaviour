@@ -3,7 +3,7 @@ package net.dumbcode.projectnublar.init;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.DeferredSupplier;
 import net.dumbcode.projectnublar.Constants;
-import net.dumbcode.projectnublar.LowSecurityElectricFencePostBlock;
+import net.dumbcode.projectnublar.block.LowSecurityElectricFencePostBlock;
 import net.dumbcode.projectnublar.api.FossilCollection;
 import net.dumbcode.projectnublar.block.*;
 import net.dumbcode.projectnublar.block.api.EnumConnectionType;
@@ -47,7 +47,9 @@ public class BlockInit {
     public static DeferredSupplier<BlockEntityType<BlockEntityElectricFence>> ELECTRIC_FENCE_BLOCK_ENTITY = BLOCK_ENTITIES.register("electric_fence", () -> BlockEntityType.Builder.of(BlockEntityElectricFence::new, BlockInit.ELECTRIC_FENCE.get()).build(null));
     public static DeferredSupplier<BlockEntityType<BlockEntityElectricFencePole>> ELECTRIC_FENCE_POST_BLOCK_ENTITY = BLOCK_ENTITIES.register("electric_fence_pole", () -> BlockEntityType.Builder.of(BlockEntityElectricFencePole::new, BlockInit.LOW_SECURITY_ELECTRIC_FENCE_POST.get(),BlockInit.HIGH_SECURITY_ELECTRIC_FENCE_POST.get()).build(null));
     public static DeferredSupplier<BlockEntityType<GeneratorBlockEntity>> GENERATOR = BLOCK_ENTITIES.register("coal_generator", ()-> BlockEntityType.Builder.of(GeneratorBlockEntity::new, COAL_GENERATOR.get(), CREATIVE_GENERATOR.get()).build(null));
-    public static void loadClass() {BLOCK_ENTITIES.register();}
+    public static void loadClass() {
+        BLOCKS.register();
+        BLOCK_ENTITIES.register();}
 
     public static <T extends Block> DeferredSupplier<T> registerBlock(String name, Supplier<T> block) {
         return registerBlock(name, block, b -> () -> new BlockItem(b.get(), ItemInit.getItemProperties()));

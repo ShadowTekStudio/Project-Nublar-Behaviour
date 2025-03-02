@@ -8,6 +8,7 @@ import net.dumbcode.projectnublar.entity.ik.model.ModelAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLeg;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLegWithFoot;
 import net.dumbcode.projectnublar.entity.ik.parts.sever_limbs.ServerLimb;
+import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -17,6 +18,7 @@ import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
+import net.minecraft.world.phys.Vec2;
 import net.minecraft.world.phys.Vec3;
 
 import java.util.ArrayList;
@@ -146,7 +148,14 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
             Vec3 limbOffset = limb.baseOffset.scale(this.getScale());
 
             if (hasMovedOverLastTick(entity)) {
-                limbOffset = limbOffset.add(0, 0, this.settings.stepInFront() * this.getScale());
+                Vec3 oldPos = new Vec3(entity.xo, entity.yo, entity.zo);
+                Vec3 movementDir = MathUtil.convertToFlatVector(oldPos.subtract(entity.position()));
+
+                double forwardMoveness = entity.getForward().dot(movementDir);
+
+                if (forwardMoveness > 0.25) {
+                    limbOffset = limbOffset.add(movementDir.scale((float) this.settings.stepInFront()).scale((float) this.getScale()));
+                }
             }
 
             limbOffset = limbOffset.yRot((float) Math.toRadians(-entity.getYRot()));

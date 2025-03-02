@@ -12,6 +12,11 @@ public class WorldCollidingSegment extends Segment {
         super(builder);
     }
 
+    public void setup(Level level, Vec3 initialPos) {
+        this.setLevel(level);
+        this.position = initialPos.add(0, 1, 0);
+    }
+
     public Level getLevel() {
         return this.level;
     }
@@ -49,8 +54,9 @@ public class WorldCollidingSegment extends Segment {
                     ClipContext.Fluid.NONE,
                     new Arrow(this.level, this.getPosition().x(), this.getPosition().y(), this.getPosition().z())
             )).getLocation();
+            Vec3 direction = collisionPoint.subtract(this.getPosition()).normalize();
 
-            super.move(collisionPoint);
+            super.move(collisionPoint.add(direction.scale(0.01)));
         }
     }
 }

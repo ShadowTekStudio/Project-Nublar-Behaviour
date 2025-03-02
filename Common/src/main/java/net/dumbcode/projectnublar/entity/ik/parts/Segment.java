@@ -8,7 +8,7 @@ public class Segment {
     public boolean hasAngleConstraints;
     public double angleOffset;
     public double angleSize;
-    private Vec3 position = Vec3.ZERO;
+    Vec3 position = Vec3.ZERO;
 
     protected Segment(Builder builder) {
         this.length = builder.length;

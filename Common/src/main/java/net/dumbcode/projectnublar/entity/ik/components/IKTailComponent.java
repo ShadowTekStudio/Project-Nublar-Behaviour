@@ -23,22 +23,21 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
     public Vec3 centerDirection = Vec3.ZERO;
     public Vec3 tailBase = Vec3.ZERO;
 
+    private boolean isReady = false;
+
     public IKTailComponent(C limb) {
         this.limbs.add(limb);
     }
 
     @Override
     C setLimb(int index, Vec3 base, Entity entity) {
-        for (Segment segment : this.limbs.get(index).segments) {
-            if (segment instanceof WorldCollidingSegment worldCollidingSegment && worldCollidingSegment.getLevel() == null) {
-                worldCollidingSegment.setLevel(entity.level());
-                worldCollidingSegment.move(entity.position(), false);
-            }
-        }
-
         this.limbs.get(index).solve(this.tailTarget, base);
 
         return this.limbs.get(index);
+    }
+
+    public boolean isReady() {
+        return this.isReady;
     }
 
     @Override
@@ -46,10 +45,31 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
 
     }
 
+    public void initializeTail(Entity entity) {
+        Vec3 newPos = entity.position().add(0, 1, 0);
+
+        this.tailTarget = newPos;
+        this.tailBase = newPos;
+
+        for (C chain : this.limbs) {
+            for (Segment segment : chain.segments) {
+                if (segment instanceof WorldCollidingSegment worldCollidingSegment && worldCollidingSegment.getLevel() == null) {
+                    worldCollidingSegment.setup(entity.level(), entity.position());
+                }
+            }
+        }
+
+        this.isReady = true;
+    }
+
     @Override
     public void tickClient(E animatable, ModelAccessor model) {
         if (!(animatable instanceof Entity entity)) {
             return;
+        }
+
+        if (!this.isReady()) {
+            this.initializeTail(entity);
         }
 
         if (Objects.equals(this.tailTarget, new Vec3(0, 0, 0))) {
@@ -59,7 +79,9 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
             this.tailTarget = model.getBone("tail1_base").get().getPosition();
         }
 
-        this.tailTarget = this.getMovedTailPos(this.tailBase.add(this.centerDirection.scale(this.getLimb().getMaxLength())), entity);
+        Vec3 newPos = this.tailBase.add(this.centerDirection.scale(this.getLimb().getMaxLength()));
+
+        this.tailTarget = this.getMovedTailPos(newPos, entity);
 
         this.setLimb(0, this.tailBase, entity);
 
@@ -87,6 +109,7 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
         if (model.getBone("tail1_base").isEmpty()) {
             return;
         }
+
         this.tailBase = model.getBone("tail1_base").get().getPosition();
 
         if (model.getBone("center_of_mass").isEmpty()) {

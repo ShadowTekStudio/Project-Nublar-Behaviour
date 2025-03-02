@@ -4,7 +4,6 @@ import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
-import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 
 public class EntityLeg extends AngleConstraintIKChain {
     public Entity entity;

@@ -1,11 +1,13 @@
 package net.dumbcode.projectnublar.entity.ik.parts.ik_chains;
 
-import net.dumbcode.projectnublar.entity.ik.components.debug_renderers.IKDebugRenderer;
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.world.phys.Vec3;
-import org.apache.logging.log4j.core.pattern.NotANumber;
+import org.joml.Quaterniond;
+import org.joml.Quaternionf;
+import org.joml.Vector3d;
+import org.joml.Vector3f;
 
 public abstract class AngleConstraintIKChain extends StretchingIKChain {
 
@@ -17,6 +19,82 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
         super(segments);
     }
 
+    @Override
+    public void reachBackwards(Vec3 base) {
+        this.getFirst().move(base);
+
+        Vec3 rootTargetDir = this.get(1).getPosition().subtract(base).normalize();
+        Vec3 rootNewPos = base.add(rootTargetDir.scale(this.getFirst().length));
+
+        Vec3 rootReferencePoint = this.rotatePointOnLegPlane(base.add(this.getDownNormalOnLegPlane()), base, this.getFirst().angleOffset);
+
+        Vec3 rootDotBaseDir = rootReferencePoint.subtract(base).normalize();
+        Vec3 rootDotTargetDir = rootNewPos.subtract(base).normalize();
+
+        double rootAngle = Math.toDegrees(Math.acos(rootDotBaseDir.dot(rootDotTargetDir)));
+
+        if (rootAngle > this.getFirst().angleSize) {
+            double angleDifference = rootAngle - this.getFirst().angleSize;
+
+            Vec3 rotationAxis = MathUtil.getUpDirection(base, rootNewPos, rootReferencePoint);
+
+            this.get(1).move(MathUtil.rotatePointOnAPlaneAround(rootNewPos, base, angleDifference, rotationAxis));
+        } else {
+            this.get(1).move(rootNewPos);
+        }
+
+
+        for (int i = 1; i < this.segments.size() - 1; i++) {
+            Segment currentSegment = this.get(i);
+            Vec3 currentVec3 = currentSegment.getPosition();
+            Segment nextSegment = this.get(i + 1);
+
+            Vec3 targetDir = nextSegment.getPosition().subtract(currentVec3).normalize();
+            Vec3 newPos = currentVec3.add(targetDir.scale(currentSegment.length));
+
+            Vec3 referencePoint = this.rotatePointOnLegPlane(this.get(i - 1).getPosition(), currentSegment.getPosition(), currentSegment.angleOffset);
+
+            Vec3 dotBaseDir = referencePoint.subtract(currentVec3).normalize();
+            Vec3 dotTargetDir = newPos.subtract(currentVec3).normalize();
+
+            double angle = Math.toDegrees(Math.acos(dotBaseDir.dot(dotTargetDir)));
+
+            if (angle > currentSegment.angleSize) {
+                double angleDifference = angle - currentSegment.angleSize;
+
+                Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, rootReferencePoint);
+
+                nextSegment.move(MathUtil.rotatePointOnAPlaneAround(newPos, currentVec3, angleDifference, rotationAxis));
+            } else {
+                nextSegment.move(newPos);
+            }
+        }
+
+        Segment currentSegment = this.getLast();
+        Vec3 currentVec3 = currentSegment.getPosition();
+
+        Vec3 targetDir = this.endJoint.subtract(currentVec3).normalize();
+        Vec3 newPos = currentVec3.add(targetDir.scale(currentSegment.length));
+
+        Vec3 referencePoint = this.rotatePointOnLegPlane(this.get(this.segments.size() - 2).getPosition(), currentSegment.getPosition(), currentSegment.angleOffset);
+
+        Vec3 dotBaseDir = referencePoint.subtract(currentVec3).normalize();
+        Vec3 dotTargetDir = newPos.subtract(currentVec3).normalize();
+
+        double angle = Math.toDegrees(Math.acos(dotBaseDir.dot(dotTargetDir)));
+
+        if (angle > currentSegment.angleSize) {
+            double angleDifference = angle - currentSegment.angleSize;
+
+            Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, rootReferencePoint);
+
+            this.endJoint = MathUtil.rotatePointOnAPlaneAround(newPos, currentVec3, angleDifference, rotationAxis);
+        } else {
+            this.endJoint = newPos;
+        }
+    }
+
+    /*
     @Override
     public void reachBackwards(Vec3 base) {
         this.getFirst().move(base);
@@ -58,10 +136,9 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
             if (angle > currentSegment.angleSize) {
                 double angleDifference = angle - currentSegment.angleSize;
 
-
                 Vec3 rotationAxis = MathUtil.getUpDirection(currentSegment.getPosition(), newPos, referencePoint);
 
-                newPos = MathUtil.rotatePointOnAPlaneAround(newPos, currentSegment.getPosition(), angleDifference, currentSegment.angleOffset > 0 ? rotationAxis : rotationAxis.reverse());
+                newPos = MathUtil.rotatePointOnAPlaneAround(newPos, currentSegment.getPosition(), -angleDifference, rotationAxis);
             }
 
             nextSegment.move(newPos);
@@ -80,17 +157,17 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
 
         double angle = Math.toDegrees(Math.acos(dotBaseDir.dot(dotTargetDir)));
 
-        System.out.println("Angle: " + angle + " | AngleSize: " + currentSegment.angleSize);
         if (angle > currentSegment.angleSize) {
             double angleDifference = angle - currentSegment.angleSize;
 
             Vec3 rotationAxis = MathUtil.getUpDirection(currentSegment.getPosition(), newPos, referencePoint);
 
-            newPos = MathUtil.rotatePointOnAPlaneAround(newPos, currentSegment.getPosition(), angleDifference, currentSegment.angleOffset > 0 ? rotationAxis : rotationAxis.reverse());
+            newPos = MathUtil.rotatePointOnAPlaneAround(newPos, currentSegment.getPosition(), -angleDifference, rotationAxis);
         }
 
         this.endJoint = newPos;
     }
+    */
 
     public abstract Vec3 getDownNormalOnLegPlane();
 

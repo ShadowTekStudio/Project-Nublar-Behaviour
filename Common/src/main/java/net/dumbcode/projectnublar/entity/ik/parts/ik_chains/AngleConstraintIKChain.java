@@ -4,10 +4,6 @@ import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.world.phys.Vec3;
-import org.joml.Quaterniond;
-import org.joml.Quaternionf;
-import org.joml.Vector3d;
-import org.joml.Vector3f;
 
 public abstract class AngleConstraintIKChain extends StretchingIKChain {
 

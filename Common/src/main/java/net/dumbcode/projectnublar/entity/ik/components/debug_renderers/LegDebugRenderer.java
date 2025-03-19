@@ -8,23 +8,57 @@ import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLeg;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLegWithFoot;
 import net.dumbcode.projectnublar.entity.ik.parts.sever_limbs.ServerLimb;
+import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+
+import java.util.List;
 
 public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> extends IKChainDebugRenderer<E, IKLegComponent<C, E>> {
     @Override
     public void renderDebug(IKLegComponent<C, E> component, E animatable, PoseStack poseStack, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         super.renderDebug(component, animatable, poseStack, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 
-        for (C limb : component.getLimbs()) {
-            if (!(animatable instanceof Entity entity)) {
-                return;
-            }
+        if (!(animatable instanceof PathfinderMob entity)) {
+            return;
+        }
 
+        /*
+        Vec3 pos = entity.position();
+
+        for (int i = 0; i < component.getEndPoints().size(); i++) {
+            ServerLimb limb = component.getEndPoints().get(i);
+
+            Vec3 limbOffset = limb.baseOffset.scale(component.getScale());
+
+            limbOffset = limbOffset.yRot((float) Math.toRadians(-entity.getYRot()));
+
+            Vec3 rotatedLimbOffset = limbOffset.add(pos);
+
+            List<Vec3> hitPosses = List.of(
+                    IKLegComponent.rayCastToGround(new Vec3(Math.floor(rotatedLimbOffset.x) - .1, rotatedLimbOffset.y, rotatedLimbOffset.z), entity, component.getSettings().fluid()).getLocation(),
+                    IKLegComponent.rayCastToGround(new Vec3(Math.floor(rotatedLimbOffset.x) - .1, rotatedLimbOffset.y, Math.floor(rotatedLimbOffset.z) - .1), entity, component.getSettings().fluid()).getLocation(),
+                    IKLegComponent.rayCastToGround(new Vec3(Math.floor(rotatedLimbOffset.x) - .1, rotatedLimbOffset.y, Math.ceil(rotatedLimbOffset.z) + .1), entity, component.getSettings().fluid()).getLocation(),
+
+                    IKLegComponent.rayCastToGround(new Vec3(Math.ceil(rotatedLimbOffset.x) + .1, rotatedLimbOffset.y, rotatedLimbOffset.z), entity, component.getSettings().fluid()).getLocation(),
+                    IKLegComponent.rayCastToGround(new Vec3(Math.ceil(rotatedLimbOffset.x) + .1, rotatedLimbOffset.y, Math.floor(rotatedLimbOffset.z) - .1), entity, component.getSettings().fluid()).getLocation(),
+                    IKLegComponent.rayCastToGround(new Vec3(Math.ceil(rotatedLimbOffset.x) + .1, rotatedLimbOffset.y, Math.ceil(rotatedLimbOffset.z) + .1), entity, component.getSettings().fluid()).getLocation(),
+                    IKLegComponent.rayCastToGround(new Vec3(rotatedLimbOffset.x, rotatedLimbOffset.y, Math.floor(rotatedLimbOffset.z) - .1), entity, component.getSettings().fluid()).getLocation(),
+                    IKLegComponent.rayCastToGround(new Vec3(rotatedLimbOffset.x, rotatedLimbOffset.y, Math.ceil(rotatedLimbOffset.z) + .1), entity, component.getSettings().fluid()).getLocation()
+            );
+
+            for (Vec3 hitPoss : hitPosses) {
+                IKDebugRenderer.drawLine(poseStack, bufferSource, pos, hitPoss, hitPoss.add(0, 10, 0), 255, 100, 255, 127);
+            }
+        }
+         */
+
+        for (C limb : component.getLimbs()) {
             Vec3 entityPos = entity.position();
 
             renderLeg(poseStack, bufferSource, limb, entity);

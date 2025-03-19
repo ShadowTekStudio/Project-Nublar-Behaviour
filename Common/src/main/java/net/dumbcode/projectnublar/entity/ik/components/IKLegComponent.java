@@ -163,7 +163,28 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
 
             BlockHitResult rayCastResult = rayCastToGround(rotatedLimbOffset, entity, this.settings.fluid());
 
-            Vec3 rayCastHitPos = rayCastResult.getLocation();
+            BlockHitResult rayCastResultXFloor = rayCastToGround(new Vec3(Math.floor(rotatedLimbOffset.x), rotatedLimbOffset.y, rotatedLimbOffset.z), entity, this.settings.fluid());
+            BlockHitResult rayCastResultXCeiling = rayCastToGround(new Vec3(Math.ceil(rotatedLimbOffset.x), rotatedLimbOffset.y, rotatedLimbOffset.z), entity, this.settings.fluid());
+            BlockHitResult rayCastResultZFloor = rayCastToGround(new Vec3(rotatedLimbOffset.x, rotatedLimbOffset.y, Math.floor(rotatedLimbOffset.z)), entity, this.settings.fluid());
+            BlockHitResult rayCastResultZCeiling = rayCastToGround(new Vec3(rotatedLimbOffset.x, rotatedLimbOffset.y, Math.ceil(rotatedLimbOffset.z)), entity, this.settings.fluid());
+
+            List<Vec3> hitPosses = List.of(
+                    rayCastResultXFloor.getLocation(),
+                    rayCastResultXCeiling.getLocation(),
+                    rayCastResultZFloor.getLocation(),
+                    rayCastResultZCeiling.getLocation()
+            );
+
+            Vec3 optimalPos = rayCastResult.getLocation();
+            Vec3 restPos = new Vec3(rayCastResult.getLocation().x, entity.getY() + 0.5, rayCastResult.getLocation().z);
+
+            for (Vec3 hitPoss : hitPosses) {
+                if (hitPoss.distanceToSqr(restPos) < optimalPos.distanceToSqr(restPos)) {
+                    optimalPos = hitPoss;
+                }
+            }
+
+            Vec3 rayCastHitPos = optimalPos;
 
             if (limb.hasToBeSet) {
                 limb.set(rayCastHitPos);

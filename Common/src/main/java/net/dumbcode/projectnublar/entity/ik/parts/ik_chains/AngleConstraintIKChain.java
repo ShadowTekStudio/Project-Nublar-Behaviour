@@ -58,7 +58,7 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
             if (angle > currentSegment.angleSize) {
                 double angleDifference = angle - currentSegment.angleSize;
 
-                Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, rootReferencePoint);
+                Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, referencePoint);
 
                 nextSegment.move(MathUtil.rotatePointOnAPlaneAround(newPos, currentVec3, angleDifference, rotationAxis));
             } else {
@@ -82,7 +82,7 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
         if (angle > currentSegment.angleSize) {
             double angleDifference = angle - currentSegment.angleSize;
 
-            Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, rootReferencePoint);
+            Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, referencePoint);
 
             this.endJoint = MathUtil.rotatePointOnAPlaneAround(newPos, currentVec3, angleDifference, rotationAxis);
         } else {

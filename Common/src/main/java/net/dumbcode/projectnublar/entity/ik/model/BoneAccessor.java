@@ -12,6 +12,8 @@ public interface BoneAccessor {
      */
     Vec3 getPosition();
 
+    Vec3 getRotationVec();
+
     /**
      * @param to     the point to move to
      * @param facing at what the bone should face, if null, the bone will not rotate

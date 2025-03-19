@@ -1,6 +1,8 @@
 package net.dumbcode.projectnublar.entity.ik.parts.sever_limbs;
 
+import net.dumbcode.projectnublar.entity.ik.components.IKAnimatable;
 import net.dumbcode.projectnublar.entity.ik.components.IKLegComponent;
+import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLeg;
 import net.dumbcode.projectnublar.entity.ik.util.ArrayUtil;
 import net.minecraft.world.phys.Vec3;
 
@@ -13,6 +15,7 @@ public class ServerLimb {
     public Vec3 pos = Vec3.ZERO;
     public Vec3 baseOffset;
     public boolean hasToBeSet = true;
+    public TimedDistanceFunction currentDistanceFunction = null;
 
     public ServerLimb(Vec3 baseOffset) {
         this.baseOffset = baseOffset;
@@ -25,33 +28,48 @@ public class ServerLimb {
     public void set(Vec3 newPos) {
         this.pos = newPos;
         this.oldTarget = newPos;
-        this.target = newPos;
+        this.setTarget(newPos);
         this.hasToBeSet = false;
     }
 
-    public void tick(IKLegComponent legComponent, int i, double movementSpeed) {
-        if (!this.pos.closerThan(this.target, 5 * legComponent.scale)) {
+    public void setTarget(Vec3 target) {
+        this.target = target;
+    }
+
+    public <C extends EntityLeg, E extends IKAnimatable<E>>void tick(IKLegComponent<C, E> legComponent, int i) {
+        if (!this.pos.closerThan(this.target, 5 * legComponent.scale * legComponent.getLimbs().get(0).getMaxLength())) {
             this.pos = this.target;
             this.oldTarget = this.target;
         }
 
-        if (!adjacentEndPointGrounded(legComponent.getEndPoints(), i)) {
+        // No need to compute
+        if (this.pos == this.target && this.oldTarget == this.target) {
+            return;
+        }
+
+        if (this.currentDistanceFunction == null) {
+            this.currentDistanceFunction = new TimedDistanceFunction(legComponent.getSettings().steppingParabolaStrength() , this.target.y - this.oldTarget.y);
+        }
+
+        if (/*!adjacentEndPointGrounded(legComponent.getEndPoints(), i)*/ !legComponent.getEndPoints().get(horizontal(i)).isGrounded()) {
             return;
         }
 
         Vec3 flatTarget = new Vec3(this.target.x(), 0, this.target.z());
-        Vec3 flatPos = new Vec3(this.pos.x(), 0, this.pos.z());
+        Vec3 flatOldTarget = new Vec3(this.oldTarget.x(), 0, this.oldTarget.z());
 
-        double flatDistanceToEndPos = flatTarget.distanceTo(flatPos);
-        Vec3 raisedTarget = this.target.add(0, flatDistanceToEndPos, 0);
+        Vec3 targetDirection = flatTarget.subtract(flatOldTarget);
 
-        Vec3 targetDirection = raisedTarget.subtract(this.pos).normalize();
+        this.pos = this.oldTarget.add(targetDirection.scale(this.currentDistanceFunction.time)).add(new Vec3(0, this.currentDistanceFunction.getHeight(), 0));
 
-        this.pos = this.pos.add(targetDirection.scale((this.target.distanceTo(this.pos)) * movementSpeed));
+        this.currentDistanceFunction.time += 0.3;
 
-        if (this.pos.closerThan(this.target, 0.3)) {
+        //this.currentDistanceFunction.time = Math.min(this.currentDistanceFunction.time + (0.2 * legComponent.getSettings().movementSpeed()), 1);
+
+        if (this.pos.closerThan(this.target, 0.1) || this.currentDistanceFunction.time >= 1) {
             this.pos = this.target;
             this.oldTarget = this.target;
+            this.currentDistanceFunction = null;
         }
     }
 
@@ -80,16 +98,46 @@ public class ServerLimb {
         this.pos = pos;
     }
 
-    public void setTarget(Vec3 target) {
-        this.target = target;
-    }
-
     public boolean isGrounded() {
         return this.pos == this.oldTarget;
     }
+
+    public static class TimedDistanceFunction extends DistanceFunction {
+        public double time = 0;
+
+        public TimedDistanceFunction(double a, double yOffset) {
+            super(a, yOffset);
+        }
+
+        /**
+         * @return the y value of the function for the currently stored time.
+         */
+        public double getHeight() {
+            return this.getHeight(time);
+        }
+    }
+
+    static class DistanceFunction {
+        double a;
+        double b;
+
+        public DistanceFunction(double a, double yOffset) {
+            this.a = a;
+            b = yOffset+a;
+        }
+
+        /**
+         * @param time the already passed time (x) 0 - 1
+         * @return the y value of the function
+         */
+        double getHeight(double time) {
+            return -a*(time*time)+b*time;
+        }
+    }
+
     /**
      * THIS CODE FOLLOWING IS NOT MINE!!!! <p>
-     * It was politely stolen form Cymaera, with their consent, on <a href="https://github.com/TheCymaera/minecraft-spider/blob/main/src/main/java/com/heledron/spideranimation/spider/LegLookUp.kt">GitHub</a> and then translated!
+     * It was politely stolen from Cymaera, with their consent, on <a href="https://github.com/TheCymaera/minecraft-spider/blob/main/src/main/java/com/heledron/spideranimation/spider/LegLookUp.kt">GitHub</a> and then translated!
      **/
     public static List<List<Integer>> diagonalPairs(List<Integer> legs) {
         List<List<Integer>> result = new ArrayList<>();

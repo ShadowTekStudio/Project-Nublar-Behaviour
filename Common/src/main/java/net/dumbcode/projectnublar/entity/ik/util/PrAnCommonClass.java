@@ -12,4 +12,8 @@ public class PrAnCommonClass {
             throw exception;
         }
     }
+
+    public static void init() {
+
+    }
 }

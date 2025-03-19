@@ -65,31 +65,33 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                         .maxDistance(1.5)
                         .standStillCounter(40)
                         .stepInFront(1)
-                        .movementSpeed(0.4).build(),
-                List.of(new ServerLimb(0.7, 0, 0.3),
-                        new ServerLimb(-0.7, 0, 0.3)),
+                        .movementSpeed(0.4)
+                        .steppingParabolaStrength(0.2)
+                        .build(),
+                List.of(new ServerLimb(0.7, 0, 0.1),
+                        new ServerLimb(-0.7, 0, 0.1)),
                 new EntityLegWithFoot(
                         new WorldCollidingSegment(
                                 new Segment.Builder().length(0.5625).angleSize(40).angleOffset(70)
                         ),
-                        new Segment.Builder().length(1.1).angleSize(60).build(),
-                        new Segment.Builder().length(1.4).angleSize(40).angleOffset(70).build(),
-                        new Segment.Builder().length(1.3).angleSize(40).angleOffset(-100).build()),
+                        new Segment.Builder().length(1.1).angleSize(50).build(),
+                        new Segment.Builder().length(1.4).angleSize(40).angleOffset(60).build(),
+                        new Segment.Builder().length(1.3).angleSize(30).angleOffset(-100).build()),
                 new EntityLegWithFoot(
                         new WorldCollidingSegment(
                                 new Segment.Builder().length(0.5625).angleSize(40).angleOffset(70)
                         ),
-                        new Segment.Builder().length(1.1).angleSize(60).build(),
-                        new Segment.Builder().length(1.4).angleSize(40).angleOffset(70).build(),
-                        new Segment.Builder().length(1.3).angleSize(40).angleOffset(-100).build())
+                        new Segment.Builder().length(1.1).angleSize(50).build(),
+                        new Segment.Builder().length(1.4).angleSize(40).angleOffset(60).build(),
+                        new Segment.Builder().length(1.3).angleSize(30).angleOffset(-100).build())
         ));
 
-        this.addComponent(new IKTailComponent<>(new StretchingIKChain(new WorldCollidingSegment(new Segment.Builder().length(1.4)), new WorldCollidingSegment(new Segment.Builder().length(1.7)), new WorldCollidingSegment(new Segment.Builder().length(1.3))) {
-            @Override
-            public Vec3 getStretchingPos(Vec3 target, Vec3 base) {
-                return StretchingIKChain.stretchToTargetPos(target, this);
-            }
-        }));
+        this.addComponent(new IKTailComponent<>(
+                new IKTailComponent.TailStretchingIKChain(
+                        new WorldCollidingSegment(new Segment.Builder().length(1.4)),
+                        new WorldCollidingSegment(new Segment.Builder().length(1.7)),
+                        new WorldCollidingSegment(new Segment.Builder().length(1.3))
+                )));
     }
 
     @Override
@@ -127,7 +129,6 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
     public void addAdditionalSaveData(CompoundTag tag) {
         super.addAdditionalSaveData(tag);
         tag.put("dino_data", entityData.get(DINO_DATA).toNBT());
-
     }
 
     @Override
@@ -165,7 +166,7 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
     @Override
     public void tick() {
         super.tick();
-        Player nearestPlayer = this.level().getNearestPlayer(this, 10);
+        Player nearestPlayer = this.level().getNearestPlayer(this, 100);
         if (nearestPlayer != null && nearestPlayer.getMainHandItem().is(Items.BONE)) {
             this.navigation.moveTo(nearestPlayer, 1.0);
         }

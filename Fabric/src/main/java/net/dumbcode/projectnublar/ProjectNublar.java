@@ -12,6 +12,7 @@ import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.util.random.SimpleWeightedRandomList;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.level.levelgen.GenerationStep;
 import net.minecraftforge.fml.config.ModConfig;
 
@@ -31,7 +32,7 @@ public class ProjectNublar implements ModInitializer {
         ForgeConfigRegistry.INSTANCE.register(Constants.MODID, ModConfig.Type.COMMON, FossilsConfig.CONFIG_SPEC);
         CommonClass.init();
         EntityInit.attributeSuppliers.forEach(
-                p -> FabricDefaultAttributeRegistry.register(p.entityTypeSupplier().get(), p.factory().get().build())
+                p -> FabricDefaultAttributeRegistry.register(p.entityTypeSupplier().get(), p.factory().get().add(Attributes.MOVEMENT_SPEED, 0.23).build())
         );
         BiomeModifications.addFeature(
                 BiomeSelectors.foundInOverworld(),

@@ -21,6 +21,7 @@ public class CommonClass {
 
     public static void init() {
         // Thanks Bob Mowzie
+        PrAnCommonClass.init();
         GeckoLibUtil.addCustomBakedModelFactory(Constants.MODID, new MowzieModelFactory());
         GeckoLib.initialize();
         // !

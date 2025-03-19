@@ -202,6 +202,16 @@ public class MowzieGeoBone extends GeoBone implements BoneAccessor /* only the i
         return MathUtil.toVec3(this.getWorldPosition());
     }
 
+    /**
+     * !!WARNING!! the rotation vector of a bone is upwards by default, I suggest rotating the bone in the model by 90 degrees to make it forward facing.
+     * @return the rotation vector of the bone
+     */
+    public Vec3 getRotationVec() {
+        Matrix4f rotMat = this.getModelRotationMat();
+        Vector3f direction = new Vector3f(rotMat.m01(), rotMat.m11(), rotMat.m21());
+        direction.normalize();
+        return new Vec3(direction.x(), direction.y(), direction.z());
+    }
 
     @Override
     public void moveTo(Vec3 to, @org.jetbrains.annotations.Nullable Vec3 facing, Entity entity) {

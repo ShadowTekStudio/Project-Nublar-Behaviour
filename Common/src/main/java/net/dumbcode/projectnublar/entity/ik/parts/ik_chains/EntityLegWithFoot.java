@@ -50,6 +50,7 @@ public class EntityLegWithFoot extends EntityLeg {
 
         if (Double.isNaN(this.footAngel)) {
             this.footAngel = 0;
+            this.foot.move(this.endJoint, false);
             PrAnCommonClass.LOGGER.warning("Foot has dropped to NaN, resetting to 0");
         }
     }

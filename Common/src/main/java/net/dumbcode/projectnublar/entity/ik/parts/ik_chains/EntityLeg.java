@@ -24,7 +24,7 @@ public class EntityLeg extends AngleConstraintIKChain {
 
     @Override
     public Vec3 getStretchingPos(Vec3 target, Vec3 base) {
-        return base.add(MathUtil.getFlatRotationVector(this.entity).scale(this.getMaxLength() * 2));
+        return base.add(MathUtil.getFlatRotationVector(this.entity).scale(this.getMaxLength())).add(this.getDownNormalOnLegPlane(target, base).scale(5));
     }
 
     public Vec3 getDownNormalOnLegPlane() {
@@ -39,6 +39,23 @@ public class EntityLeg extends AngleConstraintIKChain {
         Vec3 flatTarget = flatRotatedTarget.yRot((float) Math.toRadians(-this.entity.getYRot()));
 
         return flatTarget.subtract(flatBase).normalize();
+    }
+
+    public Vec3 getDownNormalOnLegPlane(Vec3 target, Vec3 base) {
+        Vec3 baseRotated = base.yRot((float) Math.toRadians(this.entity.getYRot()));
+        Vec3 targetRotated = target.yRot((float) Math.toRadians(this.entity.getYRot()));
+
+        Vec3 flatRotatedBase = new Vec3(baseRotated.x(), baseRotated.y(), 0);
+        Vec3 flatRotatedTarget = new Vec3(targetRotated.x(), targetRotated.y(), 0);
+
+        Vec3 flatBase = flatRotatedBase.yRot((float) Math.toRadians(-this.entity.getYRot()));
+        Vec3 flatTarget = flatRotatedTarget.yRot((float) Math.toRadians(-this.entity.getYRot()));
+
+        return flatTarget.subtract(flatBase).normalize();
+    }
+
+    public Vec3 getLegNormal(Vec3 target, Vec3 base) {
+        return MathUtil.getNormalClosestTo(base, target, base.add(MathUtil.getFlatRotationVector(this.entity).scale(this.getMaxLength() * 2)), this.getReferencePoint());
     }
 
     @Override

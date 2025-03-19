@@ -50,6 +50,7 @@ public class IKChain {
         this.reachBackwards(base);
     }
 
+
     public void extendFully(Vec3 target, Vec3 base) {
         this.getFirst().move(base);
 
@@ -63,6 +64,22 @@ public class IKChain {
         this.endJoint = this.getLast().getPosition().add(directionOfTarget.scale(this.getLast().length * this.getScale()));
     }
 
+    /*
+    public void extendFully(Vec3 target, Vec3 base) {
+        Vec3 directionOfTarget = base.subtract(target).normalize();
+
+        this.endJoint = target;
+
+        this.getLast().move(this.endJoint.add(directionOfTarget.scale(this.getLast().length * this.getScale())));
+
+        for (int i = this.segments.size() - 1; i > 0; i--) {
+            Segment currentSegment = this.segments.get(i);
+            Segment nextSegment = this.segments.get(i - 1);
+
+            nextSegment.move(currentSegment.getPosition().add(directionOfTarget.scale(nextSegment.length * this.getScale())));
+        }
+    }
+     */
     protected boolean isTargetToFar(Vec3 target) {
         return !target.closerThan(this.getFirst().getPosition(), this.getMaxLength());
     }

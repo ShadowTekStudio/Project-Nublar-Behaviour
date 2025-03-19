@@ -142,7 +142,7 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
         for (int i = 0; i < this.endPoints.size(); i++) {
             ServerLimb limb = this.endPoints.get(i);
 
-            limb.tick(this, i, this.settings.movementSpeed);
+            limb.tick(this, i);
 
             Vec3 limbOffset = limb.baseOffset.scale(this.getScale());
 
@@ -167,7 +167,6 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
 
             if (limb.hasToBeSet) {
                 limb.set(rayCastHitPos);
-                limb.hasToBeSet = false;
             }
 
             if (!rayCastHitPos.closerThan(limb.target, this.getMaxLegFormTargetDistance(entity))) {
@@ -234,38 +233,22 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
     }
 
     public static class LegSetting {
-        private ClipContext.Fluid fluid;
-        private double maxStandingStillDistance;
-        private double maxDistance;
-        private double stepInFront;
-        private double movementSpeed;
-        private int standStillCounter;
+        private final ClipContext.Fluid fluid;
+        private final double maxStandingStillDistance;
+        private final double maxDistance;
+        private final double stepInFront;
+        private final double movementSpeed;
+        private final int standStillCounter;
+        private final double steppingParabolaStrength;
 
-        private LegSetting(ClipContext.Fluid fluid, double maxStandingStillDistance, double maxDistance, double stepInFront, double movementSpeed, int standStillCounter) {
+        private LegSetting(ClipContext.Fluid fluid, double maxStandingStillDistance, double maxDistance, double stepInFront, double movementSpeed, int standStillCounter, double steppingParabolaStrength) {
             this.fluid = fluid;
-            if (fluid == null) {
-                this.fluid = ClipContext.Fluid.NONE;
-            }
             this.maxStandingStillDistance = maxStandingStillDistance;
-            if (maxStandingStillDistance == 0) {
-                this.maxStandingStillDistance = 0.1;
-            }
             this.maxDistance = maxDistance;
-            if (maxDistance == 0) {
-                this.maxDistance = 1;
-            }
             this.stepInFront = stepInFront;
-            if (stepInFront == 0) {
-                this.stepInFront = 1;
-            }
             this.movementSpeed = movementSpeed;
-            if (movementSpeed == 0) {
-                this.movementSpeed = 0.2;
-            }
             this.standStillCounter = standStillCounter;
-            if (standStillCounter == 0) {
-                this.standStillCounter = 20;
-            }
+            this.steppingParabolaStrength = steppingParabolaStrength;
         }
 
         public ClipContext.Fluid fluid() {
@@ -292,13 +275,18 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
             return this.standStillCounter;
         }
 
+        public double steppingParabolaStrength() {
+            return this.steppingParabolaStrength;
+        }
+
         public static class Builder {
-            private ClipContext.Fluid fluid;
-            private double maxStandingStillDistance;
-            private double maxDistance;
-            private double stepInFront;
-            private double movementSpeed;
-            private int standStillCounter;
+            private ClipContext.Fluid fluid = ClipContext.Fluid.NONE;
+            private double maxStandingStillDistance = 0.1;
+            private double maxDistance = 1;
+            private double stepInFront = 1;
+            private double movementSpeed = 0.2;
+            private int standStillCounter = 20;
+            private double steppingParabolaStrength = 2;
 
             public Builder() {
             }
@@ -318,6 +306,11 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
                 return this;
             }
 
+            public LegSetting.Builder steppingParabolaStrength(double steppingParabolaStrength) {
+                this.steppingParabolaStrength = steppingParabolaStrength;
+                return this;
+            }
+
             public LegSetting.Builder standStillCounter(int standStillCounter) {
                 this.standStillCounter = standStillCounter;
                 return this;
@@ -334,7 +327,7 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
             }
 
             public LegSetting build() {
-                return new LegSetting(this.fluid, this.maxStandingStillDistance, this.maxDistance, this.stepInFront, this.movementSpeed, this.standStillCounter);
+                return new LegSetting(fluid, maxStandingStillDistance, maxDistance, stepInFront, movementSpeed, standStillCounter, steppingParabolaStrength);
             }
         }
     }

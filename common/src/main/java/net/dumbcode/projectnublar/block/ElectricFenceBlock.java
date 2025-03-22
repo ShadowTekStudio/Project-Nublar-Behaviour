@@ -4,14 +4,21 @@ import net.dumbcode.projectnublar.block.api.BlockConnectableBase;
 import net.dumbcode.projectnublar.block.api.ConnectableBlockEntity;
 import net.dumbcode.projectnublar.block.api.Connection;
 import net.dumbcode.projectnublar.block.entity.BlockEntityElectricFence;
+import net.dumbcode.projectnublar.block.entity.BlockEntityElectricFencePole;
 import net.minecraft.core.BlockPos;
 import net.minecraft.util.RandomSource;
+import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.LevelReader;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.EntityBlock;
 import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.Shapes;
+import net.minecraft.world.phys.shapes.VoxelShape;
 import org.joml.Vector3f;
 
 public class ElectricFenceBlock extends BlockConnectableBase implements EntityBlock {
@@ -26,6 +33,16 @@ public class ElectricFenceBlock extends BlockConnectableBase implements EntityBl
     public RenderShape getRenderShape(BlockState pState) {
         return RenderShape.ENTITYBLOCK_ANIMATED;
     }
+
+    @Override
+    protected VoxelShape getDefaultShape(BlockState state, BlockGetter world, BlockPos pos, CollisionContext context) {
+        BlockEntity entity = world.getBlockEntity(pos);
+        if (entity instanceof BlockEntityElectricFence fence) {
+            return fence.getOrCreateCollision();
+        }
+        return Shapes.block();
+    }
+
 
     @Override
     public void animateTick(BlockState stateIn, Level world, BlockPos pos, RandomSource rand) {
@@ -59,6 +76,16 @@ public class ElectricFenceBlock extends BlockConnectableBase implements EntityBl
         super.animateTick(stateIn, world, pos, rand);
     }
 
+    @Override
+    public boolean canSurvive(BlockState state, LevelReader level, BlockPos pos) {
+        return super.canSurvive(state, level, pos);
+    }
+
+    @Override
+    public void neighborChanged(BlockState state, Level level, BlockPos pos, Block neighborBlock, BlockPos neighborPos, boolean movedByPiston) {
+        super.neighborChanged(state, level, pos, neighborBlock, neighborPos, movedByPiston);
+        BlockState state1 = level.getBlockState(neighborPos);
+    }
 
     @org.jetbrains.annotations.Nullable
     @Override

@@ -213,49 +213,60 @@ public class ElectricFencePostBlock extends BlockConnectableBase implements Enti
     }
 
     @Override
-    public void destroy(LevelAccessor world, BlockPos pos, BlockState state) {
-        BlockEntity BlockEntity = world.getBlockEntity(pos);
-        if (BlockEntity instanceof BlockEntityElectricFencePole) {
-            for (Connection connection : ((BlockEntityElectricFencePole) BlockEntity).getConnections()) {
-                BlockPos blockpos = connection.getFrom();
-                if (blockpos.equals(pos)) {
-                    blockpos = connection.getTo();
+    public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean movedByPiston) {
+        BlockEntity blockEntity = level.getBlockEntity(pos);
+        if (blockEntity instanceof BlockEntityElectricFencePole fencePole) {
+            for (Connection connection : fencePole.getConnections()) {
+                BlockPos fromPos = connection.getFrom();
+                if (fromPos.equals(pos)) {
+                    fromPos = connection.getTo();
                 }
-                if (world.getBlockState(blockpos).getBlock() != this) {
+                if (level.getBlockState(fromPos).getBlock() != this || true) {
                     for (BlockPos blockPos : LineUtils.getBlocksInbetween(connection.getFrom(), connection.getTo(), connection.getOffset())) {
                         if (blockPos.equals(connection.getTo()) || blockPos.equals(connection.getFrom())) {
+                            BlockEntity be  = level.getBlockEntity(blockPos);
+
+                            if (be instanceof BlockEntityElectricFencePole fencePole1 && fencePole1 != fencePole) {
+                                connection.setBroken(true);
+                            }
+
                             continue;
                         }
-                        BlockEntity te = world.getBlockEntity(blockPos);
-                        if (te instanceof ConnectableBlockEntity) {
+
+
+                        BlockEntity te = level.getBlockEntity(blockPos);
+                        if (te instanceof ConnectableBlockEntity connectableBlockEntity) {
                             boolean left = false;
-                            for (Connection bitcon : ((ConnectableBlockEntity) te).getConnections()) {
+                            for (Connection bitcon : connectableBlockEntity.getConnections()) {
                                 if (connection.lazyEquals(bitcon)) {
                                     bitcon.setBroken(true);
                                 }
                                 left |= !bitcon.isBroken();
                             }
                             if (!left) {
-                                world.setBlock(blockPos, Blocks.AIR.defaultBlockState(), 3);
+                                level.setBlock(blockPos, Blocks.AIR.defaultBlockState(), 3);
                             }
                         }
                     }
                 }
-
             }
         }
-        super.destroy(world, pos, state);
         if (!destroying) {
             destroying = true;
             int index = state.getValue(indexProperty);
             for (int i = 1; i < index + 1; i++) {
-                world.setBlock(pos.below(i), Blocks.AIR.defaultBlockState(), 3); //TODO: verify if our block?
+                level.setBlock(pos.below(i), Blocks.AIR.defaultBlockState(), 3); //TODO: verify if our block?
             }
             for (int i = 1; i < this.type.getHeight() - index; i++) {
-                world.setBlock(pos.above(i), Blocks.AIR.defaultBlockState(), 3);
+                level.setBlock(pos.above(i), Blocks.AIR.defaultBlockState(), 3);
             }
             destroying = false;
         }
+        super.onRemove(state, level, pos, newState, movedByPiston);
+    }
+
+    @Override
+    public void destroy(LevelAccessor world, BlockPos pos, BlockState state) {
         super.destroy(world, pos, state);
     }
 

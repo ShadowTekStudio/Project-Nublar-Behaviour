@@ -90,6 +90,7 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
         this.level.sendBlockUpdated(this.getBlockPos(), Blocks.AIR.defaultBlockState(), this.getBlockState(), 3);
     }
 
+    protected static final VoxelShape DEFAULT_SHAPE = Shapes.create(.875 -.03125 * 3,0,.5 - .0625, 1-.03125 * 3,1,.5 + .0625);
 
 
     //todo: forge
@@ -151,6 +152,14 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
         }
     }
 
+    @Override
+    public VoxelShape getOrCreateCollision() {
+        VoxelShape shape = super.getOrCreateCollision();
+        if (shape.isEmpty()) {
+            shape = Shapes.or(shape,DEFAULT_SHAPE);
+        }
+        return shape;
+    }
 
     //todo: forge
 //    @Override

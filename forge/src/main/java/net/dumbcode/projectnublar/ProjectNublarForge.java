@@ -1,9 +1,6 @@
 package net.dumbcode.projectnublar;
 
 import dev.architectury.platform.forge.EventBuses;
-import dev.architectury.registry.registries.RegistrarBuilder;
-import dev.architectury.registry.registries.RegistrarManager;
-import dev.architectury.registry.registries.forge.RegistrarManagerImpl;
 import net.dumbcode.projectnublar.config.FossilsConfig;
 import net.dumbcode.projectnublar.datagen.GeneDataProvider;
 import net.dumbcode.projectnublar.datagen.ModBlockStateProvider;
@@ -23,8 +20,6 @@ import net.minecraftforge.fml.ModLoadingContext;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.config.ModConfig;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
-import net.minecraftforge.registries.NewRegistryEvent;
-import net.minecraftforge.registries.RegistryManager;
 
 @Mod(Constants.MODID)
 public class ProjectNublarForge {

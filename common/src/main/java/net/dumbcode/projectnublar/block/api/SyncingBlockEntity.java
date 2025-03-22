@@ -39,7 +39,7 @@ public abstract class SyncingBlockEntity extends BlockEntity {
 
     @Nullable
     public Packet<ClientGamePacketListener> getUpdatePacket() {
-        return ClientboundBlockEntityDataPacket.create((BlockEntity) this);
+        return ClientboundBlockEntityDataPacket.create(this);
     }
 
     public void updateBlock() {

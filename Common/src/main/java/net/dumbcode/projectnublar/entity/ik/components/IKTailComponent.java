@@ -18,8 +18,11 @@ import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.ClipContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.Arrays;
 import java.util.Objects;
 
 public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> extends IKChainComponent<C, E> {
@@ -140,17 +143,34 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
     }
 
     private Vec3 getMovedTailPos(Vec3 newPos, Entity entity) {
-        Vec3 collisionPoint = entity.level().clip(new ClipContext(
+        Vec3 collisionPoint = this.tailTarget;
+
+        BlockHitResult blockCollisionPoint = entity.level().clip(new ClipContext(
                 this.tailTarget,
                 newPos,
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE,
                 new Arrow(entity.level(), newPos.x(), newPos.y(), newPos.z())
-        )).getLocation();
+        ));
 
-        if (collisionPoint != newPos) {
-            collisionPoint = this.tailTarget;
+        Vec3 direction = blockCollisionPoint.getLocation().subtract(collisionPoint).normalize();
+
+        collisionPoint = blockCollisionPoint.getLocation().subtract(direction.scale(0.01));
+
+        /*
+        BlockHitResult blockCollisionPoint2 = entity.level().clip(new ClipContext(
+                this.getLimb().getLast().getPosition(),
+                collisionPoint,
+                ClipContext.Block.COLLIDER,
+                ClipContext.Fluid.NONE,
+                new Arrow(entity.level(), newPos.x(), newPos.y(), newPos.z())
+        ));
+
+        if (blockCollisionPoint2.getType() == BlockHitResult.Type.MISS) {
+            collisionPoint = blockCollisionPoint2.getLocation();
         }
+         */
+
         return collisionPoint;
     }
 
@@ -168,9 +188,10 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
 
         public TailStretchingIKChain(double... lengths) {
             super(lengths);
+            throw new UnsupportedOperationException("This constructor is not supported for TailStretchingIKChain");
         }
 
-        public TailStretchingIKChain(Segment... segments) {
+        public TailStretchingIKChain(WorldCollidingSegment... segments) {
             super(segments);
         }
 
@@ -182,5 +203,39 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
 
             return StretchingIKChain.stretchToTargetPos(tailComponent.tailBasePosition.add(tailComponent.tailBaseRotation.scale(this.getMaxLength())), this);
         }
+
+        /*
+        @Override
+        public void reachForwards(Vec3 target) {
+            this.endJoint = target;
+
+            ((WorldCollidingSegment) this.getLast()).move(this.moveSegment(this.getLast().getPosition(), this.endJoint, this.getLast().length), endJoint);
+            for (int i = this.segments.size() - 1; i > 0; i--) {
+                Segment currentSegment = this.segments.get(i);
+                Segment nextSegment = this.segments.get(i - 1);
+
+                ((WorldCollidingSegment) nextSegment).move(this.moveSegment(nextSegment.getPosition(), currentSegment.getPosition(), nextSegment.length), currentSegment.getPosition());
+            }
+        }
+
+        @Override
+        public void reachBackwards(Vec3 base) {
+            this.getFirst().move(base);
+
+            for (int i = 0; i < this.segments.size() - 1; i++) {
+                Segment currentSegment = this.segments.get(i);
+                Segment nextSegment = this.segments.get(i + 1);
+
+                ((WorldCollidingSegment) nextSegment).move(this.moveSegment(nextSegment.getPosition(), currentSegment.getPosition(), currentSegment.length), currentSegment.getPosition());
+            }
+
+            WorldCollidingSegment endSegment = new WorldCollidingSegment(new Segment.Builder());
+            endSegment.setup(((WorldCollidingSegment) this.getFirst()).getLevel(), this.getFirst().getPosition());
+
+            endSegment.move(this.moveSegment(this.endJoint, this.getLast().getPosition(), this.getLast().length), this.getLast().getPosition());
+
+            this.endJoint = endSegment.getPosition();
+        }
+        */
     }
 }

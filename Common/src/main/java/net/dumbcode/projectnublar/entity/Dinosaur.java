@@ -139,7 +139,7 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
 
     @Override
     protected void registerGoals() {
-        this.goalSelector.addGoal(1, new RandomStrollGoal(this,1, 20));
+        //this.goalSelector.addGoal(1, new RandomStrollGoal(this,1, 20));
     }
 
     protected PlayState predicate(AnimationState<GeoAnimatable> state) {

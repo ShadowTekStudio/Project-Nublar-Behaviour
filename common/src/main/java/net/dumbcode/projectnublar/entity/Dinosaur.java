@@ -3,6 +3,7 @@ package net.dumbcode.projectnublar.entity;
 import net.dumbcode.projectnublar.api.DinoData;
 import net.dumbcode.projectnublar.client.renderer.layer.DinoLayer;
 import net.dumbcode.projectnublar.entity.api.FossilRevived;
+import net.dumbcode.projectnublar.entity.behaviour.IdleAnimationBehaviour;
 import net.dumbcode.projectnublar.init.DataSerializerInit;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
@@ -35,6 +36,7 @@ import net.tslat.smartbrainlib.api.core.sensor.ExtendedSensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.HurtBySensor;
 import net.tslat.smartbrainlib.api.core.sensor.vanilla.NearbyLivingEntitySensor;
 import software.bernie.geckolib.animatable.GeoEntity;
+import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.AnimatableManager;
@@ -51,17 +53,25 @@ import java.util.Objects;
 public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity, SmartBrainOwner<Dinosaur> {
     public static EntityDataAccessor<DinoData> DINO_DATA = SynchedEntityData.defineId(Dinosaur.class, DataSerializerInit.DINO_DATA);
     public final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private List<String> idleAnimations = List.of("sniffingair", "sniffground", "speak1", "lookleft", "lookright", "scratching", "shakehead", "shakebody");
 
     public Dinosaur(EntityType<? extends PathfinderMob> $$0, Level $$1) {
         super($$0, $$1);
     }
 
-    static final String MAIN_CONTROLLER = "controller";
+    public static final String MAIN_CONTROLLER = "controller";
+
+    public static List<String> idleAnimations = List.of("sniffingair", "sniffground", "speak1", "lookleft", "lookright", "scratching", "shakehead", "shakebody");
+
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        controllers.add(new AnimationController<>(this, MAIN_CONTROLLER, 20, this::predicate));
+        AnimationController<Dinosaur> controller = new AnimationController<>(this, MAIN_CONTROLLER, 20, this::predicate);
+
+        for (String string : idleAnimations) {
+            controller.triggerableAnim(string,RawAnimation.begin().thenPlay(string));
+        }
+
+        controllers.add(controller);
     }
 
     public DinoData getDinoData() {
@@ -102,14 +112,14 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         entityData.set(DINO_DATA, DinoData.fromNBT($$0.getCompound("dino_data")));
     }
 
-    protected PlayState predicate(AnimationState<GeoAnimatable> state) {
-        AnimationController<?> controller = state.getController();
-        if (isMoving()) {
-            controller.setAnimation(RawAnimation.begin().thenLoop("walk"));
+    protected PlayState predicate(AnimationState<Dinosaur> state) {
+        AnimationController<Dinosaur> controller = state.getController();
+        if (state.isMoving()) {
+            controller.setAnimation(DefaultAnimations.WALK);
         } else {
-            if (controller.hasAnimationFinished() || (controller.getCurrentAnimation() != null && Objects.equals(controller.getCurrentAnimation().animation().name(), "walk"))) {
-                controller.setAnimation(RawAnimation.begin().thenLoop(idleAnimations.get(this.random.nextInt(idleAnimations.size()))));
-            }
+         ///   if (controller.hasAnimationFinished() || (controller.getCurrentAnimation() != null && Objects.equals(controller.getCurrentAnimation().animation().name(), "walk"))) {
+          ///      controller.setAnimation(RawAnimation.begin().thenLoop(idleAnimations.get(this.random.nextInt(idleAnimations.size()))));
+         ///   }
         }
         return PlayState.CONTINUE;
     }
@@ -173,14 +183,14 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                         new SetRandomLookTarget<>()),         // Set a random look target
                 new OneRandomBehaviour<>(                 // Run a random task from the below options
                         new SetRandomWalkTarget<>().setRadius(7, 7),          // Set a random walk target to a nearby position
-                        new Idle<>().runFor(entity -> entity.getRandom().nextInt(30, 60)))); // Do nothing for 1.5->3 seconds
+                        new Idle<>().runFor(entity -> entity.getRandom().nextInt(50, 100)))); // Do nothing for 1.5->3 seconds
     }
 
     @Override
     public BrainActivityGroup<? extends Dinosaur> getFightTasks() {
         return BrainActivityGroup.fightTasks(
                 new InvalidateAttackTarget<>()
-                        .invalidateIf((entity, target) -> !isInWaterOrBubble() || target instanceof Player pl && (pl.isCreative() || pl.isSpectator())), // Cancel fighting if the target is no longer valid
+                        .invalidateIf((entity, target) -> target instanceof Player pl && (pl.isCreative() || pl.isSpectator())), // Cancel fighting if the target is no longer valid
                 new SetWalkTargetToAttackTarget<>().speedMod((owner, target) -> 1.5f),      // Set the walk target to the attack target
                 
                 new AnimatableMeleeAttack<>(4)

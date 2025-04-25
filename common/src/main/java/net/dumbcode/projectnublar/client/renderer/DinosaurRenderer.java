@@ -62,7 +62,12 @@ public class DinosaurRenderer extends GeoEntityRenderer<Dinosaur> {
         return animatable.layerColor(0, null);
     }
 
-//    @Override
+    @Override
+    public float getMotionAnimThreshold(Dinosaur animatable) {
+        return 0.015f;
+    }
+
+    //    @Override
 //    public RenderType getRenderType(Dinosaur animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
 //        return RenderType.entityTranslucent(texture);
 //    }

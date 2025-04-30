@@ -14,7 +14,10 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.ai.Brain;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.behavior.BehaviorUtils;
+import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.tslat.smartbrainlib.api.SmartBrainOwner;
@@ -65,7 +68,14 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
-        AnimationController<Dinosaur> controller = new AnimationController<>(this, MAIN_CONTROLLER, 20, this::predicate);
+        AnimationController<Dinosaur> controller = new AnimationController<>(this, MAIN_CONTROLLER, 5, event -> {
+            AnimationController<Dinosaur> controller = state.getController();
+            if (state.isMoving()) {
+                return state.setAndContinue(DefaultAnimations.WALK);
+            } else {
+                return state.setAndContinue(DefaultAnimations.IDLE);
+            }
+        });
 
         for (String string : idleAnimations) {
             controller.triggerableAnim(string,RawAnimation.begin().thenPlay(string));
@@ -83,9 +93,14 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
 
     }
 
+    public static AttributeSupplier.Builder createAttributes() {
+        return Monster.createMonsterAttributes().add(Attributes.FOLLOW_RANGE, 35).add(Attributes.MOVEMENT_SPEED, .5)
+                .add(Attributes.ATTACK_DAMAGE, 3).add(Attributes.ARMOR, 2).add(Attributes.SPAWN_REINFORCEMENTS_CHANCE);
+    }
+
     public Color layerColor(int layer, DinoLayer dinoLayer) {
         if (dinoLayer != null && dinoLayer.getBasicLayer() == -1) {
-            return new Color(0xFFFFFFFF);
+            return Color.WHITE;
         }
         if (layer >= this.getDinoData().getLayerColors().stream().count()) {
             return new Color(Mth.floor(this.getDinoData().getLayerColor(dinoLayer.getBasicLayer())));
@@ -110,18 +125,6 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
     public void readAdditionalSaveData(CompoundTag $$0) {
         super.readAdditionalSaveData($$0);
         entityData.set(DINO_DATA, DinoData.fromNBT($$0.getCompound("dino_data")));
-    }
-
-    protected PlayState predicate(AnimationState<Dinosaur> state) {
-        AnimationController<Dinosaur> controller = state.getController();
-        if (state.isMoving()) {
-            controller.setAnimation(DefaultAnimations.WALK);
-        } else {
-         ///   if (controller.hasAnimationFinished() || (controller.getCurrentAnimation() != null && Objects.equals(controller.getCurrentAnimation().animation().name(), "walk"))) {
-          ///      controller.setAnimation(RawAnimation.begin().thenLoop(idleAnimations.get(this.random.nextInt(idleAnimations.size()))));
-         ///   }
-        }
-        return PlayState.CONTINUE;
     }
 
     public boolean isMoving() {
@@ -149,8 +152,7 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         if (target instanceof Dinosaur) return false;
         if (target instanceof Player player && player.isCreative()) return false;
         if (target.isDeadOrDying()) return false;
-        if (target.getVehicle() == this) return false;
-        return true;
+        return target.getVehicle() != this;
     }
 
     @Override
@@ -182,8 +184,8 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                         new SetPlayerLookTarget<>(),          // Set the look target for the nearest player
                         new SetRandomLookTarget<>()),         // Set a random look target
                 new OneRandomBehaviour<>(                 // Run a random task from the below options
-                        new SetRandomWalkTarget<>().setRadius(7, 7),          // Set a random walk target to a nearby position
-                        new Idle<>().runFor(entity -> entity.getRandom().nextInt(50, 100)))); // Do nothing for 1.5->3 seconds
+                        new SetRandomWalkTarget<>().setRadius(16, 8),          // Set a random walk target to a nearby position
+                        new IdleAnimationBehaviour<>().runFor(entity -> entity.getRandom().nextInt(50, 100)))); // Do nothing for 1.5->3 seconds
     }
 
     @Override

@@ -64,7 +64,7 @@ public class DinosaurRenderer extends GeoEntityRenderer<Dinosaur> {
 
     @Override
     public float getMotionAnimThreshold(Dinosaur animatable) {
-        return 0.015f;
+        return 0.005f;
     }
 
     //    @Override

@@ -20,7 +20,7 @@ public class EntityInit {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Constants.MODID, Registries.ENTITY_TYPE);
     public static final List<AttributesRegister<?>> attributeSuppliers = new ArrayList<>();
 
-    public static final DeferredSupplier<EntityType<Dinosaur>> TYRANNOSAURUS_REX = registerEntity("tyrannosaurus_rex", ()-> EntityType.Builder.of(Dinosaur::new, MobCategory.MONSTER).sized(.875f,3), Zombie::createAttributes);
+    public static final DeferredSupplier<EntityType<Dinosaur>> TYRANNOSAURUS_REX = registerEntity("tyrannosaurus_rex", ()-> EntityType.Builder.of(Dinosaur::new, MobCategory.MONSTER).sized(.875f,3), Dinosaur::createAttributes);
 
     private static <T extends Entity> DeferredSupplier<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> supplier) {
         return ENTITIES.register(name, () -> supplier.get().build(Constants.MODID + ":" + name));

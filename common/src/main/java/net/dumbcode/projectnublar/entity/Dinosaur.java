@@ -63,17 +63,16 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
 
     public static final String MAIN_CONTROLLER = "controller";
 
-    public static List<String> idleAnimations = List.of("sniffingair", "sniffground", "speak1", "lookleft", "lookright", "scratching", "shakehead", "shakebody");
+    public static List<String> idleAnimations = List.of("sniffingair", "sniffground", /*"speak1",*/ "lookleft", "lookright", "scratching", "shakehead", "shakebody");
 
 
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         AnimationController<Dinosaur> controller = new AnimationController<>(this, MAIN_CONTROLLER, 5, event -> {
-            AnimationController<Dinosaur> controller = state.getController();
-            if (state.isMoving()) {
-                return state.setAndContinue(DefaultAnimations.WALK);
+            if (/*todo why doesn't this work? event.isMoving()*/ isMoving()) {
+                return event.setAndContinue(DefaultAnimations.WALK);
             } else {
-                return state.setAndContinue(DefaultAnimations.IDLE);
+                return event.setAndContinue(DefaultAnimations.IDLE);
             }
         });
 
@@ -94,7 +93,7 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
     }
 
     public static AttributeSupplier.Builder createAttributes() {
-        return Monster.createMonsterAttributes().add(Attributes.FOLLOW_RANGE, 35).add(Attributes.MOVEMENT_SPEED, .5)
+        return Monster.createMonsterAttributes().add(Attributes.FOLLOW_RANGE, 35).add(Attributes.MOVEMENT_SPEED, .25)
                 .add(Attributes.ATTACK_DAMAGE, 3).add(Attributes.ARMOR, 2).add(Attributes.SPAWN_REINFORCEMENTS_CHANCE);
     }
 

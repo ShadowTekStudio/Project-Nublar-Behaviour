@@ -1,5 +1,6 @@
 package net.dumbcode.projectnublar.entity.ik.components;
 
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.IKChain;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -15,5 +16,5 @@ public abstract class IKChainComponent<C extends IKChain, E extends IKAnimatable
         return this.limbs;
     }
 
-    abstract C setLimb(int index, Vec3 base, Entity entity);
+    abstract C setLimb(int index, Vec3 base, EntityAccessor entity);
 }

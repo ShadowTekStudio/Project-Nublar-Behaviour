@@ -1,11 +1,16 @@
 package net.dumbcode.projectnublar.entity.ik.model;
 
+import net.minecraft.world.level.Level;
+import net.minecraft.world.phys.Vec3;
+
 public interface EntityAccessor {
-    void getPosition();
+    Vec3 getPosition();
     
-    void getOldPosition();
+    Vec3 getOldPosition();
     
-    void getLevel();
+    Level getLevel();
     
-    void getYRot();
+    double getYRot();
+
+    Vec3 getForwardFacingVector();
 }

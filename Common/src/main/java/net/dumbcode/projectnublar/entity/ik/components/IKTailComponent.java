@@ -2,9 +2,9 @@ package net.dumbcode.projectnublar.entity.ik.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
-import joptsimple.BuiltinHelpFormatter;
 import net.dumbcode.projectnublar.entity.ik.components.debug_renderers.IKTailDebugRenderer;
 import net.dumbcode.projectnublar.entity.ik.model.BoneAccessor;
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.model.ModelAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.parts.WorldCollidingSegment;
@@ -13,16 +13,12 @@ import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.StretchingIKChain;
 import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.ClipContext;
-import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> extends IKChainComponent<C, E> {
@@ -38,7 +34,7 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
     }
 
     @Override
-    C setLimb(int index, Vec3 base, Entity entity) {
+    C setLimb(int index, Vec3 base, EntityAccessor entity) {
         this.limbs.get(index).solve(this.tailTarget, base);
 
         return this.limbs.get(index);
@@ -53,8 +49,8 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
 
     }
 
-    public void initializeTail(Entity entity) {
-        Vec3 newPos = entity.position().add(0, 1, 0);
+    public void initializeTail(EntityAccessor entity) {
+        Vec3 newPos = entity.getPosition().add(0, 1, 0);
 
         this.tailTarget = newPos;
         this.tailBasePosition = newPos;
@@ -66,7 +62,7 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
 
             for (Segment segment : chain.segments) {
                 if (segment instanceof WorldCollidingSegment worldCollidingSegment && worldCollidingSegment.getLevel() == null) {
-                    worldCollidingSegment.setup(entity.level(), entity.position());
+                    worldCollidingSegment.setup(entity.getLevel(), entity.getPosition());
                 }
             }
         }
@@ -76,12 +72,8 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
 
     @Override
     public void tickClient(E animatable, ModelAccessor model) {
-        if (!(animatable instanceof Entity entity)) {
-            return;
-        }
-
         if (!this.isReady()) {
-            this.initializeTail(entity);
+            this.initializeTail(animatable.getAccessor());
         }
 
         if (Objects.equals(this.tailTarget, new Vec3(0, 0, 0))) {
@@ -95,9 +87,9 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
 
         Vec3 newPos = this.tailBasePosition.add(this.centerDirection.scale(this.getLimb().getMaxLength() * dot));
 
-        this.tailTarget = this.getMovedTailPos(newPos, entity);
+        this.tailTarget = this.getMovedTailPos(newPos, animatable.getAccessor());
 
-        this.setLimb(0, this.tailBasePosition, entity);
+        this.setLimb(0, this.tailBasePosition, animatable.getAccessor());
 
         for (int i = 0; i < this.limbs.get(0).getJoints().size() - 1; i++) {
             Segment currentSegment = this.getLimb().segments.get(i);
@@ -110,26 +102,22 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
             Vec3 endPos = this.getLimb().getJoints().get(i + 1);
 
             if (PrAnCommonClass.shouldRenderDebugLegs) {
-                bone.moveTo(currentSegment.getPosition().subtract(0, 200, 0), endPos.subtract(0, 200, 0), entity);
+                bone.moveTo(currentSegment.getPosition().subtract(0, 200, 0), endPos.subtract(0, 200, 0), animatable.getAccessor());
                 continue;
             }
 
-            bone.moveTo(currentSegment.getPosition(), endPos, entity);
+            bone.moveTo(currentSegment.getPosition(), endPos, animatable.getAccessor());
         }
     }
 
     @Override
     public void getModelPositions(E animatable, ModelAccessor model) {
-        if (!(animatable instanceof Entity entity)) {
-            return;
-        }
-
         if (model.getBone("tail1_base").isEmpty()) {
             return;
         }
 
         this.tailBasePosition = model.getBone("tail1_base").get().getPosition();
-        this.tailBaseRotation = model.getBone("tail1_base").get().getRotationVec().normalize().yRot((float) -Math.toRadians(entity.getYRot()));
+        this.tailBaseRotation = model.getBone("tail1_base").get().getRotationVec().normalize().yRot((float) -Math.toRadians(animatable.getAccessor().getYRot()));
 
         if (model.getBone("center_of_mass").isEmpty()) {
             return;
@@ -142,15 +130,15 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
         this.centerDirection = model.getBone("center_of_mass").get().getPosition().subtract(model.getBone("head").get().getPosition()).normalize();
     }
 
-    private Vec3 getMovedTailPos(Vec3 newPos, Entity entity) {
+    private Vec3 getMovedTailPos(Vec3 newPos, EntityAccessor entity) {
         Vec3 collisionPoint = this.tailTarget;
 
-        BlockHitResult blockCollisionPoint = entity.level().clip(new ClipContext(
+        BlockHitResult blockCollisionPoint = entity.getLevel().clip(new ClipContext(
                 this.tailTarget,
                 newPos,
                 ClipContext.Block.COLLIDER,
                 ClipContext.Fluid.NONE,
-                new Arrow(entity.level(), newPos.x(), newPos.y(), newPos.z())
+                new Arrow(entity.getLevel(), newPos.x(), newPos.y(), newPos.z())
         ));
 
         Vec3 direction = blockCollisionPoint.getLocation().subtract(collisionPoint).normalize();

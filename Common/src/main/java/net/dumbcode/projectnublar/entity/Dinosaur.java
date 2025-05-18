@@ -7,6 +7,8 @@ import net.dumbcode.projectnublar.entity.ik.components.IKAnimatable;
 import net.dumbcode.projectnublar.entity.ik.components.IKLegComponent;
 import net.dumbcode.projectnublar.entity.ik.components.IKModelComponent;
 import net.dumbcode.projectnublar.entity.ik.components.IKTailComponent;
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
+import net.dumbcode.projectnublar.entity.ik.model.EntityEntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.parts.WorldCollidingSegment;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLegWithFoot;
@@ -59,10 +61,15 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         return new SmoothGroundNavigation(this, pLevel);
     }
 
+    @Override
+    public EntityAccessor getAccessor() {
+        return new EntityEntityAccessor(this);
+    }
+
     protected void setUpLimbs() {
         this.addComponent(new IKLegComponent<>(
                 new IKLegComponent.LegSetting.Builder()
-                        .maxDistance(1.5)
+                        .maxDistance(1)
                         .standStillCounter(40)
                         .stepInFront(1)
                         .movementSpeed(0.4)
@@ -168,7 +175,7 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         super.tick();
         Player nearestPlayer = this.level().getNearestPlayer(this, 100);
         if (nearestPlayer != null && nearestPlayer.getMainHandItem().is(Items.BONE)) {
-            this.navigation.moveTo(nearestPlayer, 1.0);
+            this.navigation.moveTo(nearestPlayer, 0.4);
         }
         this.tickComponentsServer(this);
     }

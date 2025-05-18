@@ -1,6 +1,7 @@
 package net.dumbcode.projectnublar.entity.ik.model.GeckoLib;
 
 import net.dumbcode.projectnublar.entity.ik.model.BoneAccessor;
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -214,17 +215,17 @@ public class MowzieGeoBone extends GeoBone implements BoneAccessor /* only the i
     }
 
     @Override
-    public void moveTo(Vec3 to, @org.jetbrains.annotations.Nullable Vec3 facing, Entity entity) {
+    public void moveTo(Vec3 to, @org.jetbrains.annotations.Nullable Vec3 facing, EntityAccessor entity) {
         this.setForceMatrixTransform(true);
 
         Matrix4f xformOverride = new Matrix4f();
 
-        Vec3 newModelPosWorldSpace = MathUtil.rotatePointOnAPlaneAround(to, entity.position(), entity.getYRot() - 180, new Vec3(0, 1, 0));
+        Vec3 newModelPosWorldSpace = MathUtil.rotatePointOnAPlaneAround(to, entity.getPosition(), entity.getYRot() - 180, new Vec3(0, 1, 0));
         // Translation
         xformOverride = xformOverride.translate(newModelPosWorldSpace.toVector3f());
 
         if (facing != null) {
-            Vec3 newTargetVecWorldSpace = MathUtil.rotatePointOnAPlaneAround(facing, entity.position(), entity.getYRot()  - 180, new Vec3(0, 1, 0));
+            Vec3 newTargetVecWorldSpace = MathUtil.rotatePointOnAPlaneAround(facing, entity.getPosition(), entity.getYRot()  - 180, new Vec3(0, 1, 0));
 
             Quaternionf q;
             Vector3f desiredDir = newTargetVecWorldSpace.toVector3f().sub(newModelPosWorldSpace.toVector3f(),  new Vector3f()).normalize();

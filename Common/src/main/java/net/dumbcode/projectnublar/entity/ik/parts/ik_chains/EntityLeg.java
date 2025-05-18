@@ -1,12 +1,13 @@
 package net.dumbcode.projectnublar.entity.ik.parts.ik_chains;
 
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
 
 public class EntityLeg extends AngleConstraintIKChain {
-    public Entity entity;
+    public EntityAccessor entity;
 
     public EntityLeg(double... lengths) {
         super(lengths);
@@ -24,7 +25,7 @@ public class EntityLeg extends AngleConstraintIKChain {
 
     @Override
     public Vec3 getStretchingPos(Vec3 target, Vec3 base) {
-        return base.add(MathUtil.getFlatRotationVector(this.entity).scale(this.getMaxLength())).add(this.getDownNormalOnLegPlane(target, base).scale(5));
+        return base.add(MathUtil.getFlatRotationVector(this.entity.getYRot()).scale(this.getMaxLength())).add(this.getDownNormalOnLegPlane(target, base).scale(5));
     }
 
     public Vec3 getDownNormalOnLegPlane() {
@@ -55,7 +56,7 @@ public class EntityLeg extends AngleConstraintIKChain {
     }
 
     public Vec3 getLegNormal(Vec3 target, Vec3 base) {
-        return MathUtil.getNormalClosestTo(base, target, base.add(MathUtil.getFlatRotationVector(this.entity).scale(this.getMaxLength() * 2)), this.getReferencePoint());
+        return MathUtil.getNormalClosestTo(base, target, base.add(MathUtil.getFlatRotationVector(this.entity.getYRot()).scale(this.getMaxLength() * 2)), this.getReferencePoint());
     }
 
     @Override

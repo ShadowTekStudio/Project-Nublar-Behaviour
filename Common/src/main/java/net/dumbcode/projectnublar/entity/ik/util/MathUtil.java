@@ -1,5 +1,6 @@
 package net.dumbcode.projectnublar.entity.ik.util;
 
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.phys.Vec3;
@@ -19,7 +20,7 @@ public class MathUtil {
         return new Vector3d(vector3d.x(), vector3d.y(), vector3d.z());
     }
 
-    public static Vec3 getFlatRotationVector(Entity entity) {
+    public static Vec3 getFlatRotationVector(EntityAccessor entity) {
         return getFlatRotationVector(entity.getYRot());
     }
 
@@ -33,7 +34,7 @@ public class MathUtil {
         return new Vec3(i * j, -k, h * j).normalize();
     }
 
-    public static Vec3 getOpposingFlatRotationVector(Entity entity) {
+    public static Vec3 getOpposingFlatRotationVector(EntityAccessor entity) {
         return getFlatRotationVector(entity.getYRot() - 180);
     }
 

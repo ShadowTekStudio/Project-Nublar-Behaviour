@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.dumbcode.projectnublar.entity.ik.components.IKAnimatable;
 import net.dumbcode.projectnublar.entity.ik.components.IKTailComponent;
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.IKChain;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -15,11 +16,9 @@ public class IKTailDebugRenderer<E extends IKAnimatable<E>> extends IKChainDebug
     public void renderDebug(IKTailComponent<? extends IKChain, E> component, E animatable, PoseStack poseStack, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         super.renderDebug(component, animatable, poseStack, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
 
-        if (!(animatable instanceof Entity entity)) {
-            return;
-        }
+        EntityAccessor entity = animatable.getAccessor();
 
-        IKDebugRenderer.drawLine(poseStack, bufferSource, entity.position(), component.tailBasePosition, component.tailBasePosition.add(component.tailBaseRotation), 0, 255, 0, 255);
+        IKDebugRenderer.drawLine(poseStack, bufferSource, entity.getPosition(), component.tailBasePosition, component.tailBasePosition.add(component.tailBaseRotation), 0, 255, 0, 255);
 
         for (IKChain limb : component.getLimbs()) {
             Vec3 stretchingPos = component.tailBasePosition.add(component.tailBaseRotation.scale(limb.getMaxLength()));

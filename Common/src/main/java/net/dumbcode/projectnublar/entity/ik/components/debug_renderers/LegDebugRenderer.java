@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.dumbcode.projectnublar.entity.ik.components.IKAnimatable;
 import net.dumbcode.projectnublar.entity.ik.components.IKLegComponent;
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLeg;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLegWithFoot;
@@ -17,16 +18,10 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
-import java.util.List;
-
 public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> extends IKChainDebugRenderer<E, IKLegComponent<C, E>> {
     @Override
     public void renderDebug(IKLegComponent<C, E> component, E animatable, PoseStack poseStack, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
         super.renderDebug(component, animatable, poseStack, renderType, bufferSource, buffer, partialTick, packedLight, packedOverlay);
-
-        if (!(animatable instanceof PathfinderMob entity)) {
-            return;
-        }
 
         /*
         Vec3 pos = entity.position();
@@ -57,9 +52,10 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
             }
         }
          */
+        EntityAccessor entity = animatable.getAccessor();
 
         for (C limb : component.getLimbs()) {
-            Vec3 entityPos = entity.position();
+            Vec3 entityPos = entity.getPosition();
 
             renderLeg(poseStack, bufferSource, limb, entity);
 
@@ -67,15 +63,22 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
 
                 Vec3 limbOffset = endPoint.baseOffset.scale(component.getScale());
 
-                if (component.getStillStandCounter() != component.getSettings().standStillCounter()) {
-                    limbOffset = limbOffset.add(0, 0, component.getSettings().stepInFront() * component.getScale());
-                }
-
                 limbOffset = limbOffset.yRot((float) Math.toRadians(-entity.getYRot()));
 
-                Vec3 rotatedLimbOffset = limbOffset.add(entity.position());
+                if (IKLegComponent.hasMovedOverLastTick(entity)) {
+                    Vec3 movementDir = MathUtil.convertToFlatVector(entity.getPosition().subtract(entity.getOldPosition()));
 
-                BlockHitResult rayCastResult = IKLegComponent.rayCastToGround(rotatedLimbOffset, entity, ClipContext.Fluid.NONE);
+                    double forwardMoveness = movementDir.normalize().dot(entity.getForwardFacingVector().normalize());
+
+                    //if (forwardMoveness > 0.25) {
+                    limbOffset = limbOffset.add(MathUtil.convertToFlatVector(entity.getForwardFacingVector()).normalize().scale((float) component.getSettings().stepInFront()));
+                    //}
+                }
+
+
+                Vec3 rotatedLimbOffset = limbOffset.add(entityPos);
+
+                BlockHitResult rayCastResult = IKLegComponent.rayCastToGround(rotatedLimbOffset, entity, component.getSettings().fluid());
 
                 Vec3 rayCastHitPos = rayCastResult.getLocation();
 
@@ -94,8 +97,8 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
         }
     }
 
-    private void renderLeg(PoseStack poseStack, MultiBufferSource bufferSource, C chain, Entity entity) {
-        Vec3 entityPos = entity.position();
+    private void renderLeg(PoseStack poseStack, MultiBufferSource bufferSource, C chain, EntityAccessor entity) {
+        Vec3 entityPos = entity.getPosition();
         if (chain.entity == null) {
             return;
         }
@@ -118,8 +121,8 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
         }
     }
 
-    private void drawAngleConstraintsForBase(C chain, Entity entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
-        Vec3 entityPos = entity.position();
+    private void drawAngleConstraintsForBase(C chain, EntityAccessor entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+        Vec3 entityPos = entity.getPosition();
 
         Vec3 base = chain.getFirst().getPosition();
 
@@ -135,8 +138,8 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), chain.getFirst().getPosition().add(chain.getLegPlane()), 12, 12, 12, 127);
     }
 
-    private void drawAngleConstraints(C chain, Entity entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
-        Vec3 entityPos = entity.position();
+    private void drawAngleConstraints(C chain, EntityAccessor entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+        Vec3 entityPos = entity.getPosition();
 
         for (int i = 1; i < chain.segments.size() - 1; i++) {
             Segment previousSegment = chain.get(i - 1);

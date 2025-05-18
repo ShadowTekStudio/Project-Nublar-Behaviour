@@ -2,6 +2,7 @@ package net.dumbcode.projectnublar.entity.ik.components;
 
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.model.ModelAccessor;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -10,6 +11,8 @@ import java.util.List;
 
 public interface IKAnimatable<E extends IKAnimatable<E>> {
     List<IKModelComponent<E>> getComponents();
+
+    EntityAccessor getAccessor();
 
     double getSize();
 

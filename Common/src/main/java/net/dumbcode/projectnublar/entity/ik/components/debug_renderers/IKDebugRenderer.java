@@ -4,6 +4,7 @@ import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import net.dumbcode.projectnublar.entity.ik.components.IKAnimatable;
 import net.dumbcode.projectnublar.entity.ik.components.IKModelComponent;
+import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
@@ -13,7 +14,7 @@ import net.minecraft.world.phys.AABB;
 import net.minecraft.world.phys.Vec3;
 
 public interface IKDebugRenderer<E extends IKAnimatable<E>, C extends IKModelComponent<E>> {
-    static void drawLineToBox(PoseStack matrices, MultiBufferSource vertexConsumers, Vec3 camera, Vec3 startPos, Vec3 targetPos, Entity entity, int red, int green, int blue, int alpha) {
+    static void drawLineToBox(PoseStack matrices, MultiBufferSource vertexConsumers, Vec3 camera, Vec3 startPos, Vec3 targetPos, EntityAccessor entity, int red, int green, int blue, int alpha) {
         drawBox(matrices, vertexConsumers, targetPos, entity, red, green, blue, alpha);
         drawLine(matrices, vertexConsumers, camera, startPos, targetPos, red, green, blue, alpha);
     }
@@ -41,8 +42,8 @@ public interface IKDebugRenderer<E extends IKAnimatable<E>, C extends IKModelCom
          */
     }
 
-    static void drawBox(PoseStack matrices, MultiBufferSource vertexConsumers, Vec3 targetPos, Entity entity, int red, int green, int blue, int alpha) {
-        Vec3 offsetEntityPos = entity.position().add(0.1, 0.1, 0.1);
+    static void drawBox(PoseStack matrices, MultiBufferSource vertexConsumers, Vec3 targetPos, EntityAccessor entity, int red, int green, int blue, int alpha) {
+        Vec3 offsetEntityPos = entity.getPosition().add(0.1, 0.1, 0.1);
 
         DebugRenderer.renderFilledBox(matrices, vertexConsumers, AABB.unitCubeFromLowerCorner(targetPos).contract(0.8, 0.8, 0.8).move(-offsetEntityPos.x, -offsetEntityPos.y, -offsetEntityPos.z), (float) red / 255, (float) green / 255, (float) blue / 255, (float) alpha / 255);
     }

@@ -28,7 +28,7 @@ public class EntityLegWithFoot extends EntityLeg {
     public void solve(Vec3 target, Vec3 base) {
         super.solve(target, base);
         if (this.foot.getLevel() == null) {
-            this.foot.setLevel(this.entity.level());
+            this.foot.setLevel(this.entity.getLevel());
         }
 
         Vec3 referencePoint = MathUtil.rotatePointOnAPlaneAround(this.endJoint.add(this.getDownNormalOnLegPlane()), this.endJoint, this.foot.angleOffset, this.getLegPlane());

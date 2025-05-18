@@ -25,7 +25,7 @@ public class EntityLeg extends AngleConstraintIKChain {
 
     @Override
     public Vec3 getStretchingPos(Vec3 target, Vec3 base) {
-        return base.add(MathUtil.getFlatRotationVector(this.entity.getYRot()).scale(this.getMaxLength())).add(this.getDownNormalOnLegPlane(target, base).scale(5));
+        return base.add(MathUtil.getFlatRotationVector(this.entity.getYRot()).scale(this.getMaxLength()))/*.add(this.getDownNormalOnLegPlane(target, base).scale(5))*/;
     }
 
     public Vec3 getDownNormalOnLegPlane() {

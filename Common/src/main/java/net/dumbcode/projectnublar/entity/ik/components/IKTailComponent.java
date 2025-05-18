@@ -61,8 +61,8 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
             }
 
             for (Segment segment : chain.segments) {
-                if (segment instanceof WorldCollidingSegment worldCollidingSegment && worldCollidingSegment.getLevel() == null) {
-                    worldCollidingSegment.setup(entity.getLevel(), entity.getPosition());
+                if (segment instanceof WorldCollidingSegment worldCollidingSegment) {
+                    worldCollidingSegment.setup(entity.getLevel(), newPos);
                 }
             }
         }
@@ -90,6 +90,10 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
         this.tailTarget = this.getMovedTailPos(newPos, animatable.getAccessor());
 
         this.setLimb(0, this.tailBasePosition, animatable.getAccessor());
+
+        if (this.tailBasePosition.distanceToSqr(this.limbs.get(0).getFirst().getPosition()) > 2) {
+            this.isReady = false;
+        }
 
         for (int i = 0; i < this.limbs.get(0).getJoints().size() - 1; i++) {
             Segment currentSegment = this.getLimb().segments.get(i);

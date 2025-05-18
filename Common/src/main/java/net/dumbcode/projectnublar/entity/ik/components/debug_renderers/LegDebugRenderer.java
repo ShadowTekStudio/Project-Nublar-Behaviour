@@ -18,6 +18,8 @@ import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
+import java.util.List;
+
 public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> extends IKChainDebugRenderer<E, IKLegComponent<C, E>> {
     @Override
     public void renderDebug(IKLegComponent<C, E> component, E animatable, PoseStack poseStack, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
@@ -80,9 +82,34 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
 
                 BlockHitResult rayCastResult = IKLegComponent.rayCastToGround(rotatedLimbOffset, entity, component.getSettings().fluid());
 
-                Vec3 rayCastHitPos = rayCastResult.getLocation();
+                BlockHitResult rayCastResultXFloor = IKLegComponent.rayCastToGround(new Vec3(Math.floor(rotatedLimbOffset.x), rotatedLimbOffset.y, rotatedLimbOffset.z), entity, component.getSettings().fluid());
+                BlockHitResult rayCastResultXCeiling = IKLegComponent.rayCastToGround(new Vec3(Math.ceil(rotatedLimbOffset.x), rotatedLimbOffset.y, rotatedLimbOffset.z), entity, component.getSettings().fluid());
+                BlockHitResult rayCastResultZFloor = IKLegComponent.rayCastToGround(new Vec3(rotatedLimbOffset.x, rotatedLimbOffset.y, Math.floor(rotatedLimbOffset.z)), entity, component.getSettings().fluid());
+                BlockHitResult rayCastResultZCeiling = IKLegComponent.rayCastToGround(new Vec3(rotatedLimbOffset.x, rotatedLimbOffset.y, Math.ceil(rotatedLimbOffset.z)), entity, component.getSettings().fluid());
 
-                double distance = endPoint.target.distanceTo(rayCastHitPos);
+                List<Vec3> hitPosses = List.of(
+                        rayCastResultXFloor.getLocation(),
+                        rayCastResultXCeiling.getLocation(),
+                        rayCastResultZFloor.getLocation(),
+                        rayCastResultZCeiling.getLocation()
+                );
+
+                Vec3 optimalPos = rayCastResult.getLocation();
+                Vec3 restPos = new Vec3(rayCastResult.getLocation().x, rayCastResult.getLocation().y + 0.5, rayCastResult.getLocation().z);
+
+                for (Vec3 hitPoss : hitPosses) {
+                    if (hitPoss.distanceToSqr(restPos) < optimalPos.distanceToSqr(restPos)) {
+                        optimalPos = hitPoss;
+                    }
+                }
+
+                Vec3 rayCastHitPos = optimalPos;
+
+                Vec3 baseLimbOffset = endPoint.baseOffset.scale(limb.getScale());
+
+                baseLimbOffset = baseLimbOffset.yRot((float) Math.toRadians(-entity.getYRot())).add(entityPos);
+
+                double distance = endPoint.target.distanceTo(baseLimbOffset);
 
                 if (distance < 0.1) distance = 0;
 
@@ -92,7 +119,7 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
 
                 IKDebugRenderer.drawBox(poseStack, bufferSource, endPoint.getPos(), entity, endPoint.isGrounded() ? 0 : 255, endPoint.isGrounded() ? 255 : 0, 0, 127);
                 IKDebugRenderer.drawBox(poseStack, bufferSource, endPoint.oldTarget, entity, 0, 255, 255, 127);
-                IKDebugRenderer.drawBox(poseStack, bufferSource, rayCastHitPos, entity, 0, 0, 255, 127);
+                IKDebugRenderer.drawBox(poseStack, bufferSource, baseLimbOffset, entity, 0, 0, 255, 127);
             }
         }
     }

@@ -66,7 +66,7 @@ public class ServerLimb {
 
         //this.currentDistanceFunction.time = Math.min(this.currentDistanceFunction.time + (0.2 * legComponent.getSettings().movementSpeed()), 1);
 
-        if (this.pos.closerThan(this.target, 0.1) || this.currentDistanceFunction.time >= 1) {
+        if (this.pos.closerThan(this.target, 0.01) || this.currentDistanceFunction.time >= 1) {
             this.pos = this.target;
             this.oldTarget = this.target;
             this.currentDistanceFunction = null;

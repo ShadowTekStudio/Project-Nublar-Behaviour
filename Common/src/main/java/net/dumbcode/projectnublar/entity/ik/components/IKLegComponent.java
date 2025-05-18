@@ -14,8 +14,6 @@ import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.PathfinderMob;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -171,17 +169,14 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
             );
 
             Vec3 optimalPos = rayCastResult.getLocation();
-            Vec3 restPos = new Vec3(rayCastResult.getLocation().x, entity.getPosition().y + 0.5, rayCastResult.getLocation().z);
+            Vec3 restPos = new Vec3(rayCastResult.getLocation().x, rayCastResult.getLocation().y + 0.5, rayCastResult.getLocation().z);
 
-            /*
             for (Vec3 hitPoss : hitPosses) {
                 if (hitPoss.distanceToSqr(restPos) < optimalPos.distanceToSqr(restPos)) {
                     optimalPos = hitPoss;
                 }
             }
 
-
-             */
             Vec3 rayCastHitPos = optimalPos;
 
             if (limb.hasToBeSet) {
@@ -192,7 +187,7 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
 
             baseLimbOffset = baseLimbOffset.yRot((float) Math.toRadians(-entity.getYRot())).add(pos);
 
-            if (!rayCastHitPos.closerThan(rayCastToGround(baseLimbOffset, entity, ClipContext.Fluid.NONE).getLocation(), this.getMaxLegFormTargetDistance(entity))) {
+            if (limb.pos.distanceTo(rayCastToGround(baseLimbOffset, entity, ClipContext.Fluid.NONE).getLocation()) > this.getMaxLegFormTargetDistance(entity)) {
                 limb.setTarget(rayCastHitPos);
             }
         }
@@ -204,7 +199,7 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
     }
 
     private double getMaxLegFormTargetDistance(EntityAccessor entity) {
-        if (this.stillStandCounter >= this.settings.standStillCounter() && hasMovedOverLastTick(entity)) {
+        if (this.stillStandCounter >= this.settings.standStillCounter() || hasMovedOverLastTick(entity)) {
             this.stillStandCounter = 0;
         } else if (this.stillStandCounter < this.settings.standStillCounter()) {
             this.stillStandCounter += 1;

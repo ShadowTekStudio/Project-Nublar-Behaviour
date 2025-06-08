@@ -62,7 +62,7 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
         if (angleRoot > this.getFloorAngleSize()) {
             double angleDifference = angleRoot - this.getFloorAngleSize();
 
-            Vec3 rotationAxis = MathUtil.getUpDirection(this.endJoint, rootNewPos, rootReferencePoint);
+            Vec3 rotationAxis = MathUtil.getUpDirection(this.endJoint, rootNewPos, rootReferencePoint).normalize().dot(this.getLegPlane().normalize()) > 0 ? this.getLegPlane().normalize() : this.getLegPlane().normalize().reverse();;
 
             rootNextSegment.move(MathUtil.rotatePointOnAPlaneAround(rootNewPos, this.endJoint, angleDifference, rotationAxis));
         } else {
@@ -91,7 +91,7 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
             if (angle > nextSegment.angleSize) {
                 double angleDifference = angle - nextSegment.angleSize;
 
-                Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, referencePoint);
+                Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, referencePoint).normalize().dot(this.getLegPlane().normalize()) > 0 ? this.getLegPlane().normalize() : this.getLegPlane().normalize().reverse();;
 
                 nextSegment.move(MathUtil.rotatePointOnAPlaneAround(newPos, currentVec3, -angleDifference, rotationAxis));
             } else {
@@ -117,7 +117,7 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
         if (rootAngle > this.getFirst().angleSize) {
             double angleDifference = rootAngle - this.getFirst().angleSize;
 
-            Vec3 rotationAxis = MathUtil.getUpDirection(base, rootNewPos, rootReferencePoint);
+            Vec3 rotationAxis = MathUtil.getUpDirection(base, rootNewPos, rootReferencePoint).normalize().dot(this.getLegPlane().normalize()) > 0 ? this.getLegPlane().normalize() : this.getLegPlane().normalize().reverse();;
 
             this.get(1).move(MathUtil.rotatePointOnAPlaneAround(rootNewPos, base, angleDifference, rotationAxis));
         } else {
@@ -143,7 +143,7 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
             if (angle > currentSegment.angleSize) {
                 double angleDifference = angle - currentSegment.angleSize;
 
-                Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, referencePoint);
+                Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, referencePoint).normalize().dot(this.getLegPlane().normalize()) > 0 ? this.getLegPlane().normalize() : this.getLegPlane().normalize().reverse(); // ;
 
                 nextSegment.move(MathUtil.rotatePointOnAPlaneAround(newPos, currentVec3, angleDifference, rotationAxis));
             } else {
@@ -167,7 +167,7 @@ public abstract class AngleConstraintIKChain extends StretchingIKChain {
         if (angle > currentSegment.angleSize) {
             double angleDifference = angle - currentSegment.angleSize;
 
-            Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, referencePoint);
+            Vec3 rotationAxis = MathUtil.getUpDirection(currentVec3, newPos, referencePoint).normalize().dot(this.getLegPlane().normalize()) > 0 ? this.getLegPlane().normalize() : this.getLegPlane().normalize().reverse(); // ;
 
             this.endJoint = MathUtil.rotatePointOnAPlaneAround(newPos, currentVec3, angleDifference, rotationAxis);
         } else {

@@ -71,12 +71,12 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                 new IKLegComponent.LegSetting.Builder()
                         .maxDistance(1)
                         .standStillCounter(40)
-                        .stepInFront(1)
-                        .movementSpeed(0.4)
-                        .steppingParabolaStrength(0.2)
+                        .stepInFront(0.5)
+                        .movementSpeed(0.2)
+                        .steppingParabolaStrength(0.3)
                         .build(),
-                List.of(new ServerLimb(0.7, 0, 0.1),
-                        new ServerLimb(-0.7, 0, 0.1)),
+                List.of(new ServerLimb(0.5, 0, 0.1),
+                        new ServerLimb(-0.5, 0, 0.1)),
                 new EntityLegWithFoot(
                         new WorldCollidingSegment(
                                 new Segment.Builder().length(0.5625).angleSize(40).angleOffset(70)
@@ -177,7 +177,7 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         super.tick();
         Player nearestPlayer = this.level().getNearestPlayer(this, 100);
         if (nearestPlayer != null && nearestPlayer.getMainHandItem().is(Items.BONE)) {
-            this.navigation.moveTo(nearestPlayer, 0.4);
+            this.navigation.moveTo(nearestPlayer, 0.6);
         }
         this.tickComponentsServer(this);
     }

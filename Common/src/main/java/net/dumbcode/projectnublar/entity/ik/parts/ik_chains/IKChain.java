@@ -9,7 +9,7 @@ import java.util.Arrays;
 import java.util.List;
 
 public class IKChain {
-    public static final int MAX_ITERATIONS = 10;
+    public static final int MAX_ITERATIONS = 20;
     public static final double TOLERANCE = 0.01;
     public List<Segment> segments = new ArrayList<>();
     public Vec3 endJoint = Vec3.ZERO;
@@ -41,13 +41,26 @@ public class IKChain {
                 break;
             }
         }
+
+        LECKMEINEEIER = 0;
     }
+
+    public static int LECKMEINEEIER = 0;
+
+    public static int MAXLECK = MAX_ITERATIONS * 2 + 1;
 
     public void iterate(Vec3 target, Vec3 base) {
         this.getFirst().move(base);
 
-        this.reachForwards(target);
-        this.reachBackwards(base);
+        if (LECKMEINEEIER <= MAXLECK) {
+            this.reachForwards(target);
+            LECKMEINEEIER++;
+        }
+
+        if (LECKMEINEEIER <= MAXLECK) {
+            this.reachBackwards(base);
+            LECKMEINEEIER++;
+        }
     }
 
 

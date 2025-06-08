@@ -9,13 +9,14 @@ import net.minecraft.world.phys.Vec3;
 public class EntityLeg extends AngleConstraintIKChain {
     public EntityAccessor entity;
 
-    public EntityLeg(double... lengths) {
-        super(lengths);
+    public EntityLeg(double floorAngle, double... lengths) {
+        super(floorAngle, lengths);
     }
 
-    public EntityLeg(Segment... segments) {
-        super(segments);
+    public EntityLeg(double floorAngle, Segment... segments) {
+        super(floorAngle, segments);
     }
+
 
     @Override
     public Vec3 getReferencePoint() {
@@ -25,11 +26,11 @@ public class EntityLeg extends AngleConstraintIKChain {
 
     @Override
     public Vec3 getStretchingPos(Vec3 target, Vec3 base) {
+        //return base.add(target.add(MathUtil.getFlatRotationVector(this.entity.getYRot()).scale(2)).subtract(base).scale(this.getMaxLength()))/*.add(this.getDownNormalOnLegPlane().scale(5))*/;
         return base.add(MathUtil.getFlatRotationVector(this.entity.getYRot()).scale(this.getMaxLength()))/*.add(this.getDownNormalOnLegPlane(target, base).scale(5))*/;
     }
 
     public Vec3 getDownNormalOnLegPlane() {
-
         Vec3 baseRotated = this.getFirst().getPosition().yRot((float) Math.toRadians(this.entity.getYRot()));
         Vec3 targetRotated = this.endJoint.yRot((float) Math.toRadians(this.entity.getYRot()));
 
@@ -42,25 +43,7 @@ public class EntityLeg extends AngleConstraintIKChain {
         return flatTarget.subtract(flatBase).normalize();
     }
 
-    public Vec3 getDownNormalOnLegPlane(Vec3 target, Vec3 base) {
-        Vec3 baseRotated = base.yRot((float) Math.toRadians(this.entity.getYRot()));
-        Vec3 targetRotated = target.yRot((float) Math.toRadians(this.entity.getYRot()));
-
-        Vec3 flatRotatedBase = new Vec3(baseRotated.x(), baseRotated.y(), 0);
-        Vec3 flatRotatedTarget = new Vec3(targetRotated.x(), targetRotated.y(), 0);
-
-        Vec3 flatBase = flatRotatedBase.yRot((float) Math.toRadians(-this.entity.getYRot()));
-        Vec3 flatTarget = flatRotatedTarget.yRot((float) Math.toRadians(-this.entity.getYRot()));
-
-        return flatTarget.subtract(flatBase).normalize();
-    }
-
     public Vec3 getLegNormal(Vec3 target, Vec3 base) {
         return MathUtil.getNormalClosestTo(base, target, base.add(MathUtil.getFlatRotationVector(this.entity.getYRot()).scale(this.getMaxLength() * 2)), this.getReferencePoint());
-    }
-
-    @Override
-    public Vec3 getConstrainedPosForRootSegment() {
-        return this.getConstrainedPosForRootSegment(this.getDownNormalOnLegPlane());
     }
 }

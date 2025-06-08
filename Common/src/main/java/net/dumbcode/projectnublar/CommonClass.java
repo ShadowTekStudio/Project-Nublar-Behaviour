@@ -2,7 +2,7 @@ package net.dumbcode.projectnublar;
 
 import net.dumbcode.projectnublar.api.FossilPiece;
 import net.dumbcode.projectnublar.entity.ik.model.GeckoLib.MowzieModelFactory;
-import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
+import net.dumbcode.projectnublar.entity.ik.util.ChainCommonClass;
 import net.dumbcode.projectnublar.init.*;
 import net.dumbcode.projectnublar.network.NetworkInit;
 import net.minecraft.util.random.SimpleWeightedRandomList;
@@ -21,7 +21,7 @@ public class CommonClass {
 
     public static void init() {
         // Thanks Bob Mowzie
-        PrAnCommonClass.init();
+        ChainCommonClass.init();
         GeckoLibUtil.addCustomBakedModelFactory(Constants.MODID, new MowzieModelFactory());
         GeckoLib.initialize();
         // !

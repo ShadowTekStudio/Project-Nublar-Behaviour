@@ -8,13 +8,11 @@ import net.dumbcode.projectnublar.entity.ik.model.EntityAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLeg;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLegWithFoot;
+import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.IKChain;
 import net.dumbcode.projectnublar.entity.ik.parts.sever_limbs.ServerLimb;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
 
@@ -130,9 +128,14 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
             return;
         }
 
-        drawAngleConstraintsForBase(chain, entity, poseStack, bufferSource);
-
-        this.drawAngleConstraints(chain, entity, poseStack, bufferSource);
+        if (IKChain.MAXLECK % 2 == 1) {
+            drawBackwardsAngleConstraintsForBase(chain, entity, poseStack, bufferSource);
+            drawBackwardsAngleConstraints(chain, entity, poseStack, bufferSource);
+        }
+        else {
+            drawForwardsAngleConstraintsForBase(chain, entity, poseStack, bufferSource);
+            drawForwardsAngleConstraints(chain, entity, poseStack, bufferSource);
+        }
 
 
         if (chain instanceof EntityLegWithFoot entityLegWithFoot) {
@@ -148,7 +151,24 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
         }
     }
 
-    private void drawAngleConstraintsForBase(C chain, EntityAccessor entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+    private void drawForwardsAngleConstraintsForBase(C chain, EntityAccessor entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+        Vec3 entityPos = entity.getPosition();
+
+        Vec3 base = chain.get(1).getPosition();
+
+        Vec3 referencePoint = chain.rotatePointOnLegPlane(base.add(chain.getDownNormalOnLegPlane().reverse()), base, chain.getFirst().angleOffset);
+
+        Vec3 rotatedPos = chain.rotatePointOnLegPlane(referencePoint, base, -chain.getFirst().angleSize);
+        Vec3 rotatedPos2 = chain.rotatePointOnLegPlane(referencePoint, base, chain.getFirst().angleSize);
+
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, base, rotatedPos, 255, 0, 0, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, base, rotatedPos2, 0, 255, 0, 127);
+
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, base, referencePoint, 180, 180, 180, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, base, base.add(chain.getLegPlane()), 12, 12, 12, 127);
+    }
+
+    private void drawBackwardsAngleConstraintsForBase(C chain, EntityAccessor entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
         Vec3 entityPos = entity.getPosition();
 
         Vec3 base = chain.getFirst().getPosition();
@@ -165,7 +185,34 @@ public class LegDebugRenderer<E extends IKAnimatable<E>, C extends EntityLeg> ex
         IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.getFirst().getPosition(), chain.getFirst().getPosition().add(chain.getLegPlane()), 12, 12, 12, 127);
     }
 
-    private void drawAngleConstraints(C chain, EntityAccessor entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+    private void drawForwardsAngleConstraints(C chain, EntityAccessor entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
+        Vec3 entityPos = entity.getPosition();
+
+        for (int i = chain.segments.size() - 1; i > 1; i--) {
+            Segment currentSegment = chain.get(i);
+
+            Vec3 max = chain.rotatePointOnLegPlane(i == chain.segments.size() - 1 ? chain.endJoint : chain.get(i + 1).getPosition(), currentSegment.getPosition(), currentSegment.angleOffset + currentSegment.angleSize);
+            Vec3 middle = chain.rotatePointOnLegPlane(i == chain.segments.size() - 1 ? chain.endJoint : chain.get(i + 1).getPosition(), currentSegment.getPosition(), currentSegment.angleOffset);
+            Vec3 min = chain.rotatePointOnLegPlane(i == chain.segments.size() - 1 ? chain.endJoint : chain.get(i + 1).getPosition(), currentSegment.getPosition(), currentSegment.angleOffset - currentSegment.angleSize);
+
+            IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), max, 255, 0, 0, 127);
+            IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), middle, 180, 180, 180, 127);
+            IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, currentSegment.getPosition(), min, 0, 255, 0, 127);
+        }
+
+        Vec3 footToBase = chain.getBase().subtract(chain.endJoint).normalize().add(chain.endJoint);
+
+        Vec3 max = chain.rotatePointOnLegPlane(footToBase, chain.endJoint, (90 + chain.getFloorAngle()) + 90);
+        Vec3 middle = chain.rotatePointOnLegPlane(footToBase, chain.endJoint, (90 + chain.getFloorAngle()));
+        Vec3 min = chain.rotatePointOnLegPlane(footToBase, chain.endJoint, (90 + chain.getFloorAngle()) - 90);
+
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.endJoint, footToBase, 255, 255, 255, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.endJoint, max, 255, 0, 0, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.endJoint, middle, 180, 180, 180, 127);
+        IKDebugRenderer.drawLine(matrices, vertexConsumers, entityPos, chain.endJoint, min, 0, 255, 0, 127);
+    }
+
+    private void drawBackwardsAngleConstraints(C chain, EntityAccessor entity, PoseStack matrices, MultiBufferSource vertexConsumers) {
         Vec3 entityPos = entity.getPosition();
 
         for (int i = 1; i < chain.segments.size() - 1; i++) {

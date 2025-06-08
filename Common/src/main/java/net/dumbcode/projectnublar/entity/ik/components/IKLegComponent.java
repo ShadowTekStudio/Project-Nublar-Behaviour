@@ -9,8 +9,8 @@ import net.dumbcode.projectnublar.entity.ik.model.ModelAccessor;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLeg;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.EntityLegWithFoot;
 import net.dumbcode.projectnublar.entity.ik.parts.sever_limbs.ServerLimb;
+import net.dumbcode.projectnublar.entity.ik.util.ChainCommonClass;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
-import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.core.Direction;
@@ -86,7 +86,7 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
                 }
                 BoneAccessor legSegmentAccessor = model.getBone("segment" + (k + 1) + "_leg" + (i + 1)).get();
 
-                if (PrAnCommonClass.shouldRenderDebugLegs) {
+                if (ChainCommonClass.shouldRenderDebugLegs) {
                     modelPosWorldSpace = modelPosWorldSpace.subtract(0, 200, 0);
                     targetVecWorldSpace = targetVecWorldSpace.subtract(0, 200, 0);
                 }
@@ -103,7 +103,7 @@ public class IKLegComponent<C extends EntityLeg, E extends IKAnimatable<E>> exte
 
                     double yOffset = shortenedEndPoint.subtract(limb.endJoint).y;
 
-                    footSegmentAccessor.moveTo(PrAnCommonClass.shouldRenderDebugLegs ? shortenedEndPoint.subtract(0, 200, 0) : shortenedEndPoint, entityLegWithFoot.getFootPosition().add(0, yOffset, 0), animatable.getAccessor());
+                    footSegmentAccessor.moveTo(ChainCommonClass.shouldRenderDebugLegs ? shortenedEndPoint.subtract(0, 200, 0) : shortenedEndPoint, entityLegWithFoot.getFootPosition().add(0, yOffset, 0), animatable.getAccessor());
                 }
             }
         }

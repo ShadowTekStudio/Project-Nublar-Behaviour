@@ -2,21 +2,21 @@ package net.dumbcode.projectnublar.entity.ik.parts.ik_chains;
 
 import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.parts.WorldCollidingSegment;
+import net.dumbcode.projectnublar.entity.ik.util.ChainCommonClass;
 import net.dumbcode.projectnublar.entity.ik.util.MathUtil;
-import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
 import net.minecraft.world.phys.Vec3;
 
 public class EntityLegWithFoot extends EntityLeg {
     public final WorldCollidingSegment foot;
     private double footAngel = 90;
 
-    public EntityLegWithFoot(WorldCollidingSegment foot, double... lengths) {
-        super(lengths);
+    public EntityLegWithFoot(WorldCollidingSegment foot, double floorAngle, double... lengths) {
+        super(floorAngle, lengths);
         this.foot = foot;
     }
 
-    public EntityLegWithFoot(WorldCollidingSegment foot, Segment... segments) {
-        super(segments);
+    public EntityLegWithFoot(WorldCollidingSegment foot, double floorAngle, Segment... segments) {
+        super(floorAngle, segments);
         this.foot = foot;
     }
 
@@ -51,7 +51,7 @@ public class EntityLegWithFoot extends EntityLeg {
         if (Double.isNaN(this.footAngel)) {
             this.footAngel = 0;
             this.foot.move(this.endJoint, false);
-            PrAnCommonClass.LOGGER.warning("Foot has dropped to NaN, resetting to 0");
+            ChainCommonClass.LOGGER.warning("Foot has dropped to NaN, resetting to 0");
         }
     }
 

@@ -10,10 +10,9 @@ import net.dumbcode.projectnublar.entity.ik.parts.Segment;
 import net.dumbcode.projectnublar.entity.ik.parts.WorldCollidingSegment;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.IKChain;
 import net.dumbcode.projectnublar.entity.ik.parts.ik_chains.StretchingIKChain;
-import net.dumbcode.projectnublar.entity.ik.util.PrAnCommonClass;
+import net.dumbcode.projectnublar.entity.ik.util.ChainCommonClass;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.projectile.Arrow;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.phys.BlockHitResult;
@@ -105,7 +104,7 @@ public class IKTailComponent<C extends IKChain, E extends IKAnimatable<E>> exten
 
             Vec3 endPos = this.getLimb().getJoints().get(i + 1);
 
-            if (PrAnCommonClass.shouldRenderDebugLegs) {
+            if (ChainCommonClass.shouldRenderDebugLegs) {
                 bone.moveTo(currentSegment.getPosition().subtract(0, 200, 0), endPos.subtract(0, 200, 0), animatable.getAccessor());
                 continue;
             }

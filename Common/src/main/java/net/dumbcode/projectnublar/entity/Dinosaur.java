@@ -81,16 +81,18 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                         new WorldCollidingSegment(
                                 new Segment.Builder().length(0.5625).angleSize(40).angleOffset(70)
                         ),
-                        new Segment.Builder().length(1.1).angleSize(50).build(),
+                        20,
+                        new Segment.Builder().length(1.1).angleSize(70).build(),
                         new Segment.Builder().length(1.4).angleSize(60).angleOffset(60).build(),
-                        new Segment.Builder().length(1.3).angleSize(30).angleOffset(-100).build()),
+                        new Segment.Builder().length(1.3).angleSize(50).angleOffset(-100).build()),
                 new EntityLegWithFoot(
                         new WorldCollidingSegment(
                                 new Segment.Builder().length(0.5625).angleSize(40).angleOffset(70)
                         ),
-                        new Segment.Builder().length(1.1).angleSize(50).build(),
+                        20,
+                        new Segment.Builder().length(1.1).angleSize(70).build(),
                         new Segment.Builder().length(1.4).angleSize(60).angleOffset(60).build(),
-                        new Segment.Builder().length(1.3).angleSize(30).angleOffset(-100).build())
+                        new Segment.Builder().length(1.3).angleSize(50).angleOffset(-100).build())
         ));
 
         this.addComponent(new IKTailComponent<>(

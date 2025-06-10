@@ -3,6 +3,8 @@ package net.dumbcode.projectnublar.event;
 import net.dumbcode.projectnublar.block.api.BlockConnectableBase;
 import net.dumbcode.projectnublar.block.api.ConnectableBlockEntity;
 import net.dumbcode.projectnublar.block.api.Connection;
+import net.dumbcode.projectnublar.data.BehaviourDataReloadListener;
+import net.dumbcode.projectnublar.data.DietReloadListener;
 import net.dumbcode.projectnublar.data.GeneDataReloadListener;
 import net.dumbcode.projectnublar.init.ItemInit;
 import net.minecraft.core.Direction;
@@ -18,6 +20,8 @@ public class CommonForgeEvents {
     @SubscribeEvent
     public static void onReloadListeners(AddReloadListenerEvent event){
         event.addListener(new GeneDataReloadListener());
+        event.addListener(new BehaviourDataReloadListener());
+        event.addListener(new DietReloadListener());
     }
 
 

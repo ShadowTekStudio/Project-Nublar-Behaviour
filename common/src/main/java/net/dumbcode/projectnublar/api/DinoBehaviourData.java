@@ -2,13 +2,24 @@ package net.dumbcode.projectnublar.api;
 
 public record DinoBehaviourData(
         String speciesID,
+        String dietID,
         String dietType,
+
         double stomachCapacity,
+        double thirstCapacity,
+
         double eatRate,
-        double tickRate,
+        double dehydrationRate,
+
+        int hungerTickRate,
+        int thirstTickRate,
+
         double lowRisk,
         double mediumRisk,
-        double highRisk
+        double highRisk,
+
+        int eating1Delay,
+        int drinkingDelay
 )
 {
 

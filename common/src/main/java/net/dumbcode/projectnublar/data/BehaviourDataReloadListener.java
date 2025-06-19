@@ -49,17 +49,28 @@ public class BehaviourDataReloadListener extends SimpleJsonResourceReloadListene
                 EntityType<?> entityType = BuiltInRegistries.ENTITY_TYPE.getOptional(entityRl)
                         .orElseThrow(() -> new JsonSyntaxException("Unknown entity_id" + entityRl + "in DNA extraction file: " + fileID));
 
+                String dietID = GsonHelper.getAsString(jsonObject, "diet_id");
                 String dietType = GsonHelper.getAsString(jsonObject, "diet_type");
 
                 double stomachCapacity = GsonHelper.getAsDouble(jsonObject, "default_stomach_capacity");
+                double thirstCapacity = GsonHelper.getAsDouble(jsonObject, "default_thirst_capacity");
+
+
                 double eatRate = GsonHelper.getAsDouble(jsonObject, "default_eat_rate");
-                double tickRate = GsonHelper.getAsDouble(jsonObject, "default_hunger_tick_rate");
+                double dehydrationRate = GsonHelper.getAsDouble(jsonObject, "default_dehydration_rate");
+
+                int hungerTickRate = GsonHelper.getAsInt(jsonObject, "default_hunger_tick_rate");
+                int thirstTickRate = GsonHelper.getAsInt(jsonObject, "default_thirst_tick_rate");
+
                 double lowRisk = GsonHelper.getAsDouble(jsonObject, "low_risk_threshold");
                 double mediumRisk = GsonHelper.getAsDouble(jsonObject, "medium_risk_threshold");
                 double highRisk = GsonHelper.getAsDouble(jsonObject, "high_risk_threshold");
 
+                int eating1Delay = GsonHelper.getAsInt(jsonObject,"eating1_anim_delay");
+                int drinkingDelay = GsonHelper.getAsInt(jsonObject,"drinking_anim_delay");
+
                 DinoBehaviourData data = new DinoBehaviourData(
-                        entityIdstring,dietType,stomachCapacity,eatRate,tickRate,lowRisk,mediumRisk,highRisk
+                        entityIdstring,dietID,dietType,stomachCapacity,thirstCapacity,eatRate,dehydrationRate,hungerTickRate,thirstTickRate,lowRisk,mediumRisk,highRisk,eating1Delay,drinkingDelay
                 );
 
 

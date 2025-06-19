@@ -13,7 +13,7 @@ public class  IdleAnimationBehaviour<E extends LivingEntity & GeoEntity> extends
     protected void start(E entity) {
         super.start(entity);
         if (entity.getRandom().nextDouble() < .5) {
-            entity.triggerAnim(Dinosaur.MAIN_CONTROLLER, Util.getRandom(Dinosaur.idleAnimations, entity.getRandom()));
+
         }
     }
 }

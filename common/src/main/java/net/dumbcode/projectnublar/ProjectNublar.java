@@ -31,6 +31,7 @@ public class ProjectNublar {
         NetworkInit.registerPackets();
         RecipeInit.loadClass();
         GeneInit.loadClass();
+        MemoryTypesInit.loadClass();
     }
     public static String checkReplace(String registryObject) {
         return Arrays.stream(registryObject.split("_"))

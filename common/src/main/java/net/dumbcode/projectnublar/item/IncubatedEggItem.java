@@ -34,9 +34,9 @@ public class IncubatedEggItem extends DNADataItem {
             DinoBehaviourData behaviourData = BehaviourDataReloadListener.getBehaviourInfoForDino(entityType);
             dinosaur.setDinoData(dinoData);
             dinosaur.setDinoBehaviour(behaviourData);
-            dinosaur.setDietType(behaviourData.dietType());
-            dinosaur.setHungerValues();
-            dinosaur.setCurrentHunger();
+            dinosaur.setDietID(behaviourData.dietType());
+            dinosaur.setCurrentHungerToMax();
+            dinosaur.setCurrentThurstToMax();
             pContext.getItemInHand().shrink(1);
             return InteractionResult.CONSUME;
         }

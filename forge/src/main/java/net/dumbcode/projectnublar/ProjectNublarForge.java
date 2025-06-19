@@ -11,6 +11,7 @@ import net.dumbcode.projectnublar.datagen.ModRecipeProvider;
 import net.dumbcode.projectnublar.datagen.ModSoundProvider;
 import net.dumbcode.projectnublar.datagen.ModTagProvider;
 import net.dumbcode.projectnublar.datagen.ModWorldGenProvider;
+import net.dumbcode.projectnublar.init.SensorTypesInit;
 import net.minecraft.data.DataGenerator;
 import net.minecraft.data.PackOutput;
 import net.minecraftforge.common.data.ExistingFileHelper;
@@ -29,6 +30,7 @@ public class ProjectNublarForge {
         bus.addListener(ProjectNublarForge::onGatherData);
         EventBuses.registerModEventBus(Constants.MODID,bus);
         ProjectNublar.init();
+        SensorTypesInit.init();
         ModLoadingContext.get().registerConfig(ModConfig.Type.COMMON, FossilsConfig.CONFIG_SPEC,"projectnublar-fossils.toml");
     }
 

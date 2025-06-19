@@ -1,13 +1,28 @@
 {
 
-  "species_id": "projectnublar:tyrannosaurus_rex",
-   "diet_type": "carnivore",
-   "default_stomach_capacity": 100.0,
-   "default_eat_rate": 1.0,
-   "default_hunger_tick_rate": 40.0,
-   "low_risk_threshold": 0.9,
-   "medium_risk_threshold": 0.6,
-   "high_risk_threshold": 0.4
+ "species_id": "projectnublar:tyrannosaurus_rex",
+
+ "diet_id": "tyrannosaurus_rex_diet",
+ "diet_type": "carnivore",
+
+ "default_stomach_capacity": 200.0,
+ "default_thirst_capacity": 200.0,
+
+ "default_eat_rate": 5.0,
+ "default_dehydration_rate": 5.0,
+
+ "default_hunger_tick_rate": 500,
+ "default_thirst_tick_rate": 500,
+
+
+ "low_risk_threshold": 0.9,
+ "medium_risk_threshold": 0.6,
+ "high_risk_threshold": 0.4,
+
+
+ "eating1_anim_delay": 42,
+ "drinking_anim_delay": 100
+
 
 
 }

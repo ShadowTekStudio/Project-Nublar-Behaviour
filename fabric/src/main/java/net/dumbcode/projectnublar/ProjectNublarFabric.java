@@ -5,6 +5,7 @@ import net.dumbcode.projectnublar.api.FossilPiece;
 import net.dumbcode.projectnublar.api.FossilPieces;
 import net.dumbcode.projectnublar.config.FossilsConfig;
 import net.dumbcode.projectnublar.init.EntityInit;
+import net.dumbcode.projectnublar.init.SensorTypesInit;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
 import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
@@ -22,6 +23,7 @@ public class ProjectNublarFabric implements ModInitializer {
     public void onInitialize() {
         ForgeConfigRegistry.INSTANCE.register(Constants.MODID, ModConfig.Type.COMMON, FossilsConfig.CONFIG_SPEC);
         ProjectNublar.init();
+        SensorTypesInit.init();
         EntityInit.attributeSuppliers.forEach(
                 p -> FabricDefaultAttributeRegistry.register(p.entityTypeSupplier().get(), p.factory().get().build())
         );

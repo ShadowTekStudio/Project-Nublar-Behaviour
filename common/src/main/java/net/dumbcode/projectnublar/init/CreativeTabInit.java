@@ -203,15 +203,15 @@ public class CreativeTabInit {
             .displayItems(
                     (itemDisplayParameters, output) -> {
                         output.accept(ItemInit.ARTIFICIAL_EGG.get());
-                        ItemStack stack = new ItemStack(ItemInit.INCUBATED_EGG.get());
-                        ItemStack stack2 = new ItemStack(ItemInit.UNINCUBATED_EGG.get());
+                        ItemStack trexEggItem = new ItemStack(ItemInit.INCUBATED_EGG.get());
+                        ItemStack trexEggItemCopy = new ItemStack(ItemInit.UNINCUBATED_EGG.get());
                         DinoData dnaData = new DinoData();
                         dnaData.setBaseDino(EntityInit.TYRANNOSAURUS_REX.get());
                         dnaData.setBasePercentage(100);
-                        dnaData.toStack(stack);
-                        dnaData.copy().toStack(stack2);
-                        output.accept(stack);
-                        output.accept(stack2);
+                        dnaData.toStack(trexEggItem);
+                        dnaData.copy().toStack(trexEggItemCopy);
+                        output.accept(trexEggItem);
+                        output.accept(trexEggItemCopy);
                     })
             .build());
 

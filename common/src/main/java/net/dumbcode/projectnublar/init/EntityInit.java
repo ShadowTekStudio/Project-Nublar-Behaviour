@@ -3,7 +3,9 @@ package net.dumbcode.projectnublar.init;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.DeferredSupplier;
 import net.dumbcode.projectnublar.Constants;
+import net.dumbcode.projectnublar.entity.CarnivoreDinosaur;
 import net.dumbcode.projectnublar.entity.Dinosaur;
+import net.dumbcode.projectnublar.entity.HerbivoreDinosaur;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
@@ -20,7 +22,8 @@ public class EntityInit {
     public static final DeferredRegister<EntityType<?>> ENTITIES = DeferredRegister.create(Constants.MODID, Registries.ENTITY_TYPE);
     public static final List<AttributesRegister<?>> attributeSuppliers = new ArrayList<>();
 
-    public static final DeferredSupplier<EntityType<Dinosaur>> TYRANNOSAURUS_REX = registerEntity("tyrannosaurus_rex", ()-> EntityType.Builder.of(Dinosaur::new, MobCategory.MONSTER).sized(.875f,3), Dinosaur::createAttributes);
+    public static final DeferredSupplier<EntityType<CarnivoreDinosaur>> TYRANNOSAURUS_REX = registerEntity("tyrannosaurus_rex", ()-> EntityType.Builder.of(CarnivoreDinosaur::new, MobCategory.MONSTER).sized(.875f,3), Dinosaur::createAttributes);
+    public static final DeferredSupplier<EntityType<HerbivoreDinosaur>> TRICERATOPS = registerEntity("triceratops", ()-> EntityType.Builder.of(HerbivoreDinosaur::new, MobCategory.MONSTER).sized(2,3), Dinosaur::createAttributes);
 
     private static <T extends Entity> DeferredSupplier<EntityType<T>> registerEntity(String name, Supplier<EntityType.Builder<T>> supplier) {
         return ENTITIES.register(name, () -> supplier.get().build(Constants.MODID + ":" + name));

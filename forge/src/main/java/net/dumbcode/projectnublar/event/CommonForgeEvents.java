@@ -6,11 +6,14 @@ import net.dumbcode.projectnublar.block.api.Connection;
 import net.dumbcode.projectnublar.data.BehaviourDataReloadListener;
 import net.dumbcode.projectnublar.data.DietReloadListener;
 import net.dumbcode.projectnublar.data.GeneDataReloadListener;
+import net.dumbcode.projectnublar.entity.DeathMessageHandler;
+import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.init.ItemInit;
 import net.minecraft.core.Direction;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraftforge.event.AddReloadListenerEvent;
+import net.minecraftforge.event.entity.living.LivingDeathEvent;
 import net.minecraftforge.event.entity.player.PlayerInteractEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -22,6 +25,12 @@ public class CommonForgeEvents {
         event.addListener(new GeneDataReloadListener());
         event.addListener(new BehaviourDataReloadListener());
         event.addListener(new DietReloadListener());
+    }
+    @SubscribeEvent
+    public static void onLivingDeath(LivingDeathEvent event){
+        if(event.getEntity() instanceof Dinosaur dinosaur) {
+            DeathMessageHandler.onLivingDeath(dinosaur, event.getSource());
+        }
     }
 
 

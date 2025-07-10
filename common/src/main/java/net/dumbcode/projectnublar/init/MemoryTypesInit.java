@@ -29,6 +29,15 @@ public class MemoryTypesInit {
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_THIRSTY =
             MEMORIES.register("is_dino_thirsty", ()-> new MemoryModuleType<>(Optional.empty()));
 
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_TIRED =
+            MEMORIES.register("is_dino_tired", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_RESTING =
+            MEMORIES.register("is_dino_resting", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_SLEEPING =
+            MEMORIES.register("is_dino_sleeping", ()-> new MemoryModuleType<>(Optional.empty()));
+
     public static final DeferredSupplier<MemoryModuleType<BlockPos>> HAS_FOUND_WATER =
             MEMORIES.register( "found_water_source", ()-> new MemoryModuleType<>(Optional.empty()));
 

@@ -48,6 +48,19 @@ public class CommonClientClass {
                 new DinoLayer("eyes", -1),
                 new DinoLayer("nostrils", -1),
                 new DinoLayer("claws", -1)));
+        LAYER_REGISTRY.put(EntityInit.TRICERATOPS.get(),List.of(
+                new DinoLayer("base",1),
+                new DinoLayer("midtone",    2),
+                new DinoLayer("darkercolor",2),
+                new DinoLayer("pattern",3),
+                new DinoLayer("head",-1),
+                new DinoLayer("horns",0),
+                new DinoLayer("brown",2),
+                new DinoLayer("spots",3),
+                new DinoLayer("toes",-1),
+                new DinoLayer("mouth",-1),
+                new DinoLayer("nostrils",-1),
+                new DinoLayer("eyes",-1)));
     }
     public static List<DinoLayer> getDinoLayers(EntityType<?> type){
         if(!LAYER_REGISTRY.containsKey(type)){

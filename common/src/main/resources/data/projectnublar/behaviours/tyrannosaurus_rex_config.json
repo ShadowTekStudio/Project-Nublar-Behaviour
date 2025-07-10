@@ -5,17 +5,17 @@
  "diet_id": "tyrannosaurus_rex_diet",
  "diet_type": "carnivore",
 
- "default_stomach_capacity": 100.0,
- "default_thirst_capacity": 400.0,
+ "default_stomach_capacity": 200.0,
+ "default_thirst_capacity": 200.0,
  "default_energy_capacity": 200.0,
 
  "default_eat_rate": 1.0,
- "default_dehydration_rate": 5.0,
+ "default_dehydration_rate": 1.0,
  "default_exhaustion_rate": 1.0,
 
  "default_hunger_tick_rate": 200,
  "default_thirst_tick_rate": 250,
- "default_energy_tick_rate": 200,
+ "default_energy_tick_rate": 300,
 
 
  "low_risk_threshold": 0.9,

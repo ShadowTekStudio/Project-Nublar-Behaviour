@@ -23,19 +23,15 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.AbstractTexture;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.EntityType;
 import org.jetbrains.annotations.Nullable;
 import software.bernie.geckolib.cache.object.GeoBone;
 import software.bernie.geckolib.model.DefaultedBlockGeoModel;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
 import software.bernie.geckolib.renderer.GeoBlockRenderer;
-
-import java.util.function.Supplier;
 
 public class ClientRegistrationHolder {
 
@@ -43,6 +39,9 @@ public class ClientRegistrationHolder {
         EntityRenderers.register(EntityInit.TYRANNOSAURUS_REX.get(), (context) -> new DinosaurRenderer(context, new DefaultedEntityGeoModel<>(Constants.modLoc("tyrannosaurus_rex")).withAltTexture(
                 new ResourceLocation(Constants.MODID, "tyrannosaurus_rex/male/base")
         ), CommonClientClass.getDinoLayers(EntityInit.TYRANNOSAURUS_REX.get())));
+        EntityRenderers.register(EntityInit.TRICERATOPS.get(), (context) -> new DinosaurRenderer(context, new DefaultedEntityGeoModel<>(Constants.modLoc("triceratops")).withAltTexture(
+                new ResourceLocation(Constants.MODID, "triceratops/male/base")
+        ), CommonClientClass.getDinoLayers(EntityInit.TRICERATOPS.get())));
     }
 
     public static void menuScreens() {
@@ -51,7 +50,8 @@ public class ClientRegistrationHolder {
         MenuScreens.register(MenuTypeInit.EGG_PRINTER.get(), EggPrinterScreen::new);
         MenuScreens.register(MenuTypeInit.INCUBATOR.get(), IncubatorScreen::new);
         MenuScreens.register(MenuTypeInit.GENERATOR_MENU.get(), GeneratorScreen::new);
-        Minecraft.getInstance().getTextureManager().register(Constants.modLoc("textures/entity/tyrannosaurus_rex.png"), createTexture());
+        Minecraft.getInstance().getTextureManager().register(Constants.modLoc("textures/entity/tyrannosaurus_rex.png"), createRexTexture());
+        Minecraft.getInstance().getTextureManager().register(Constants.modLoc("textures/entity/triceratops.png"), createTrikeTexture());
     }
 
     public static void registerBlockEntityRenderers() {
@@ -90,7 +90,10 @@ public class ClientRegistrationHolder {
         ItemProperties.register(ItemInit.SYRINGE.get(), Constants.modLoc("filled"), (stack, world, entity, i) -> stack.hasTag() ? stack.getTag().getBoolean("dna_percentage") ? 0.5F : 1.0F : 0f);
     }
 
-    public static AbstractTexture createTexture() {
+    public static AbstractTexture createRexTexture() {
         return Minecraft.getInstance().getTextureManager().getTexture(Constants.modLoc("textures/entity/tyrannosaurus_rex/male/tyrannosaurus_rex.png"));
+    }
+    public static AbstractTexture createTrikeTexture() {
+        return Minecraft.getInstance().getTextureManager().getTexture(Constants.modLoc("textures/entity/triceratops/male/triceratops.png"));
     }
 }

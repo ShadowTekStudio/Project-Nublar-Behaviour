@@ -2,11 +2,15 @@ package net.dumbcode.projectnublar.entity;
 
 import net.dumbcode.projectnublar.api.DinoBehaviourData;
 import net.dumbcode.projectnublar.api.DinoData;
+import net.dumbcode.projectnublar.api.DinoDietData;
 import net.dumbcode.projectnublar.client.renderer.layer.DinoLayer;
+import net.dumbcode.projectnublar.data.DietReloadListener;
 import net.dumbcode.projectnublar.entity.api.FossilRevived;
 import net.dumbcode.projectnublar.entity.behaviour.DrinkBehaviour;
 import net.dumbcode.projectnublar.entity.behaviour.EatBehaviour;
+import net.dumbcode.projectnublar.entity.behaviour.RestingBehaviour;
 import net.dumbcode.projectnublar.entity.sensors.NearestWaterSourceSensor;
+import net.dumbcode.projectnublar.entity.tasks.SetWalkTargetToFoodItem;
 import net.dumbcode.projectnublar.entity.tasks.SetWalkTargetToWaterSource;
 import net.dumbcode.projectnublar.init.DataSerializerInit;
 import net.dumbcode.projectnublar.init.MemoryTypesInit;
@@ -60,52 +64,86 @@ import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
 
-public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity, SmartBrainOwner<Dinosaur> {
+public abstract class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity, SmartBrainOwner<Dinosaur> {
     public static EntityDataAccessor<DinoData> DINO_DATA = SynchedEntityData.defineId(Dinosaur.class, DataSerializerInit.DINO_DATA);
     public static EntityDataAccessor<CompoundTag> DINO_BEHAVIOUR = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.COMPOUND_TAG);
     public static EntityDataAccessor<String> DIET_TYPE = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.STRING);
     public static EntityDataAccessor<Float> CURRENT_HUNGER = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
     public static EntityDataAccessor<Float> CURRENT_THIRST = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
+    public static EntityDataAccessor<Float> CURRENT_ENERGY = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
     public static EntityDataAccessor<Boolean> IS_THIRSTY = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
     public static EntityDataAccessor<Boolean> IS_HUNGRY = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
-    public static EntityDataAccessor<Boolean> IS_DRINKING = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
-    public static EntityDataAccessor<Boolean> IS_EATING = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
+    public static EntityDataAccessor<Boolean> IS_TIRED = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
+
 
     protected static final RawAnimation DRINKING_ANIM = RawAnimation.begin().thenPlay("drink");
+    protected static final RawAnimation EATING_ANIM = RawAnimation.begin().thenPlay("eat1");
+    protected static final RawAnimation REST_ANIM = RawAnimation.begin().thenPlay("rest");
+    protected static final RawAnimation REST_IDLE_ANIM = RawAnimation.begin().thenPlay("restidle");
+    protected static final RawAnimation GETTING_UP_ANIM = RawAnimation.begin().thenPlay("getup");
+
 
     public final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     protected @Nullable DinoBehaviourData cachedBehaviourData;
 
+    private DinoDietData dietData;
+
     private int hungerTicker = 0;
     private int thirstTicker = 0;
-    private int drinkTicks;
-    private boolean shouldAnimateBehaviour;
-    private String animateBehaviour = "misc.idle";
+    private int energyTicker = 0;
+    private int drinkTicks = 0;
+    private int eatTicks = 0;
+    private int restTicks = 0;
 
     public Dinosaur(EntityType<? extends PathfinderMob> $$0, Level $$1) {
         super($$0, $$1);
 
     }
 
-    public static final String MAIN_CONTROLLER = "controller";
-
+    public static final String RESTING_CONTROLLER = "rest_controller";
+    public static final String EAT_CONTROLLER = "eat_controller";
+    public static final String DRINK_CONTROLLER = "drink_controller";
     //ANIMATION
     @Override
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(DefaultAnimations.genericWalkController(this));
-        controllers.add(DefaultAnimations.genericAttackAnimation(this,RawAnimation.begin().thenPlay("attack1")));
-        controllers.add(new AnimationController<>(this,"drink_controller", this::poseIdle)
+        controllers.add(DefaultAnimations.genericAttackAnimation(this,RawAnimation.begin().thenPlayXTimes("attack1",1)));
+        controllers.add(new AnimationController<>(this,DRINK_CONTROLLER, this::poseDrinking)
                 .triggerableAnim("drink",DRINKING_ANIM));
+        controllers.add(new AnimationController<>(this,EAT_CONTROLLER, this::poseEating)
+                .triggerableAnim("eat1",EATING_ANIM)
+                .triggerableAnim("eat2",EATING_ANIM));
+
+        controllers.add(new AnimationController<>(this,RESTING_CONTROLLER, this::poseRestIdle)
+                .triggerableAnim("rest",REST_ANIM)
+                .triggerableAnim("restidle",REST_IDLE_ANIM)
+                .triggerableAnim("getup",GETTING_UP_ANIM));
     }
 
-    protected PlayState poseIdle(AnimationState<Dinosaur> state) {
+    protected PlayState poseDrinking(AnimationState<Dinosaur> state) {
         PlayState playState;
         if (!state.isMoving() && BrainUtils.hasMemory(this, MemoryTypesInit.IS_DRINKING.get())) {
             playState = PlayState.CONTINUE;
         } else { playState = PlayState.STOP; }
         return playState;
     }
+    protected PlayState poseRestIdle(AnimationState<Dinosaur> state) {
+        PlayState playState;
+        if (!state.isMoving() && BrainUtils.hasMemory(this, MemoryTypesInit.IS_RESTING.get())) {
+            playState = PlayState.CONTINUE;
+        } else { playState = PlayState.STOP; }
+        return playState;
+    }
+   protected PlayState poseEating(AnimationState<Dinosaur> state) {
+       PlayState playState;
+       if (!state.isMoving() && BrainUtils.hasMemory(this, MemoryTypesInit.IS_EATING.get())) {
+           playState = PlayState.CONTINUE;
+       } else {
+           playState = PlayState.STOP;
+       }
+       return playState;
+   }
 
 
 
@@ -120,6 +158,12 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         }
         return this.cachedBehaviourData;
     }
+    public DinoDietData getDinoDiet(){
+        if(this.dietData == null){
+            this.dietData = DietReloadListener.getDietInfoForType(this.getDinoBehaviour().dietID());
+        }
+        return this.dietData;
+    }
 
     //DATA SYNC
     @Override
@@ -130,10 +174,10 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         this.entityData.define(DIET_TYPE, "default_Omnivore");
         this.entityData.define(CURRENT_HUNGER, 100.0f);
         this.entityData.define(CURRENT_THIRST, 100.0f);
+        this.entityData.define(CURRENT_ENERGY, 100.0f);
         this.entityData.define(IS_HUNGRY, false);
         this.entityData.define(IS_THIRSTY, false);
-        this.entityData.define(IS_DRINKING, false);
-        this.entityData.define(IS_EATING, false);
+        this.entityData.define(IS_TIRED, false);
     }
 
     @Override
@@ -142,10 +186,13 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         tag.put("dino_data", this.getDinoData().toNBT());
         tag.put("behaviour_profile", this.entityData.get(DINO_BEHAVIOUR));
         tag.putDouble("current_hunger", this.entityData.get(CURRENT_HUNGER));
-        tag.putDouble("current_thirst", this.entityData.get(CURRENT_THIRST));
+        tag.putDouble("current_energy", this.entityData.get(CURRENT_ENERGY));
         tag.putString("diet_type_string", this.entityData.get(DIET_TYPE));
         tag.putBoolean("is_hungry", this.entityData.get(IS_HUNGRY));
         tag.putBoolean("is_thirsty", this.entityData.get(IS_THIRSTY));
+        tag.putBoolean("is_tired", this.entityData.get(IS_TIRED));
+
+
     }
 
     @Override
@@ -155,13 +202,15 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         this.entityData.set(DINO_BEHAVIOUR, pTag.getCompound("behaviour_profile"));
         this.entityData.set(CURRENT_HUNGER, (float) pTag.getDouble("current_hunger"));
         this.entityData.set(CURRENT_THIRST,(float) pTag.getDouble("current_thirst"));
+        this.entityData.set(CURRENT_ENERGY,(float) pTag.getDouble("current_energy"));
         this.entityData.set(DIET_TYPE, pTag.getString("diet_type_string"));
         this.entityData.set(IS_HUNGRY, pTag.getBoolean("is_hungry"));
         this.entityData.set(IS_THIRSTY, pTag.getBoolean("is_thirsty"));
+        this.entityData.set(IS_TIRED, pTag.getBoolean("is_tired"));
 
     }
 
-    //To-do: find a better way to do this, it works, I just don't like looking at it :(
+    //To-do: find a better way to do this, it works, I just don't like looking at it :( - its just to save reading the json file constantly.
     public static CompoundTag behaviourToTag(DinoBehaviourData profile) {
         CompoundTag tag = new CompoundTag();
         tag.putString("species_id", profile.speciesID());
@@ -169,10 +218,13 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         tag.putString("diet_type", profile.dietType());
         tag.putDouble("default_stomach_capacity", profile.stomachCapacity());
         tag.putDouble("default_thirst_capacity", profile.thirstCapacity());
+        tag.putDouble("default_energy_capacity", profile.energyCapacity());
         tag.putDouble("default_eat_rate", profile.eatRate());
         tag.putDouble("default_dehydration_rate", profile.dehydrationRate());
+        tag.putDouble("default_exhaustion_rate", profile.baseExhaustionRate());
         tag.putInt("default_hunger_tick_rate", profile.hungerTickRate());
         tag.putInt("default_thirst_tick_rate", profile.thirstTickRate());
+        tag.putInt("default_energy_tick_rate", profile.energyTickRate());
         tag.putDouble("low_risk_threshold",profile.lowRisk());
         tag.putDouble("medium_risk_threshold",profile.mediumRisk());
         tag.putDouble("high_risk_threshold",profile.highRisk());
@@ -187,18 +239,21 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         String diet_type = tag.getString("diet_type");
         double stomachCapacity = tag.getDouble("default_stomach_capacity");
         double thirstCapacity = tag.getDouble("default_thirst_capacity");
+        double energyCapacity = tag.getDouble("default_energy_capacity");
         double eatRate =  tag.getDouble("default_eat_rate");
         double dehydrationRate =  tag.getDouble("default_dehydration_rate");
+        double exhaustionRate =  tag.getDouble("default_exhaustion_rate");
         int hungerTick =  tag.getInt("default_hunger_tick_rate");
         int thirstTick =  tag.getInt("default_thirst_tick_rate");
+        int energyTick =  tag.getInt("default_energy_tick_rate");
         double lowRisk = tag.getDouble("low_risk_threshold");
         double mediumRisk = tag.getDouble("low_risk_threshold");
         double highRisk = tag.getDouble("low_risk_threshold");
         int eating1Delay = tag.getInt("eating1_anim_delay");
         int drinkingDelay = tag.getInt("drinking_anim_delay");
 
-        return new DinoBehaviourData(speciesId,dietID,diet_type,stomachCapacity,thirstCapacity,eatRate,dehydrationRate,
-                hungerTick,thirstTick,lowRisk,mediumRisk,highRisk, eating1Delay, drinkingDelay);
+        return new DinoBehaviourData(speciesId,dietID,diet_type,stomachCapacity,thirstCapacity,energyCapacity,eatRate,dehydrationRate,exhaustionRate,
+                hungerTick,thirstTick,energyTick,lowRisk,mediumRisk,highRisk, eating1Delay, drinkingDelay);
     }
 
     @Override
@@ -223,25 +278,25 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
 
     @Override
     public boolean wantsToPickUp(ItemStack stack) {
-        return true;
+        if(this.isSleeping()){
+            return false;
+        }
+        DinoDietData validfood = DietReloadListener.getDietInfoForType(this.getDinoBehaviour().dietID());
+        return validfood.foodMap().containsKey(stack.getDescriptionId()) && this.isHungry();
     }
 
     public boolean canTarget(LivingEntity target) {
-        if(BrainUtils.hasMemory(this, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM)){
+        if(this.isSleeping()){
             return false;
         }
-        if(!BrainUtils.hasMemory(this, MemoryTypesInit.IS_HUNGRY.get())){
-            return false;
-        }
-        if(!target.isAlive() || target.isDeadOrDying()){
-            this.setCurrentHungerToMax();
-        }
-
-        return (target instanceof Pig);
+       return target.getVehicle() != this;
     }
 
     public boolean canTargetFoodItem(ItemEntity target) {
-        return (target.getItem().is(Items.PORKCHOP));
+        if(this.isSleeping()){
+            return false;
+        }
+        return this.getDinoDiet().foodMap().containsKey(target.getItem().getDescriptionId());
     }
 
     //BRAIN
@@ -257,21 +312,71 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         this.tickBrain(this);
 
         if(BrainUtils.hasMemory(this, MemoryTypesInit.IS_DRINKING.get())) {
-            if(drinkTicks == 0){
-               this.triggerAnim("drink_controller","drink");
-               this.setCurrentThurstToMax();
+            if (drinkTicks == 0) {
+                this.triggerAnim("drink_controller", "drink");
+                this.setCurrentThurstToMax();
             }
             drinkTicks++;
-           if (drinkTicks >= 100) {
+            if (drinkTicks > 0 && drinkTicks < 183) {
+                this.getNavigation().stop();
+            }
+            if (drinkTicks >= 183) {
                 BrainUtils.clearMemory(this, MemoryTypesInit.IS_DRINKING.get());
                 BrainUtils.clearMemory(this, MemoryTypesInit.IS_THIRSTY.get());
-                BrainUtils.clearMemory(this, MemoryTypesInit.HAS_FOUND_WATER.get());
                 BrainUtils.clearMemory(this, MemoryModuleType.LOOK_TARGET);
                 BrainUtils.clearMemory(this, MemoryModuleType.WALK_TARGET);
                 BrainUtils.clearMemory(this, MemoryTypesInit.HAS_FOUND_WATER.get());
                 drinkTicks = 0;
 
+            }
+        }
+
+           if(BrainUtils.hasMemory(this,MemoryTypesInit.IS_RESTING.get())){
+               this.getNavigation().stop();
+               if(restTicks == 0){
+                   this.triggerAnim(RESTING_CONTROLLER,"rest");
+               } else if (restTicks >= 69){
+                   this.triggerAnim(RESTING_CONTROLLER, "restidle");
+               }
+               restTicks++;
+               if(restTicks > 200) {
+                   this.setCurrentEnergyToMax();
+                   BrainUtils.clearMemory(this, MemoryTypesInit.IS_TIRED.get());
+                   BrainUtils.clearMemory(this,MemoryTypesInit.IS_RESTING.get());
+                   this.triggerAnim(RESTING_CONTROLLER,"getup");
+                   restTicks = 0;
+               }
+
            }
+
+
+
+        if(BrainUtils.hasMemory(this, MemoryTypesInit.IS_EATING.get())) {
+            if(eatTicks == 0){
+                this.triggerAnim("eat_controller","eat1");
+               this.setCurrentHungerToMax();
+            }
+            eatTicks++;
+            if(eatTicks > 0 && eatTicks < 90){
+                this.getNavigation().stop();
+            }
+           if (eatTicks >= 90) {
+               @Nullable ItemStack foodItem;
+               if(BrainUtils.hasMemory(this, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM)) {
+                   foodItem = BrainUtils.getMemory(this, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM).getItem();
+                   if (foodItem != null) {
+                       foodItem.shrink(1);
+                   }
+               }
+                BrainUtils.clearMemory(this, MemoryTypesInit.IS_EATING.get());
+                BrainUtils.clearMemory(this, MemoryTypesInit.IS_HUNGRY.get());
+                BrainUtils.clearMemory(this, MemoryModuleType.LOOK_TARGET);
+                BrainUtils.clearMemory(this, MemoryModuleType.WALK_TARGET);
+                BrainUtils.clearMemory(this, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
+                eatTicks = 0;
+
+           }
+
         }
 
     }
@@ -291,7 +396,8 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
 
         return List.of(
                 waterSourceSensor,
-                preyTargetFinder
+                preyTargetFinder,
+                foodItemSensor
         );
     }
 
@@ -300,8 +406,9 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
         return BrainActivityGroup.coreTasks(
                 new LookAtTarget<>(),
                 new MoveToWalkTarget<>(),
-               new DrinkBehaviour<>()
-               // new EatBehaviour<>(this.getEating1AnimTickDelay()).targetPredicate((dinosaur, item) -> canTargetItem(item) && dinosaur.isHungry())
+               new DrinkBehaviour<>(),
+                new EatBehaviour<>(),
+                new RestingBehaviour<>()
         );
     }
 
@@ -312,7 +419,7 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                 new FirstApplicableBehaviour<>(
                         new SetWalkTargetToWaterSource<>()
                                 .closeEnoughWhen((entity, pos)-> 3),
-                        new LookAtTarget<Dinosaur>().startCondition(entity -> BrainUtils.hasMemory(entity, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM)),
+                        new SetWalkTargetToFoodItem<>().predicate((dinosaur, item) -> dinosaur.canTargetFoodItem(item)),
                         new TargetOrRetaliate<>().attackablePredicate(entity -> canTarget(entity))),
                 new OneRandomBehaviour<>(
                         new SetRandomWalkTarget<>()
@@ -325,17 +432,25 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                 new InvalidateAttackTarget<>()
                         .invalidateIf((entity, target) -> target instanceof Player pl && (pl.isCreative() || pl.isSpectator())),
                 new SetWalkTargetToAttackTarget<>().speedMod((owner, target) -> 1.5f),
-                new AnimatableMeleeAttack<>(4)
+                new AnimatableMeleeAttack<>(20)
         );
     }
 
     @Override
     public void tick() {
         super.tick();
-        if(!this.level().isClientSide()) {
-            hungerTicker++;
-            thirstTicker++;
+        if(!level().isClientSide()) {
+           hungerTicker++;
+           thirstTicker++;
+           energyTicker++;
             if (hungerTicker >= this.getHungerTickRate()) {
+                System.err.println("Dinosaur Needs Status: " + this.getDinoData().getBaseDino() + ", " + this.getUUID());
+                System.err.println("Hunger Status: " + this.getCurrentHunger());
+                System.err.println("Thirst Status: " + this.getCurrentThirst());
+                System.err.println("Energy Status: " + this.getCurrentEnergy());
+                System.err.println("Hunger Depletion: " + this.getEatRate());
+                System.err.println("Thirst Depletion: " + this.getDehydrationRate());
+                System.err.println("Energy Depletion: " + this.getExhaustionRate());
                 if (this.isStarving()) {
                     this.hurt(damageSources().starve(), 0.5f);
                 } else {
@@ -352,6 +467,17 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
                 }
                 thirstTicker = 0;
             }
+            //Temporary until later implementations of behaviour
+            if(energyTicker >= this.getEnergyTickRate()) {
+                if(this.isExhausted()){
+
+                } else if (!BrainUtils.hasMemory(this,MemoryTypesInit.IS_RESTING.get())){
+                        this.decreaseEnergy(this.getExhaustionRate());
+                }
+                energyTicker = 0;
+            }
+
+            //Telling the brain that a need must be met.
            if(this.isThirsty() && !BrainUtils.hasMemory(this,MemoryTypesInit.IS_THIRSTY.get())){
                BrainUtils.setMemory(this,MemoryTypesInit.IS_THIRSTY.get(), true);
            } else if (!this.isThirsty() && BrainUtils.hasMemory(this,MemoryTypesInit.IS_THIRSTY.get())){
@@ -363,6 +489,14 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
            } else if (!this.isHungry() && BrainUtils.hasMemory(this,MemoryTypesInit.IS_HUNGRY.get())){
                BrainUtils.clearMemory(this,MemoryTypesInit.IS_HUNGRY.get());
            }
+
+            if(this.isTired() && !BrainUtils.hasMemory(this, MemoryTypesInit.IS_TIRED.get())){
+                BrainUtils.setMemory(this, MemoryTypesInit.IS_TIRED.get(), true);
+            } else if (!this.isTired() && BrainUtils.hasMemory(this,MemoryTypesInit.IS_TIRED.get())){
+                BrainUtils.clearMemory(this,MemoryTypesInit.IS_TIRED.get());
+            }
+
+
         }
     }
 
@@ -416,13 +550,44 @@ public class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity,
     public void decreaseThirst(float pValue){
         this.entityData.set(CURRENT_THIRST, this.getCurrentThirst() - pValue);
     }
+    public float getEnergyCapacity(){
+        return (float) this.getDinoBehaviour().energyCapacity();
+    }
 
+    public float getCurrentEnergy(){
+        return this.entityData.get(CURRENT_ENERGY);
+    }
+    public float getExhaustionRate(){
+        return (float) this.getDinoBehaviour().baseExhaustionRate();
+    }
+
+    public void setCurrentEnergyToMax(){
+        this.entityData.set(CURRENT_ENERGY,(float) this.getDinoBehaviour().energyCapacity());
+    }
+    public void increaseEnergy(float pIncrease){
+        float newEnergyValue = this.getCurrentEnergy() + pIncrease;
+        this.entityData.set(CURRENT_ENERGY, newEnergyValue);
+    }
+   public void decreaseEnergy(float pDecrease){
+        float newEnergyvalue = this.getCurrentEnergy() - pDecrease;
+        this.entityData.set(CURRENT_ENERGY, newEnergyvalue);
+    }
+    public int getEnergyTickRate(){
+        return this.getDinoBehaviour().energyTickRate();
+    }
 
     public boolean isThirsty(){
-        return this.getCurrentThirst() < this.getMaxThirstCapacity()/2;
+        return this.getCurrentThirst() < this.getMaxThirstCapacity()-20;
     }
     public boolean isDehydrated(){
         return this.entityData.get(CURRENT_THIRST) <= 0;
+    }
+    public boolean isExhausted(){
+        return this.entityData.get(CURRENT_ENERGY) <= 0;
+    }
+    public boolean isTired(){
+        float energeryCapacity = (float) this.entityData.get(DINO_BEHAVIOUR).getDouble("energy_capacity");
+        return this.getCurrentEnergy() < (energeryCapacity * 0.5) || this.getCurrentEnergy() == 0;
     }
 
     //ATTRIBUTES

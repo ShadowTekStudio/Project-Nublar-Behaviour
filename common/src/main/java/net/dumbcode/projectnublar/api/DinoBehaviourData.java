@@ -7,12 +7,15 @@ public record DinoBehaviourData(
 
         double stomachCapacity,
         double thirstCapacity,
+        double energyCapacity,
 
         double eatRate,
         double dehydrationRate,
+        double baseExhaustionRate,
 
         int hungerTickRate,
         int thirstTickRate,
+        int energyTickRate,
 
         double lowRisk,
         double mediumRisk,

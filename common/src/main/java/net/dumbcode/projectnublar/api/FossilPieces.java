@@ -15,6 +15,7 @@ public class FossilPieces {
     public static FossilPiece SPINE = registerPiece("spine");
     public static FossilPiece LEAF = registerPiece("leaf");
     public static FossilPiece REX_SKULL = registerPiece("rex_skull", "tyrannosaurus_rex");
+    public static FossilPiece TRICERATOPS_SKULL = registerPiece("triceratops_skull", "triceratops");
 
     public static List<FossilPiece> getPieces() {
         return PIECES;

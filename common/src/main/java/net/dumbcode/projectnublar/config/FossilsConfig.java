@@ -42,6 +42,7 @@ public class FossilsConfig {
     public Set fern;
 
     public Fossil tyrannosaurus_rex;
+    public Fossil triceratops;
 
     public FossilsConfig(ForgeConfigSpec.Builder builder) {
 
@@ -51,6 +52,9 @@ public class FossilsConfig {
         builder.comment("defines the configured information for each type of fossil");
         builder.push("tyrannosaurus_rex");
         tyrannosaurus_rex = registerFossil("projectnublar:tyrannosaurus_rex", new Fossil(builder, FossilSets.BIPED, Map.of(FossilPieces.REX_SKULL, 1), 1, List.of("cretaceous"), List.of(Biomes.DESERT.location(), Biomes.FOREST.location())));
+        builder.pop();
+        builder.push("triceratops");
+        triceratops = registerFossil("projectnublar:triceratops", new Fossil(builder,FossilSets.QUADRUPED, Map.of(FossilPieces.TRICERATOPS_SKULL, 1), 1, List.of("cretaceous"),List.of(Biomes.DESERT.location(),Biomes.FOREST.location())));
         builder.pop();
         builder.pop();
 
@@ -210,6 +214,10 @@ public class FossilsConfig {
         public ForgeConfigSpec.ConfigValue<List<? extends Integer>> weights() {
             return weights;
         }
+    }
+
+    public static Map<String, Set> getSETS() {
+        return SETS;
     }
 
     public record Period(ForgeConfigSpec.IntValue minY, ForgeConfigSpec.IntValue maxY,

@@ -1,0 +1,7 @@
+{
+  "diet_id": "triceratops_diet",
+  "valid_food_items": {
+    "item.minecraft.wheat": 5.0
+    }
+
+}

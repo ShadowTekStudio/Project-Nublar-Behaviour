@@ -33,10 +33,22 @@ public class CommonModEvents {
             List<String> biomes = fossil.getBiomes().get();
             SimpleWeightedRandomList.Builder<FossilPiece> blockStates = new SimpleWeightedRandomList.Builder<>();
             FossilsConfig.Set set = FossilsConfig.getSet(fossil.getPieces().get());
-            for(int i = 0; i < set.pieces().get().size(); i++) {
-                String piece = set.pieces().get().get(i);
-                int weight = set.weights().get().get(i);
-                blockStates.add(FossilPieces.getPieceByName(piece), weight);
+            int setSize = set.pieces.get().size();
+            int weightSize = set.weights.get().size();
+            try {
+                for (int i = 0; i < setSize; i++) {
+                    String piece = set.pieces().get().get(i);
+                    if( i < weightSize){
+                    int weight = set.weights().get().get(i);
+                    blockStates.add(FossilPieces.getPieceByName(piece), weight);
+                    }
+                }
+            } catch (IndexOutOfBoundsException ex){
+                System.err.println("Index error while building fossil pieces:");
+                System.err.println("Type: " + type);
+                System.err.println("Pieces size: " + setSize);
+                System.err.println("Weights size: " + weightSize);
+                ex.printStackTrace();
             }
             ProjectNublar.WEIGHTED_FOSSIL_BLOCKS_MAP.put(type, blockStates.build());
             for (String period : periods) {
@@ -53,5 +65,4 @@ public class CommonModEvents {
         });
         boolean breakHere = true;
     }
-
 }

@@ -54,13 +54,16 @@ public class BehaviourDataReloadListener extends SimpleJsonResourceReloadListene
 
                 double stomachCapacity = GsonHelper.getAsDouble(jsonObject, "default_stomach_capacity");
                 double thirstCapacity = GsonHelper.getAsDouble(jsonObject, "default_thirst_capacity");
+                double energyCapacity = GsonHelper.getAsDouble(jsonObject, "default_energy_capacity");
 
 
                 double eatRate = GsonHelper.getAsDouble(jsonObject, "default_eat_rate");
                 double dehydrationRate = GsonHelper.getAsDouble(jsonObject, "default_dehydration_rate");
+                double exhaustionRate = GsonHelper.getAsDouble(jsonObject, "default_exhaustion_rate");
 
                 int hungerTickRate = GsonHelper.getAsInt(jsonObject, "default_hunger_tick_rate");
                 int thirstTickRate = GsonHelper.getAsInt(jsonObject, "default_thirst_tick_rate");
+                int energyTickRate = GsonHelper.getAsInt(jsonObject, "default_energy_tick_rate");
 
                 double lowRisk = GsonHelper.getAsDouble(jsonObject, "low_risk_threshold");
                 double mediumRisk = GsonHelper.getAsDouble(jsonObject, "medium_risk_threshold");
@@ -70,7 +73,7 @@ public class BehaviourDataReloadListener extends SimpleJsonResourceReloadListene
                 int drinkingDelay = GsonHelper.getAsInt(jsonObject,"drinking_anim_delay");
 
                 DinoBehaviourData data = new DinoBehaviourData(
-                        entityIdstring,dietID,dietType,stomachCapacity,thirstCapacity,eatRate,dehydrationRate,hungerTickRate,thirstTickRate,lowRisk,mediumRisk,highRisk,eating1Delay,drinkingDelay
+                        entityIdstring,dietID,dietType,stomachCapacity,thirstCapacity,energyCapacity,eatRate,dehydrationRate,exhaustionRate,hungerTickRate,thirstTickRate,energyTickRate,lowRisk,mediumRisk,highRisk,eating1Delay,drinkingDelay
                 );
 
 

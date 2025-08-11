@@ -1,5 +1,6 @@
 package net.dumbcode.projectnublar.init;
 
+import net.dumbcode.projectnublar.api.DinoBehaviourData;
 import net.dumbcode.projectnublar.api.DinoData;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.syncher.EntityDataSerializer;

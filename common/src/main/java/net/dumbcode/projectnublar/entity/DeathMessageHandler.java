@@ -17,7 +17,7 @@ public class DeathMessageHandler {
     }
     public static String reasonForDeath(Dinosaur dinosaur){
         String reason = " has died.";
-
+/*
         if(dinosaur.isDehydrated() && dinosaur.isStarving() && dinosaur.isExhausted()){
             reason = " has died of Exposure.";
         } else if(dinosaur.isDehydrated() && dinosaur.isStarving()) {
@@ -27,6 +27,8 @@ public class DeathMessageHandler {
         } else if(dinosaur.isStarving()){
             reason = " has died from starvation.";
         }
+
+ */
         return reason;
     }
 }

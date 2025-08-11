@@ -11,11 +11,11 @@
 
  "default_eat_rate": 1.0,
  "default_dehydration_rate": 1.0,
- "default_exhaustion_rate": 1.0,
+ "default_exhaustion_rate": 10.0,
 
  "default_hunger_tick_rate": 200,
  "default_thirst_tick_rate": 250,
- "default_energy_tick_rate": 300,
+ "default_energy_tick_rate": 50,
 
 
  "low_risk_threshold": 0.9,

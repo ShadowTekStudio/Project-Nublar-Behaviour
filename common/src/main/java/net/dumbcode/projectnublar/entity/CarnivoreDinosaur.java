@@ -31,7 +31,7 @@ public class CarnivoreDinosaur extends Dinosaur{
             return false;
         }
 
-        if(this.getCurrentHunger() > this.getStomachCapacity() * this.getDinoBehaviour().lowRisk()){
+        if(this.entityData.get(HUNGER) > this.getMaxHunger() * this.getDinoBehaviour().lowRisk()){
             return false;
         }
 

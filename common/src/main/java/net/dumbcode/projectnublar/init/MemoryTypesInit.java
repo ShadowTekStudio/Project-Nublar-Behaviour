@@ -47,6 +47,9 @@ public class MemoryTypesInit {
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_SITTING =
             MEMORIES.register("is_dino_sitting", ()-> new MemoryModuleType<>(Optional.empty()));
 
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> GETTING_UP =
+            MEMORIES.register("is_dino_rising", ()-> new MemoryModuleType<>(Optional.empty()));
+
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_SLEEPING =
             MEMORIES.register("is_dino_sleeping", ()-> new MemoryModuleType<>(Optional.empty()));
 

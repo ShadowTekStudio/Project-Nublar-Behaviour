@@ -67,6 +67,7 @@ public class DinosaurRenderer extends GeoEntityRenderer<Dinosaur> {
         return 0.005f;
     }
 
+
     //    @Override
 //    public RenderType getRenderType(Dinosaur animatable, ResourceLocation texture, @Nullable MultiBufferSource bufferSource, float partialTick) {
 //        return RenderType.entityTranslucent(texture);

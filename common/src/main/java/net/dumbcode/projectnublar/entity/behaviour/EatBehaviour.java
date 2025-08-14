@@ -29,12 +29,16 @@ import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
-public class EatBehaviour<E extends Dinosaur> extends ExtendedBehaviour<E> {
+public class EatBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM, MemoryStatus.VALUE_PRESENT),Pair.of(MemoryTypesInit.IS_HUNGRY.get(), MemoryStatus.VALUE_PRESENT));
 
     //Not working yet, need to figure out how to adapt for new approach
 
     protected BiPredicate<E,? extends ItemEntity> targetPredicate = (dinosaur, foodItem) -> true ;
+
+    public EatBehaviour(int delayTicks) {
+        super(delayTicks);
+    }
 
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
@@ -53,11 +57,27 @@ public class EatBehaviour<E extends Dinosaur> extends ExtendedBehaviour<E> {
     }
 
     @Override
+    protected void doDelayedAction(E dinosaur) {
+        ItemEntity nearbyFood = BrainUtils.getMemory(dinosaur, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
+        ItemStack foodItem = nearbyFood.getItem();
+        foodItem.shrink(1);
+        dinosaur.feed(foodItem);
+    }
+
+    @Override
     protected void start(E dinosaur) {
       BrainUtils.setMemory(dinosaur, MemoryTypesInit.IS_EATING.get(), true);
 
     }
 
+    @Override
+    protected void stop(E dinosaur) {
+        BrainUtils.clearMemory(dinosaur, MemoryTypesInit.IS_EATING.get());
+        BrainUtils.clearMemory(dinosaur, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
+        if(!dinosaur.isHungry()) {
+            BrainUtils.clearMemory(dinosaur, MemoryTypesInit.IS_HUNGRY.get());
+        }
+    }
 
     public EatBehaviour<E> targetPredicate(BiPredicate<E,ItemEntity> predicate) {
         this.targetPredicate = predicate;

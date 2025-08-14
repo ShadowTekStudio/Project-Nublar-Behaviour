@@ -26,6 +26,15 @@ public class MemoryTypesInit {
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_HUNGRY =
             MEMORIES.register("is_dino_hungry", ()-> new MemoryModuleType<>(Optional.empty()));
 
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_STARVING =
+            MEMORIES.register("is_dino_starving", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_DEHYDRATED =
+            MEMORIES.register("is_dino_dehydrated", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_EXHAUSTED =
+            MEMORIES.register("is_dino_exhausted", ()-> new MemoryModuleType<>(Optional.empty()));
+
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_THIRSTY =
             MEMORIES.register("is_dino_thirsty", ()-> new MemoryModuleType<>(Optional.empty()));
 
@@ -34,6 +43,12 @@ public class MemoryTypesInit {
 
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_RESTING =
             MEMORIES.register("is_dino_resting", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_SITTING =
+            MEMORIES.register("is_dino_sitting", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> GETTING_UP =
+            MEMORIES.register("is_dino_rising", ()-> new MemoryModuleType<>(Optional.empty()));
 
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_SLEEPING =
             MEMORIES.register("is_dino_sleeping", ()-> new MemoryModuleType<>(Optional.empty()));

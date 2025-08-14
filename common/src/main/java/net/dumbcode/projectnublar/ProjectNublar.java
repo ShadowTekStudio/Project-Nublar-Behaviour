@@ -30,6 +30,7 @@ public class ProjectNublar {
         DataSerializerInit.loadClass();
         NetworkInit.registerPackets();
         RecipeInit.loadClass();
+        AttributesInit.loadClass();
         GeneInit.loadClass();
         MemoryTypesInit.loadClass();
     }

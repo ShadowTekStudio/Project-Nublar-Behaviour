@@ -8,25 +8,42 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
+import net.tslat.smartbrainlib.api.core.behaviour.DelayedBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 import net.tslat.smartbrainlib.util.BrainUtils;
 
 import java.util.List;
 import java.util.function.Predicate;
 
-public class RestingBehaviour<E extends Dinosaur> extends ExtendedBehaviour<E> {
+public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryTypesInit.IS_TIRED.get(), MemoryStatus.VALUE_PRESENT));
 
-    protected Predicate<E> canRestPredicate = (dinosaur) -> true;
-
-    public RestingBehaviour<E> canRestPredicate(final Predicate<E> predicate){
-        this.canRestPredicate = predicate; return this;
+    public RestingBehaviour(int delayTicks) {
+        super(delayTicks);
     }
 
     @Override
-    protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-        return (!BrainUtils.hasMemory(entity, MemoryTypesInit.IS_RESTING.get()));
+    protected boolean checkExtraStartConditions(ServerLevel level, E dinosaur) {
+        if (BrainUtils.hasMemory(dinosaur, MemoryTypesInit.IS_DEHYDRATED.get()) || BrainUtils.hasMemory(dinosaur, MemoryTypesInit.IS_STARVING.get())){
+            return BrainUtils.hasMemory(dinosaur, MemoryTypesInit.IS_EXHAUSTED.get());
+        }
+        return BrainUtils.hasMemory(dinosaur, MemoryTypesInit.IS_TIRED.get()) && !BrainUtils.hasMemory(dinosaur, MemoryTypesInit.IS_RESTING.get());
     }
+
+    @Override
+    protected void tick(E dinosaur) {
+        super.tick(dinosaur);
+
+        if(dinosaur.getEntityData().get(Dinosaur.STAMINA) >= dinosaur.getMaxStamina()){
+            BrainUtils.clearMemory(dinosaur, MemoryTypesInit.IS_RESTING.get());
+        }
+        if(dinosaur.isDehydratedOrStarving()){
+            BrainUtils.clearMemory(dinosaur,MemoryTypesInit.IS_RESTING.get());
+            BrainUtils.setMemory(dinosaur, MemoryTypesInit.GETTING_UP.get(), true);
+            dinosaur.getEntityData().set(Dinosaur.IS_RESTING_STATE, false);
+        }
+    }
+
 
     @Override
     protected List<Pair<MemoryModuleType<?>, MemoryStatus>> getMemoryRequirements() {
@@ -35,13 +52,38 @@ public class RestingBehaviour<E extends Dinosaur> extends ExtendedBehaviour<E> {
 
     @Override
     protected void start(E dinosaur) {
-        System.err.println("trying to rest");
         BrainUtils.setMemory(dinosaur, MemoryTypesInit.IS_RESTING.get(), true);
-        BrainUtils.clearMemory(dinosaur, MemoryModuleType.LOOK_TARGET);
-        BrainUtils.clearMemory(dinosaur, MemoryModuleType.WALK_TARGET);
-        BrainUtils.clearMemory(dinosaur, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
-        BrainUtils.clearMemory(dinosaur, MemoryModuleType.ATTACK_TARGET);
-        BrainUtils.clearMemory(dinosaur, MemoryTypesInit.HAS_FOUND_WATER.get());
+        BrainUtils.setMemory(dinosaur, MemoryTypesInit.IS_SITTING.get(), true);
+    }
 
+    @Override
+    protected void doDelayedAction(E entity) {
+        super.doDelayedAction(entity);
+        BrainUtils.clearMemory(entity, MemoryTypesInit.IS_SITTING.get());
+        entity.getEntityData().set(Dinosaur.IS_SITTING_STATE, false);
+        entity.getEntityData().set(Dinosaur.IS_RESTING_STATE, true);
+    }
+
+    @Override
+    protected boolean shouldKeepRunning(E entity) {
+        return !entity.isStaminaFull();
+    }
+
+    @Override
+    protected boolean canStillUse(ServerLevel level, E dinosaur, long gameTime) {
+        return !dinosaur.isStaminaFull();
+    }
+
+    @Override
+    protected boolean timedOut(long gameTime) {
+        return false;
+    }
+
+    @Override
+    protected void stop(E entity) {
+        super.stop(entity);
+        BrainUtils.clearMemory(entity, MemoryTypesInit.IS_TIRED.get());
+        BrainUtils.clearMemory(entity, MemoryTypesInit.IS_RESTING.get());
+        BrainUtils.setMemory(entity, MemoryTypesInit.GETTING_UP.get(), true);
     }
 }

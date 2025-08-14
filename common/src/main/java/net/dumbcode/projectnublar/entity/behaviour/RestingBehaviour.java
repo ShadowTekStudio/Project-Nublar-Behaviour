@@ -18,8 +18,6 @@ import java.util.function.Predicate;
 public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
     private static final List<Pair<MemoryModuleType<?>, MemoryStatus>> MEMORY_REQUIREMENTS = ObjectArrayList.of(Pair.of(MemoryTypesInit.IS_TIRED.get(), MemoryStatus.VALUE_PRESENT));
 
-    private int restTicks = 0;
-
     public RestingBehaviour(int delayTicks) {
         super(delayTicks);
     }
@@ -39,6 +37,11 @@ public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
         if(dinosaur.getEntityData().get(Dinosaur.STAMINA) >= dinosaur.getMaxStamina()){
             BrainUtils.clearMemory(dinosaur, MemoryTypesInit.IS_RESTING.get());
         }
+        if(dinosaur.isDehydratedOrStarving()){
+            BrainUtils.clearMemory(dinosaur,MemoryTypesInit.IS_RESTING.get());
+            BrainUtils.setMemory(dinosaur, MemoryTypesInit.GETTING_UP.get(), true);
+            dinosaur.getEntityData().set(Dinosaur.IS_RESTING_STATE, false);
+        }
     }
 
 
@@ -57,6 +60,8 @@ public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
     protected void doDelayedAction(E entity) {
         super.doDelayedAction(entity);
         BrainUtils.clearMemory(entity, MemoryTypesInit.IS_SITTING.get());
+        entity.getEntityData().set(Dinosaur.IS_SITTING_STATE, false);
+        entity.getEntityData().set(Dinosaur.IS_RESTING_STATE, true);
     }
 
     @Override
@@ -79,7 +84,6 @@ public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
         super.stop(entity);
         BrainUtils.clearMemory(entity, MemoryTypesInit.IS_TIRED.get());
         BrainUtils.clearMemory(entity, MemoryTypesInit.IS_RESTING.get());
-        BrainUtils.clearMemory(entity, MemoryTypesInit.IS_SITTING.get());
-        entity.triggerAnim("rest_controller", "getup");
+        BrainUtils.setMemory(entity, MemoryTypesInit.GETTING_UP.get(), true);
     }
 }

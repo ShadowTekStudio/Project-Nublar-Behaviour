@@ -78,6 +78,10 @@ public abstract class Dinosaur extends TamableAnimal implements FossilRevived, G
     public static EntityDataAccessor<Float> THIRST = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
     public static EntityDataAccessor<Float> STAMINA = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
     public static EntityDataAccessor<Float> SOCIAL = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
+    public static EntityDataAccessor<Boolean> BABY_DATA_ID = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
+    public static EntityDataAccessor<Boolean> JUVENILE_DATA_ID = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
+    public static EntityDataAccessor<Boolean> SUB_ADULT_DATA_ID = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
+    public static EntityDataAccessor<Boolean> ADULT_DATA_ID = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
 
     public final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
@@ -175,6 +179,10 @@ public abstract class Dinosaur extends TamableAnimal implements FossilRevived, G
         this.entityData.define(THIRST, 100.0F);
         this.entityData.define(STAMINA, 100.0F);
         this.entityData.define(SOCIAL, 100.0F);
+        this.entityData.define(BABY_DATA_ID, false);
+        this.entityData.define(JUVENILE_DATA_ID, false);
+        this.entityData.define(SUB_ADULT_DATA_ID, false);
+        this.entityData.define(ADULT_DATA_ID, true);
         this.entityData.define(DinoAnimationUtils.IS_EATING_STATE, false);
         this.entityData.define(DinoAnimationUtils.IS_DRINKING_STATE, false);
         this.entityData.define(DinoAnimationUtils.IS_NESTING_STATE, false);
@@ -203,6 +211,10 @@ public abstract class Dinosaur extends TamableAnimal implements FossilRevived, G
         tag.putFloat("thirst_bar", this.entityData.get(THIRST));
         tag.putFloat("stamina_bar", this.entityData.get(STAMINA));
         tag.putFloat("social_bar", this.entityData.get(SOCIAL));
+        tag.putBoolean("baby_age_boolean", this.entityData.get(BABY_DATA_ID));
+        tag.putBoolean("juvenile_age_boolean", this.entityData.get(JUVENILE_DATA_ID));
+        tag.putBoolean("sub_adult_age_boolean", this.entityData.get(SUB_ADULT_DATA_ID));
+        tag.putBoolean("adult_age_boolean", this.entityData.get(ADULT_DATA_ID));
 
         if(this.entityData.get(DINO_MATE).isPresent()) {
             tag.putUUID("mate_uuid",this.entityData.get(DINO_MATE).get());
@@ -221,6 +233,10 @@ public abstract class Dinosaur extends TamableAnimal implements FossilRevived, G
         this.entityData.set(THIRST, pTag.getFloat("thirst_bar"));
         this.entityData.set(STAMINA, pTag.getFloat("stamina_bar"));
         this.entityData.set(SOCIAL, pTag.getFloat("social_bar"));
+        this.entityData.set(BABY_DATA_ID, pTag.getBoolean("baby_age_boolean"));
+        this.entityData.set(JUVENILE_DATA_ID, pTag.getBoolean("baby_age_boolean"));
+        this.entityData.set(SUB_ADULT_DATA_ID, pTag.getBoolean("baby_age_boolean"));
+        this.entityData.set(ADULT_DATA_ID, pTag.getBoolean("baby_age_boolean"));
 
         if(pTag.contains("mate_uuid")){
             Optional<UUID> mate_uuid = Optional.of(pTag.getUUID("mate_uuid"));
@@ -275,7 +291,7 @@ public abstract class Dinosaur extends TamableAnimal implements FossilRevived, G
         if(this.isFamily(target)){
             return false;
         }
-        if(this.isBaby()){
+        if(this.isBaby() || this.isJuvanile()){
             return false;
         }
 
@@ -394,6 +410,27 @@ public abstract class Dinosaur extends TamableAnimal implements FossilRevived, G
             this.socialDrainTick++;
             this.staminaDrainTick++;
 
+            if(this.isBaby() && !this.entityData.get(BABY_DATA_ID)){
+                this.entityData.set(BABY_DATA_ID, true);
+            } else if (!this.isBaby() && this.entityData.get(BABY_DATA_ID)){
+                this.entityData.set(BABY_DATA_ID, false);
+            }
+            if(this.isJuvanile() && !this.entityData.get(JUVENILE_DATA_ID)){
+                this.entityData.set(JUVENILE_DATA_ID, true);
+            } else if (!this.isJuvanile() && this.entityData.get(JUVENILE_DATA_ID)){
+                this.entityData.set(JUVENILE_DATA_ID, false);
+            }
+            if(this.isSubAdult() && !this.entityData.get(SUB_ADULT_DATA_ID)){
+                this.entityData.set(SUB_ADULT_DATA_ID, true);
+            } else if (!this.isSubAdult() && this.entityData.get(SUB_ADULT_DATA_ID)){
+                this.entityData.set(SUB_ADULT_DATA_ID, false);
+            }
+            if(this.age >= 0 && !this.entityData.get(ADULT_DATA_ID)){
+                this.entityData.set(ADULT_DATA_ID, true);
+            } else if (this.age < 0 && this.entityData.get(ADULT_DATA_ID)){
+                this.entityData.set(ADULT_DATA_ID, false);
+            }
+
           if(this.breedingCoolDown == 0){
                 if(this.getDinoGender() == 1.0F && this.hasMate()) {
                     this.tryBreedWithMate();
@@ -428,8 +465,12 @@ public abstract class Dinosaur extends TamableAnimal implements FossilRevived, G
                 }
                 this.staminaDrainTick = 0;
             }
-            if(this.socialDrainTick >= 100){
+            if(this.socialDrainTick >= 300){
                 this.tickSocial();
+                System.err.println("Dino age" + this.getAge());
+                System.err.println(this.isBaby());
+                System.err.println(this.isJuvanile());
+                System.err.println(this.isSubAdult());
                 this.socialDrainTick = 0;
             }
         }
@@ -649,23 +690,30 @@ public abstract class Dinosaur extends TamableAnimal implements FossilRevived, G
 
     @Override
     public boolean isBaby() {
-        return this.getAge() < -18000;
+        int age = this.age;
+        return age <= -18000;
     }
+
     public boolean isJuvanile(){
-        return this.getAge() >= -18000 && this.getAge() < -12000;
+        int age = this.age;
+        return age <= -12000 && age > -18000;
     }
+
     public boolean isSubAdult(){
-        return this.getAge() >= -12000 && this.getAge() < 0;
+        int age = this.age;
+        return age <= -6000 && age > -12000;
     }
+
     public int getGrowthStage(){
-        if(this.isBaby()){
+        if(this.entityData.get(BABY_DATA_ID)){
             return 1;
         }
-        else if(this.isJuvanile()){
+        else if(this.entityData.get(JUVENILE_DATA_ID)){
             return 2;
         }
-        else if(this.isSubAdult()){
+        else if(this.entityData.get(SUB_ADULT_DATA_ID)){
             return 3;
+
         } else return 4;
     }
 

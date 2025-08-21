@@ -1,9 +1,10 @@
 {
     "schemaVersion": 1,
-    "id": "mod_id",
+    "id": "projectnublar",
     "version": "${version}",
     "name": "${mod_name}",
     "description": "${description}",
+    "accessWidener": "projectnublar.accesswidener",
     "authors": [
         "${mod_author}"
     ],
@@ -16,12 +17,12 @@
     "environment": "*",
     "entrypoints": {
         "main": [
-            "com.example.examplemod.ExampleMod"
+            "net.dumbcode.projectnublar.ProjectNublarFabric"
         ]
     },
     "mixins": [
-        "${mod_id}.mixins.json",
-        "${mod_id}.fabric.mixins.json"
+        "projectnublar.mixins.json",
+        "projectnublar.fabric.mixins.json"
     ],
     "depends": {
         "fabricloader": ">=0.14",

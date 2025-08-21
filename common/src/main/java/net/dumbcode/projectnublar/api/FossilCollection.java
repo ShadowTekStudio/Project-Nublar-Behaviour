@@ -40,7 +40,7 @@ public record FossilCollection(Map<Block,Map<Quality,Map<FossilPiece, DeferredSu
             for (Quality quality : Quality.values()) {
                 String qualityName = quality == Quality.NONE ? "" : quality.getName().toLowerCase() + "_";
                 Map<FossilPiece,DeferredSupplier<Block>> stoneMap2 = new HashMap<>();
-                for (FossilPiece piece : FossilPieces.getPieces()) {
+                for (FossilPiece piece : FossilPieces.getPieces()){
                     stoneMap2.put(piece, BlockInit.registerBlock(qualityName + stoneName + "_" + entityType.getPath() + "_" + piece.name().toLowerCase() +"_fossil", () -> new FossilBlock(BlockBehaviour.Properties.copy(stone).noOcclusion(), entityType, piece, quality,stone)));
                 }
                 qualityMap2.put(quality,stoneMap2);

@@ -11,9 +11,10 @@ import net.fabricmc.fabric.impl.client.rendering.EntityRendererRegistryImpl;
 import net.minecraft.client.renderer.RenderType;
 
 public class ProjectNublarClientFabric implements ClientModInitializer {
-    
+
     @Override
     public void onInitializeClient() {
+     /*
         BlockInit.BLOCKS.getEntries().forEach(block -> {
             BlockRenderLayerMap.INSTANCE.putBlock(block.get(), RenderType.cutout());
         });
@@ -27,5 +28,11 @@ public class ProjectNublarClientFabric implements ClientModInitializer {
         ClientRegistrationHolder.registerItemProperties();
         NetworkInit.registerPackets();
         CommonClientClass.initClient();
+
+
+      */
     }
+
+
+
 }

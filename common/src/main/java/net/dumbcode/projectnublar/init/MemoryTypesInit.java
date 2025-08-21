@@ -5,6 +5,7 @@ import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.DeferredSupplier;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.dumbcode.projectnublar.Constants;
+import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
@@ -14,7 +15,9 @@ import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.function.Supplier;
 
 public class MemoryTypesInit {
@@ -64,6 +67,18 @@ public class MemoryTypesInit {
 
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_EATING =
             MEMORIES.register("is_dino_eating", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_ROARING =
+            MEMORIES.register("is_dino_roaring", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<UUID>> MATE_UUID  =
+            MEMORIES.register("dino_mate_id", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Dinosaur>> MATE  =
+            MEMORIES.register("dino_mate", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<List<Dinosaur>>> NEAREST_DINOSAURS  =
+            MEMORIES.register("dino_nearby_peers", ()-> new MemoryModuleType<>(Optional.empty()));
 
 
     public static void loadClass(){MEMORIES.register();}

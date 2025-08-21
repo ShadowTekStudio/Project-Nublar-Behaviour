@@ -27,6 +27,7 @@ import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.HitResult;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
+import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
@@ -270,6 +271,28 @@ public class BlockConnectableBase extends Block {
         }
         return Shapes.empty();
     }
+
+    private final DiscreteVoxelShape discreteShape = new DiscreteVoxelShape(0,0,0) {
+        @Override
+        public boolean isFull(int i, int i1, int i2) {
+            return false;
+        }
+
+        @Override
+        public void fill(int i, int i1, int i2) {
+
+        }
+
+        @Override
+        public int firstFull(Direction.Axis axis) {
+            return 0;
+        }
+
+        @Override
+        public int lastFull(Direction.Axis axis) {
+            return 0;
+        }
+    };
 
     protected VoxelShape createDelegateShape(VoxelShape shape, VoxelShape interactionShape, BlockGetter world) {
         return new DelegateVoxelShape(shape, (from, to, offset, fallback) -> {

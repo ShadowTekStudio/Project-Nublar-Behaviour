@@ -37,6 +37,7 @@ public class IncubatedEggItem extends DNADataItem {
             dinosaur.setDinoData(dinoData);
             dinosaur.setDinoBehaviour(behaviourData.toNBT(behaviourData));
             dinosaur.setDinoBaseNeeds(behaviourData);
+            dinosaur.setBaby(true);
 
             pContext.getItemInHand().shrink(1);
             return InteractionResult.CONSUME;

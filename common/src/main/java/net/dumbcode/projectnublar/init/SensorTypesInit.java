@@ -4,6 +4,7 @@ import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.DeferredSupplier;
 import dev.architectury.registry.registries.RegistrySupplier;
 import net.dumbcode.projectnublar.Constants;
+import net.dumbcode.projectnublar.entity.sensors.NearbyDinosaurSensor;
 import net.dumbcode.projectnublar.entity.sensors.NearestWaterSourceSensor;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.entity.ai.sensing.SensorType;
@@ -17,7 +18,7 @@ public class SensorTypesInit {
     public static void init(){}
 
     public static final Supplier<SensorType<NearestWaterSourceSensor<?>>> NEAREST_WATER_SOURCE = register("nearest_drinkable_source_block", NearestWaterSourceSensor::new);
-
+    public static final Supplier<SensorType<NearbyDinosaurSensor<?>>> NEARBY_DINOSAURS_SENSOR = register("nearest_dinosaurs", NearbyDinosaurSensor::new);
 
     private static <T extends ExtendedSensor<?>> Supplier<SensorType<T>> register(String id, Supplier<T> sensor) {
         return Constants.PN_SBL_LOADER.registerSensorType(id, sensor);

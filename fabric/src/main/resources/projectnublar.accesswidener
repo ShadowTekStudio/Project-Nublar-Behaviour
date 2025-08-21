@@ -17,3 +17,4 @@ accessible method net/minecraft/world/phys/shapes/VoxelShape getCoords (Lnet/min
 accessible method net/minecraft/world/phys/shapes/SliceShape getCoords (Lnet/minecraft/core/Direction$Axis;)Lit/unimi/dsi/fastutil/doubles/DoubleList;
 accessible method net/minecraft/world/phys/shapes/ArrayVoxelShape getCoords (Lnet/minecraft/core/Direction$Axis;)Lit/unimi/dsi/fastutil/doubles/DoubleList;
 accessible method net/minecraft/world/phys/shapes/CubeVoxelShape getCoords (Lnet/minecraft/core/Direction$Axis;)Lit/unimi/dsi/fastutil/doubles/DoubleList;
+accessible method net/minecraft/client/renderer/entity/EntityRenderers register (Lnet/minecraft/world/entity/EntityType;Lnet/minecraft/client/renderer/entity/EntityRendererProvider;)V

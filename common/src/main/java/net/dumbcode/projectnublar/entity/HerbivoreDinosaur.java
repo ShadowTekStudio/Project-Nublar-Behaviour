@@ -8,15 +8,16 @@ import net.minecraft.world.level.Level;
 
 public class HerbivoreDinosaur extends Dinosaur{
 
-    public HerbivoreDinosaur(EntityType<? extends PathfinderMob> $$0, Level $$1) {
+    public HerbivoreDinosaur(EntityType<? extends Dinosaur> $$0, Level $$1) {
         super($$0, $$1);
     }
 
     @Override
     public boolean canTarget(LivingEntity target) {
-     if(this.getLastAttacker() != target ){
-         return false;
-     }
+        super.canTarget(target);
+        if(this.getLastAttacker() != target ){
+            return false;
+        }
         return target.getVehicle() != this;
     }
 }

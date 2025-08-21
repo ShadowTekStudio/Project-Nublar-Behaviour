@@ -26,11 +26,14 @@ public class DinoLayer {
         return basicLayer;
     }
 
-    public ResourceLocation getTextureLocation(Dinosaur dino) {
-        if(textureLocation == null) {
+    public ResourceLocation getTextureLocation(Dinosaur dino, double gender) {
             ResourceLocation dinoLoc = BuiltInRegistries.ENTITY_TYPE.getKey(dino.getType());
-            textureLocation = new ResourceLocation(dinoLoc.getNamespace(), "textures/entity/" + dinoLoc.getPath() + "/male/" + layerName + ".png");
-        }
+            if(gender == 1.0){
+                textureLocation = new ResourceLocation(dinoLoc.getNamespace(), "textures/entity/" + dinoLoc.getPath() + "/female/" + layerName + ".png");
+            } else if (gender == 2.0){
+                textureLocation = new ResourceLocation(dinoLoc.getNamespace(), "textures/entity/" + dinoLoc.getPath() + "/male/" + layerName + ".png");
+            }
+
         return textureLocation;
     }
 

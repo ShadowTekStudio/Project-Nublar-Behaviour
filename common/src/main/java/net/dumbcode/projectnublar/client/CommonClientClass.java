@@ -49,7 +49,7 @@ public class CommonClientClass {
                 new DinoLayer("nostrils", -1),
                 new DinoLayer("claws", -1)));
         LAYER_REGISTRY.put(EntityInit.TRICERATOPS.get(),List.of(
-                new DinoLayer("base",1),
+                new DinoLayer("back",1),
                 new DinoLayer("midtone",    2),
                 new DinoLayer("darkercolor",2),
                 new DinoLayer("pattern",3),

@@ -1,0 +1,95 @@
+{
+  "entity.tyrannosaurus_rex.vocals.roar":
+  {
+    "category": "entity",
+    "subtitle": "t.rex roar",
+    "sounds": [
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_1", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_2", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_3", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_4", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_5", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_6", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_7", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_8", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_9", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/roar/roar_10", "stream": true}
+    ]
+  },
+
+  "entity.tyrannosaurus_rex.vocals.growl":
+  {
+    "category": "entity",
+    "subtitle": "t.rex growl",
+    "sounds": [
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_1", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_2", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_3", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_4", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_5", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_6", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_7", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_8", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_9", "stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/vocals/growl/growl_10", "stream": true}
+    ]
+  },
+
+  "entity.tyrannosaurus_rex.hurt":
+  {
+    "category": "entity",
+    "subtitle": "t.rex hurt",
+    "sounds":
+    [
+      { "name": "projectnublar:entity/tyrannosaurus_rex/hurt/hurt_1","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/hurt/hurt_2","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/hurt/hurt_3","stream": true}
+    ]
+  },
+
+  "entity.tyrannosaurus_rex.death":
+  {
+    "category": "entity",
+    "subtitle": "t.rex death",
+    "sounds": [
+      { "name": "projectnublar:entity/tyrannosaurus_rex/death/death_1","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/death/death_2","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/death/death_3","stream": true}
+    ]
+  },
+
+  "entity.tyrannosaurus_rex.ambient":
+  {
+    "category": "entity",
+    "subtitle": "t.rex breath",
+    "sounds": [
+      { "name": "projectnublar:entity/tyrannosaurus_rex/ambient/breath_1","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/ambient/breath_2","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/ambient/breath_3","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/ambient/breath_4","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/ambient/breath_5","stream": true}
+    ]
+  },
+
+  "entity.tyrannosaurus_rex.attack.snarl":
+  {
+    "category": "entity",
+    "subtitle": "t.rex snarl 1",
+    "sounds": [
+      { "name": "projectnublar:entity/tyrannosaurus_rex/attack/snarl/attack_snarl_1","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/attack/snarl/attack_snarl_2","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/attack/snarl/attack_snarl_3","stream": true}
+    ]
+  },
+
+  "entity.tyrannosaurus_rex.attack.bite":
+  {
+    "category": "entity",
+    "subtitle": "t.rex bite 1",
+    "sounds": [
+      { "name": "projectnublar:entity/tyrannosaurus_rex/attack/bite/bite_1","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/attack/bite/bite_2","stream": true},
+      { "name": "projectnublar:entity/tyrannosaurus_rex/attack/bite/bite_3","stream": true}
+    ]
+  }
+}

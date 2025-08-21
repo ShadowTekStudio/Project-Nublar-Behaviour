@@ -20,8 +20,8 @@ public class ProjectNublar {
         RegistrarManager registrarManager = RegistrarManager.get(Constants.MODID);
         registrarManager.builder(GeneInit.GENE_KEY.location(), new GeneInit[0]).build();
 
-        ItemInit.loadClass();
         BlockInit.loadClass();
+        ItemInit.loadClass();
         EntityInit.loadClass();
         LootFunctionInit.loadClass();
         FeatureInit.loadClass();
@@ -33,6 +33,7 @@ public class ProjectNublar {
         AttributesInit.loadClass();
         GeneInit.loadClass();
         MemoryTypesInit.loadClass();
+        SoundInit.loadClass();
     }
     public static String checkReplace(String registryObject) {
         return Arrays.stream(registryObject.split("_"))

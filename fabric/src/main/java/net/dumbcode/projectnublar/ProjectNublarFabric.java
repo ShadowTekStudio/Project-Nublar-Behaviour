@@ -4,6 +4,7 @@ import fuzs.forgeconfigapiport.api.config.v2.ForgeConfigRegistry;
 import net.dumbcode.projectnublar.api.FossilPiece;
 import net.dumbcode.projectnublar.api.FossilPieces;
 import net.dumbcode.projectnublar.config.FossilsConfig;
+import net.dumbcode.projectnublar.init.AttributesInit;
 import net.dumbcode.projectnublar.init.EntityInit;
 import net.dumbcode.projectnublar.init.SensorTypesInit;
 import net.fabricmc.api.ModInitializer;

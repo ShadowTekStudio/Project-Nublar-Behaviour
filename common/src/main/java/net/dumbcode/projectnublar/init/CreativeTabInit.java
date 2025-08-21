@@ -203,18 +203,39 @@ public class CreativeTabInit {
             .displayItems(
                     (itemDisplayParameters, output) -> {
                         output.accept(ItemInit.ARTIFICIAL_EGG.get());
-                        ItemStack trexEggItem = new ItemStack(ItemInit.INCUBATED_EGG.get());
+                        ItemStack femaleTrexEggItem = new ItemStack(ItemInit.INCUBATED_EGG.get());
+                        ItemStack maleTrexEggItem = new ItemStack(ItemInit.INCUBATED_EGG.get());
+
                         ItemStack triceratopsEggItem = new ItemStack(ItemInit.INCUBATED_EGG.get());
-                        ItemStack trexEggItemCopy = new ItemStack(ItemInit.UNINCUBATED_EGG.get());
+
+                        ItemStack femaleTrexEggItemCopy = new ItemStack(ItemInit.UNINCUBATED_EGG.get());
+                        ItemStack maleTrexEggItemCopy = new ItemStack(ItemInit.UNINCUBATED_EGG.get());
+
                         ItemStack triceratopsEggItemCopy = new ItemStack(ItemInit.UNINCUBATED_EGG.get());
+
                         DinoData dnaData = new DinoData();
+
+                        //Female Tyrannosaurus
                         dnaData.setBaseDino(EntityInit.TYRANNOSAURUS_REX.get());
+                        dnaData.setGeneValue(GeneInit.GENDER.get(), 1.0D);
                         dnaData.setBasePercentage(100);
-                        dnaData.toStack(trexEggItem);
-                        dnaData.copy().toStack(trexEggItemCopy);
-                        output.accept(trexEggItem);
-                        output.accept(trexEggItemCopy);
+                        dnaData.toStack(femaleTrexEggItem);
+                        dnaData.copy().toStack(femaleTrexEggItemCopy);
+                        output.accept(femaleTrexEggItem);
+                        output.accept(femaleTrexEggItemCopy);
                         dnaData = new DinoData();
+
+                        //Male
+                        dnaData.setBaseDino(EntityInit.TYRANNOSAURUS_REX.get());
+                        dnaData.setGeneValue(GeneInit.GENDER.get(), 2.0D);
+                        dnaData.setBasePercentage(100);
+                        dnaData.toStack(maleTrexEggItem);
+                        dnaData.copy().toStack(maleTrexEggItemCopy);
+                        output.accept(maleTrexEggItem);
+                        output.accept(maleTrexEggItemCopy);
+                        dnaData = new DinoData();
+
+
                         dnaData.setBaseDino(EntityInit.TRICERATOPS.get());
                         dnaData.setBasePercentage(100);
                         dnaData.toStack(triceratopsEggItem);

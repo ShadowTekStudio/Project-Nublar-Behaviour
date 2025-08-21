@@ -5,6 +5,8 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.phys.shapes.DiscreteVoxelShape;
+import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
 
 import java.util.function.Supplier;
@@ -13,7 +15,7 @@ public class DelegateVoxelShape extends VoxelShape {
     private final VoxelShape delegate;
     private final Callback callback;
 
-    public DelegateVoxelShape(VoxelShape delegate, Callback callback) {
+    public DelegateVoxelShape( VoxelShape delegate, Callback callback) {
         super(delegate.shape);
         this.delegate = delegate;
         this.callback = callback;

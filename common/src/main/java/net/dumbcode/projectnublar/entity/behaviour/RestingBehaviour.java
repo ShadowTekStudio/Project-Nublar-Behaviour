@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.init.MemoryTypesInit;
+import net.dumbcode.projectnublar.util.DinoAnimationUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -40,7 +41,7 @@ public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
         if(dinosaur.isDehydratedOrStarving()){
             BrainUtils.clearMemory(dinosaur,MemoryTypesInit.IS_RESTING.get());
             BrainUtils.setMemory(dinosaur, MemoryTypesInit.GETTING_UP.get(), true);
-            dinosaur.getEntityData().set(Dinosaur.IS_RESTING_STATE, false);
+            DinoAnimationUtils.setAnimationState(dinosaur,"rest",false);
         }
     }
 
@@ -60,8 +61,8 @@ public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
     protected void doDelayedAction(E entity) {
         super.doDelayedAction(entity);
         BrainUtils.clearMemory(entity, MemoryTypesInit.IS_SITTING.get());
-        entity.getEntityData().set(Dinosaur.IS_SITTING_STATE, false);
-        entity.getEntityData().set(Dinosaur.IS_RESTING_STATE, true);
+        DinoAnimationUtils.setAnimationState(entity,"sit",false);
+        DinoAnimationUtils.setAnimationState(entity,"rest",true);
     }
 
     @Override
@@ -85,5 +86,6 @@ public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
         BrainUtils.clearMemory(entity, MemoryTypesInit.IS_TIRED.get());
         BrainUtils.clearMemory(entity, MemoryTypesInit.IS_RESTING.get());
         BrainUtils.setMemory(entity, MemoryTypesInit.GETTING_UP.get(), true);
+        DinoAnimationUtils.setAnimationState(entity, "rest", false);
     }
 }

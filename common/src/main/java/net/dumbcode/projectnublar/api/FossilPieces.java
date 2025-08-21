@@ -4,7 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 //pseudo-registry of fossil pieces.
 public class FossilPieces {
+
+
     private static List<FossilPiece> PIECES = new ArrayList<>();
+    private static List<FossilPiece> TYRANNOSAUR_PIECES = new ArrayList<>();
+    private static List<FossilPiece> TRICERATOPS_PIECES = new ArrayList<>();
+
     public static FossilPiece RIBCAGE = registerPiece("ribcage");
     public static FossilPiece NECK = registerPiece("neck");
     public static FossilPiece FOOT = registerPiece("foot");
@@ -20,7 +25,33 @@ public class FossilPieces {
     public static List<FossilPiece> getPieces() {
         return PIECES;
     }
+    public static List<FossilPiece> getTyrannosaurPieces() {
+
+        TYRANNOSAUR_PIECES.add(REX_SKULL);
+        TYRANNOSAUR_PIECES.add(RIBCAGE);
+        TYRANNOSAUR_PIECES.add(ARM);
+        TYRANNOSAUR_PIECES.add(LEG);
+        TYRANNOSAUR_PIECES.add(FOOT);
+        TYRANNOSAUR_PIECES.add(TAIL);
+        TYRANNOSAUR_PIECES.add(SPINE);
+
+
+        return TYRANNOSAUR_PIECES;
+    }
+    public static List<FossilPiece> getTriceratopsPieces() {
+        TRICERATOPS_PIECES.add(TRICERATOPS_SKULL);
+        TRICERATOPS_PIECES.add(RIBCAGE);
+        TRICERATOPS_PIECES.add(ARM);
+        TRICERATOPS_PIECES.add(LEG);
+        TRICERATOPS_PIECES.add(FOOT);
+        TRICERATOPS_PIECES.add(TAIL);
+        TRICERATOPS_PIECES.add(SPINE);
+
+
+        return TRICERATOPS_PIECES;
+    }
     //overload to register common piece
+
     public static FossilPiece registerPiece(String name) {
         return registerPiece(name, "common");
     }
@@ -31,6 +62,8 @@ public class FossilPieces {
         PIECES.add(piece);
         return piece;
     }
+
+
     //get a piece by name
     public static FossilPiece getPieceByName(String name) {
         return PIECES.stream().filter(p -> p.name().equals(name)).findFirst().orElse(null);

@@ -24,35 +24,45 @@ import java.util.List;
 public class DinosaurRenderer extends GeoEntityRenderer<Dinosaur> {
     public DinosaurRenderer(EntityRendererProvider.Context renderManager, DefaultedEntityGeoModel model, List<DinoLayer> layers) {
         super(renderManager, model);
-        for(DinoLayer layer : layers) {
-            this.addRenderLayer(new GeoRenderLayer<>(this) {
-                @Override
-                public void render(PoseStack poseStack, Dinosaur animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
-                    Color color = animatable.layerColor(layers.indexOf(layer) + 1, layer);
-                    buffer = bufferSource.getBuffer(RenderType.entityTranslucent(getTextureResource(animatable)));
-                    reRender(bakedModel, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, packedOverlay, color.getRedFloat(), color.getGreenFloat(), color.getBlueFloat(), 1f);
-//                    reRender(bakedModel, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, packedOverlay, 1, 1, 1, 1);
+          for(DinoLayer layer : layers) {
+           this.addRenderLayer(new GeoRenderLayer<>(this) {
+            @Override
+           public void render(PoseStack poseStack, Dinosaur animatable, BakedGeoModel bakedModel, RenderType renderType, MultiBufferSource bufferSource, VertexConsumer buffer, float partialTick, int packedLight, int packedOverlay) {
+             Color color = animatable.layerColor(layers.indexOf(layer) + 1, layer);
+             buffer = bufferSource.getBuffer(RenderType.entityTranslucent(getTextureResource(animatable)));
+        reRender(bakedModel, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, packedOverlay, color.getRedFloat(), color.getGreenFloat(), color.getBlueFloat(), 1f);
+                   reRender(bakedModel, poseStack, bufferSource, animatable, renderType, buffer, partialTick, packedLight, packedOverlay, 1, 1, 1, 1);
+            }
 
-                }
-
-                @Override
-                public GeoModel<Dinosaur> getGeoModel() {
-                    return DinosaurRenderer.this.getGeoModel();
-                }
-
-                @Override
-                protected ResourceLocation getTextureResource(Dinosaur animatable) {
-                    return layer.getTextureLocation(animatable);
-                }
-            });
+         @Override
+        public GeoModel<Dinosaur> getGeoModel() {
+           return DinosaurRenderer.this.getGeoModel();
         }
+
+         @Override
+         protected ResourceLocation getTextureResource(Dinosaur animatable) {
+           return layer.getTextureLocation(animatable, animatable.getDinoGender());
+         }
+         });
+        }
+
+
     }
-
-
     @Override
     public void scaleModelForRender(float widthScale, float heightScale, PoseStack poseStack, Dinosaur animatable, BakedGeoModel model, boolean isReRender, float partialTick, int packedLight, int packedOverlay) {
-        float scale = ((float) animatable.getDinoData().getGeneValue(GeneInit.SIZE.get()) / 100) + 1.0f;
-        super.scaleModelForRender(scale, scale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
+        float adultScale = ((float) animatable.getDinoData().getGeneValue(GeneInit.SIZE.get()) / 100) + 1.0f;
+        float babyScale = adultScale * 0.25F;
+        float juvenileScale = adultScale * 0.5F;
+        float subAdultScale = adultScale * 0.75F;
+
+        float renderScale = switch (animatable.getGrowthStage()) {
+            case 1 -> babyScale;
+            case 2 -> juvenileScale;
+            case 3 -> subAdultScale;
+            default -> adultScale;
+        };
+
+        super.scaleModelForRender(renderScale, renderScale, poseStack, animatable, model, isReRender, partialTick, packedLight, packedOverlay);
     }
 
     private Color color = null;

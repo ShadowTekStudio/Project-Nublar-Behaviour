@@ -11,22 +11,24 @@ import net.dumbcode.projectnublar.entity.behaviour.EatBehaviour;
 import net.dumbcode.projectnublar.entity.behaviour.GettingUpFromRestBehaviour;
 import net.dumbcode.projectnublar.entity.behaviour.RestingBehaviour;
 import net.dumbcode.projectnublar.entity.sensors.NearestWaterSourceSensor;
+import net.dumbcode.projectnublar.entity.tasks.SetMateFromNearbyDinosaurs;
 import net.dumbcode.projectnublar.entity.tasks.SetWalkTargetToFoodItem;
 import net.dumbcode.projectnublar.entity.tasks.SetWalkTargetToWaterSource;
-import net.dumbcode.projectnublar.init.AttributesInit;
-import net.dumbcode.projectnublar.init.DataSerializerInit;
-import net.dumbcode.projectnublar.init.MemoryTypesInit;
+import net.dumbcode.projectnublar.init.*;
+import net.dumbcode.projectnublar.util.DinoAnimationUtils;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.sounds.SoundEvent;
 import net.minecraft.util.Mth;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
+import net.minecraft.world.entity.*;
 import net.minecraft.world.entity.ai.Brain;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.BreedGoal;
+import net.minecraft.world.entity.animal.Animal;
 import net.minecraft.world.entity.item.ItemEntity;
 import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
@@ -41,6 +43,7 @@ import net.tslat.smartbrainlib.api.core.behaviour.FirstApplicableBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.OneRandomBehaviour;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.attack.AnimatableMeleeAttack;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.look.LookAtTarget;
+import net.tslat.smartbrainlib.api.core.behaviour.custom.move.FollowParent;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.move.MoveToWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetRandomWalkTarget;
 import net.tslat.smartbrainlib.api.core.behaviour.custom.path.SetWalkTargetToAttackTarget;
@@ -56,52 +59,39 @@ import software.bernie.geckolib.constant.DefaultAnimations;
 import software.bernie.geckolib.core.animatable.GeoAnimatable;
 import software.bernie.geckolib.core.animatable.instance.AnimatableInstanceCache;
 import software.bernie.geckolib.core.animation.*;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.core.object.Color;
 import software.bernie.geckolib.core.object.PlayState;
 import software.bernie.geckolib.util.GeckoLibUtil;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+import java.util.UUID;
 
-public abstract class Dinosaur extends PathfinderMob implements FossilRevived, GeoEntity, SmartBrainOwner<Dinosaur> {
+public abstract class Dinosaur extends TamableAnimal implements FossilRevived, GeoEntity, SmartBrainOwner<Dinosaur> {
     public static EntityDataAccessor<DinoData> DINO_DATA = SynchedEntityData.defineId(Dinosaur.class, DataSerializerInit.DINO_DATA);
     public static EntityDataAccessor<CompoundTag> DINO_BEHAVIOUR = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.COMPOUND_TAG);
+    public static EntityDataAccessor<Optional<UUID>> DINO_FAMILY_UUID = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.OPTIONAL_UUID);
+    public static EntityDataAccessor<Optional<UUID>> DINO_MATE = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.OPTIONAL_UUID);
     public static EntityDataAccessor<Float> HUNGER = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
     public static EntityDataAccessor<Float> THIRST = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
     public static EntityDataAccessor<Float> STAMINA = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
     public static EntityDataAccessor<Float> SOCIAL = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.FLOAT);
-
-    public static EntityDataAccessor<Boolean> IS_EATING_STATE = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
-    public static EntityDataAccessor<Boolean> IS_DRINKING_STATE = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
-    public static EntityDataAccessor<Boolean> IS_SITTING_STATE = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
-    public static EntityDataAccessor<Boolean> IS_RESTING_STATE = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
-    public static EntityDataAccessor<Boolean> IS_RISING_STATE = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
-    public static EntityDataAccessor<Boolean> IS_ATTACKING_STATE = SynchedEntityData.defineId(Dinosaur.class, EntityDataSerializers.BOOLEAN);
-
-
-    protected static final RawAnimation DRINKING_ANIM = RawAnimation.begin().thenLoop("drink");
-    protected static final RawAnimation EATING_ANIM = RawAnimation.begin().thenLoop("eat1");
-    protected static final RawAnimation REST_ANIM = RawAnimation.begin().thenLoop("rest");
-    protected static final RawAnimation REST_IDLE_ANIM = RawAnimation.begin().thenPlay("restidle");
-    protected static final RawAnimation GETTING_UP_ANIM = RawAnimation.begin().thenPlay("getup");
-    protected static final RawAnimation WALK_ANIM = RawAnimation.begin().thenLoop("move.walk");
-    protected static final RawAnimation IDLE_ANIM = RawAnimation.begin().thenLoop("misc.idle");
-    protected static final RawAnimation ATTACK_ANIM = RawAnimation.begin().thenLoop("attack1");
-
 
     public final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
 
     protected @Nullable DinoBehaviourData cachedBehaviourData;
 
     private DinoDietData dietData;
-    private int drinkTicks = 0;
-    private int eatTicks = 0;
 
     private int hungerDrainTick;
     private int staminaDrainTick;
     private int thirstDrainTick;
     private int socialDrainTick;
+    private int breedingCoolDown = 500;
 
-    public Dinosaur(EntityType<? extends PathfinderMob> $$0, Level $$1) {
+    public Dinosaur(EntityType<? extends TamableAnimal> $$0, Level $$1) {
         super($$0, $$1);
 
     }
@@ -110,26 +100,45 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
     public void registerControllers(AnimatableManager.ControllerRegistrar controllers) {
         controllers.add(DefaultAnimations.genericWalkController(this));
         controllers.add(new AnimationController<GeoAnimatable>(this, "dino_controller",0,this::animationPredicate));
+        controllers.add(new AnimationController<GeoAnimatable>(this, "dino_secondary_Controller",0,this::animationPredicateAmbient));
+    }
+    private <T extends GeoAnimatable> PlayState animationPredicateAmbient(AnimationState<T> state) {
+
+    return PlayState.STOP;
+
     }
 
+    //STOP THE GAME DESPAWNING AFTER DEATH
+    @Override
+    protected void tickDeath() {}
+
     private <T extends GeoAnimatable> PlayState animationPredicate(AnimationState<T> state) {
+        if(this.isDeadOrDying()){
+            return state.setAndContinue(DinoAnimationUtils.DEAD_ANIM);
+        }
         if(this.isAttacking()){
-            return state.setAndContinue(ATTACK_ANIM);
+            return state.setAndContinue(DinoAnimationUtils.ATTACK_ANIM);
         }
         if(this.isSitting()){
-            return state.setAndContinue(REST_ANIM);
+            return state.setAndContinue(DinoAnimationUtils.REST_ANIM);
         }
         if(this.isRising()){
-            return state.setAndContinue(GETTING_UP_ANIM);
+            return state.setAndContinue(DinoAnimationUtils.GETTING_UP_ANIM);
         }
         if(this.isResting()) {
-            return state.setAndContinue(REST_IDLE_ANIM);
+            return state.setAndContinue(DinoAnimationUtils.REST_IDLE_ANIM);
         }
         if(this.isDrinking()) {
-            return state.setAndContinue(DRINKING_ANIM);
+            return state.setAndContinue(DinoAnimationUtils.DRINKING_ANIM);
         }
         if (this.isEating()) {
-            return  state.setAndContinue(EATING_ANIM);
+            return  state.setAndContinue(DinoAnimationUtils.EATING_ANIM);
+        }
+        if (this.isInWater() && state.isMoving()){
+            return state.setAndContinue(DinoAnimationUtils.SWIM_ANIM);
+        }
+        if(!state.isMoving() && this.isIdle()){
+            return state.setAndContinue(DinoAnimationUtils.IDLE_ANIM);
         }
 
         return PlayState.STOP;
@@ -160,16 +169,29 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
         super.defineSynchedData();
         this.entityData.define(DINO_DATA, new DinoData());
         this.entityData.define(DINO_BEHAVIOUR, new CompoundTag());
+        this.entityData.define(DINO_FAMILY_UUID, Optional.empty());
+        this.entityData.define(DINO_MATE, Optional.empty());
         this.entityData.define(HUNGER, 100.0F);
         this.entityData.define(THIRST, 100.0F);
         this.entityData.define(STAMINA, 100.0F);
         this.entityData.define(SOCIAL, 100.0F);
-        this.entityData.define(IS_EATING_STATE, false);
-        this.entityData.define(IS_DRINKING_STATE, false);
-        this.entityData.define(IS_RESTING_STATE, false);
-        this.entityData.define(IS_RISING_STATE, false);
-        this.entityData.define(IS_SITTING_STATE, false);
-        this.entityData.define(IS_ATTACKING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_EATING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_DRINKING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_NESTING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_RESTING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_RISING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_SITTING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_ATTACKING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_FLINCHING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_DEAD_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_SWIMMING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_RUNNING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.LOOKING_LEFT_STATE, false);
+        this.entityData.define(DinoAnimationUtils.LOOKING_RIGHT_STATE, false);
+        this.entityData.define(DinoAnimationUtils.TURNING_RIGHT_STATE, false);
+        this.entityData.define(DinoAnimationUtils.TURNING_LEFT_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_ROARING_STATE, false);
+        this.entityData.define(DinoAnimationUtils.IS_SPEAKING_STATE, false);
     }
 
     @Override
@@ -181,6 +203,13 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
         tag.putFloat("thirst_bar", this.entityData.get(THIRST));
         tag.putFloat("stamina_bar", this.entityData.get(STAMINA));
         tag.putFloat("social_bar", this.entityData.get(SOCIAL));
+
+        if(this.entityData.get(DINO_MATE).isPresent()) {
+            tag.putUUID("mate_uuid",this.entityData.get(DINO_MATE).get());
+        }
+        if(this.entityData.get(DINO_FAMILY_UUID).isPresent()) {
+            tag.putUUID("family_uuid",this.entityData.get(DINO_FAMILY_UUID).get());
+        }
     }
 
     @Override
@@ -192,8 +221,23 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
         this.entityData.set(THIRST, pTag.getFloat("thirst_bar"));
         this.entityData.set(STAMINA, pTag.getFloat("stamina_bar"));
         this.entityData.set(SOCIAL, pTag.getFloat("social_bar"));
+
+        if(pTag.contains("mate_uuid")){
+            Optional<UUID> mate_uuid = Optional.of(pTag.getUUID("mate_uuid"));
+            this.entityData.set(DINO_MATE, mate_uuid);
+        } else this.entityData.set(DINO_MATE, Optional.empty());
+
+        if(pTag.contains("family_uuid")){
+            Optional<UUID> mate_uuid = Optional.of(pTag.getUUID("family_uuid"));
+            this.entityData.set(DINO_FAMILY_UUID, mate_uuid);
+        } else this.entityData.set(DINO_FAMILY_UUID, Optional.empty());
+
     }
 
+    @Override
+    public boolean isPersistenceRequired() {
+        return true;
+    }
 
     @Override
     public AnimatableInstanceCache getAnimatableInstanceCache() {
@@ -227,9 +271,14 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
     }
 
     public boolean canTarget(LivingEntity target) {
-        if(this.isSleeping()){
+
+        if(this.isFamily(target)){
             return false;
         }
+        if(this.isBaby()){
+            return false;
+        }
+
        return target.getVehicle() != this;
     }
 
@@ -238,6 +287,12 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
             return false;
         }
         return this.getDinoDiet().foodMap().containsKey(target.getItem().getDescriptionId());
+    }
+
+    @Override
+    public boolean isFood(ItemStack stack) {
+        DinoDietData validfood = DietReloadListener.getDietInfoForType(this.getDinoBehaviour().dietID());
+        return validfood.foodMap().containsKey(stack.getDescriptionId());
     }
 
     //BRAIN
@@ -263,13 +318,12 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
         foodItemSensor.setPredicate((item, dinosaur) -> dinosaur.canTargetFoodItem(item));
         foodItemSensor.setRadius(20);
 
-        NearbyLivingEntitySensor<Dinosaur> preyTargetFinder = new NearbyLivingEntitySensor<>();
-        preyTargetFinder.setPredicate((entity, dinosaur)-> dinosaur.canTarget(entity));
+        NearbyLivingEntitySensor<Dinosaur> nearbyLivingEntitySensor = new NearbyLivingEntitySensor<>();
 
 
         return List.of(
                 waterSourceSensor,
-                preyTargetFinder,
+                nearbyLivingEntitySensor,
                 foodItemSensor
         );
     }
@@ -277,20 +331,25 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
     @Override
     public BrainActivityGroup<? extends Dinosaur> getCoreTasks() {
         return BrainActivityGroup.coreTasks(
-                new LookAtTarget<>().stopIf((entity) -> BrainUtils.hasMemory(entity, MemoryTypesInit.IS_RESTING.get())),
-                new MoveToWalkTarget<>().stopIf((entity) -> BrainUtils.hasMemory(entity, MemoryTypesInit.IS_RESTING.get())),
+                new LookAtTarget<>().stopIf((entity) -> (entity instanceof Dinosaur dinosaur) && (dinosaur.isResting() || dinosaur.isDrinking() || dinosaur.isDeadOrDying())),
+                new MoveToWalkTarget<>().stopIf((entity) -> (entity instanceof Dinosaur dinosaur) && (dinosaur.isResting() || dinosaur.isDrinking() || dinosaur.isDeadOrDying())),
+               new SetMateFromNearbyDinosaurs<>(),
+            //    new RoarAtThreat<>(34)
+//.whenStarting(dinosaur -> dinosaur.entityData.set(IS_ROARING_STATE, true))
+                       // .whenStarting(dinosaur -> dinosaur.playSound(SoundInit.TYRANNOSAUR_ROAR_1.get()))
+                     //   .whenStopping(dinosaur -> dinosaur.entityData.set(IS_ROARING_STATE,false)),
                new DrinkBehaviour<>(100)
-                       .whenStarting(dinosaur -> dinosaur.entityData.set(IS_DRINKING_STATE, true))
-                       .whenStopping(dinosaur -> dinosaur.entityData.set(IS_DRINKING_STATE, false)),
+                       .whenStarting(dinosaur -> DinoAnimationUtils.setAnimationState(dinosaur,"drink",true))
+                       .whenStopping(dinosaur ->  DinoAnimationUtils.setAnimationState(dinosaur,"drink",false)),
                 new EatBehaviour<>(69)
-                        .whenStarting(dinosaur -> dinosaur.entityData.set(IS_EATING_STATE, true))
-                        .whenStopping(dinosaur -> dinosaur.entityData.set(IS_EATING_STATE, false)),
+                        .whenStarting(dinosaur -> DinoAnimationUtils.setAnimationState(dinosaur,"eat",true))
+                        .whenStopping(dinosaur ->  DinoAnimationUtils.setAnimationState(dinosaur,"eat",false)),
                 new RestingBehaviour<>(69)
-                        .whenStarting(dinosaur -> dinosaur.entityData.set(IS_SITTING_STATE, true))
-                        .whenStopping(dinosaur -> dinosaur.entityData.set(IS_RESTING_STATE, false)),
+                        .whenStarting(dinosaur -> DinoAnimationUtils.setAnimationState(dinosaur,"sit",true))
+                        .whenStopping(dinosaur -> DinoAnimationUtils.setAnimationState(dinosaur,"rest",false)),
                 new GettingUpFromRestBehaviour<>(69)
-                        .whenStarting(dinosaur -> dinosaur.entityData.set(IS_RISING_STATE,true))
-                        .whenStopping(dinosaur -> dinosaur.entityData.set(IS_RISING_STATE, false))
+                        .whenStarting(dinosaur -> DinoAnimationUtils.setAnimationState(dinosaur,"eat",true))
+                        .whenStopping(dinosaur ->DinoAnimationUtils.setAnimationState(dinosaur,"getup",false))
         );
     }
 
@@ -302,6 +361,7 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
                         new SetWalkTargetToWaterSource<>()
                                 .closeEnoughWhen((entity, pos)-> 3),
                         new SetWalkTargetToFoodItem<>().predicate((dinosaur, item) -> dinosaur.canTargetFoodItem(item)),
+                        new FollowParent<>().parentPredicate((baby, parent)-> baby instanceof Dinosaur dino && dino.isFamily(parent) && !parent.isBaby()),
                         new TargetOrRetaliate<>().attackablePredicate(entity -> canTarget(entity))),
                 new OneRandomBehaviour<>(
                         new SetRandomWalkTarget<>()
@@ -315,20 +375,37 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
                         .invalidateIf((entity, target) -> target instanceof Player pl && (pl.isCreative() || pl.isSpectator())),
                 new SetWalkTargetToAttackTarget<>().speedMod((owner, target) -> 1.5f),
                 new AnimatableMeleeAttack<>(20)
-                        .whenStarting(dinosaur -> dinosaur.getEntityData().set(IS_ATTACKING_STATE, true))
-                        .whenStopping(dinosaur -> dinosaur.getEntityData().set(IS_ATTACKING_STATE,false))
+                        .whenStarting(dinosaur -> DinoAnimationUtils.setAnimationState((Dinosaur) dinosaur,"attack",true))
+                        .whenStopping(dinosaur -> DinoAnimationUtils.setAnimationState((Dinosaur) dinosaur,"attack",false))
         );
+    }
+
+    @Override
+    protected void registerGoals() {
+        this.goalSelector.addGoal(1,new BreedGoal(this, 1.0));
     }
 
     @Override
     public void tick() {
         super.tick();
         if(!level().isClientSide()) {
-
             this.hungerDrainTick++;
             this.thirstDrainTick++;
             this.socialDrainTick++;
             this.staminaDrainTick++;
+
+          if(this.breedingCoolDown == 0){
+                if(this.getDinoGender() == 1.0F && this.hasMate()) {
+                    this.tryBreedWithMate();
+                    this.breedingCoolDown++;
+                }
+            }
+            if(this.breedingCoolDown >= 1){
+                this.breedingCoolDown++;
+            }
+            if(this.breedingCoolDown > 2000){
+                this.breedingCoolDown = 0;
+            }
 
             if(this.hungerDrainTick >= this.getDinoBehaviour().hungerTickRate()){
                 this.tickHunger();
@@ -351,8 +428,24 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
                 }
                 this.staminaDrainTick = 0;
             }
-            if(this.socialDrainTick >= 500){
+            if(this.socialDrainTick >= 100){
                 this.tickSocial();
+                this.socialDrainTick = 0;
+            }
+        }
+    }
+    Random random = new Random();
+
+    public void tryBreedWithMate(){
+        int attempt = random.nextInt(0,100);
+        if(attempt > 50) {
+            this.setInLove(null);
+            @Nullable Dinosaur mate = BrainUtils.getMemory(this, MemoryTypesInit.MATE.get());
+
+            if(mate != null) {
+                mate.setInLove(null);
+            } else {
+                this.clearDinoMate();
             }
         }
     }
@@ -463,7 +556,6 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
         float currentStamina = this.entityData.get(STAMINA);
         float staminaDecrease = (float) this.getDinoBehaviour().baseExhaustionRate();
         float newCurrentValue;
-        System.err.println("Ticking Stamina");
 
         if(BrainUtils.hasMemory(this, MemoryTypesInit.IS_RESTING.get())) {
             if(!this.isStaminaFull()) {
@@ -484,7 +576,6 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
     }
 
     public void tickSocial(){
-
     }
 
     public void feed(ItemStack foodItem){
@@ -509,22 +600,131 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
     }
 
     public boolean isDrinking() {
-        return this.entityData.get(IS_DRINKING_STATE);
+        return this.entityData.get(DinoAnimationUtils.IS_DRINKING_STATE);
     }
-    public boolean isEating() {
-        return this.entityData.get(IS_EATING_STATE);
-    }
-    public boolean isSitting() {
-        return this.entityData.get(IS_SITTING_STATE);
-    }
+    public boolean isEating() {return this.entityData.get(DinoAnimationUtils.IS_EATING_STATE);}
+    public boolean isSitting() {return this.entityData.get(DinoAnimationUtils.IS_SITTING_STATE);}
     public boolean isRising() {
-        return this.entityData.get(IS_RISING_STATE);
+        return this.entityData.get(DinoAnimationUtils.IS_RISING_STATE);
     }
     public boolean isResting() {
-        return this.entityData.get(IS_RESTING_STATE);
+        return this.entityData.get(DinoAnimationUtils.IS_RESTING_STATE);
     }
-    public boolean isAttacking() {return this.entityData.get(IS_ATTACKING_STATE);}
+    public boolean isRoaring() {
+        return this.entityData.get(DinoAnimationUtils.IS_ROARING_STATE);
+    }
+    public boolean isAttacking() {return this.entityData.get(DinoAnimationUtils.IS_ATTACKING_STATE);}
+    public boolean isIdle(){return !this.isDrinking() && !this.isEating() && !this.isResting() && !this.isRoaring() && !this.isAttacking();}
 
+    public double getDinoGender() {
+        //Gets Gender and if none has been set then returns as female.
+        double gender = this.getDinoData().getGeneValue(GeneInit.GENDER.get());
+        if (gender != 0){
+            return gender;
+        } else return 1;
+    }
+
+    @Override
+    public @Nullable AgeableMob getBreedOffspring(ServerLevel serverLevel, AgeableMob ageableMob) {
+        EntityType<?> babyType = this.getDinoData().getBaseDino();
+        return (Dinosaur) babyType.create(serverLevel);
+    }
+
+    @Override
+    public void spawnChildFromBreeding(ServerLevel level, Animal mate) {
+        @Nullable Dinosaur dinosaur = (Dinosaur) this.getBreedOffspring(level, mate);
+        if(mate instanceof Dinosaur pMate) {
+            if (dinosaur != null) {
+                dinosaur.setDinoData(this.getDinoData());
+                dinosaur.setDinoBehaviour(this.getDinoBehaviour().toNBT(this.getDinoBehaviour()));
+                dinosaur.setDinoBaseNeeds(this.getDinoBehaviour());
+                dinosaur.setBaby(true);
+                dinosaur.setDinoFamilyUuid(this.getFamilyId());
+                dinosaur.moveTo(this.getX(), this.getY(), this.getZ(), 0.0F, 0.0F);
+                this.finalizeSpawnChildFromBreeding(level, mate, dinosaur);
+                level.addFreshEntityWithPassengers(dinosaur);
+            }
+        }
+    }
+
+    @Override
+    public boolean isBaby() {
+        return this.getAge() < -18000;
+    }
+    public boolean isJuvanile(){
+        return this.getAge() >= -18000 && this.getAge() < -12000;
+    }
+    public boolean isSubAdult(){
+        return this.getAge() >= -12000 && this.getAge() < 0;
+    }
+    public int getGrowthStage(){
+        if(this.isBaby()){
+            return 1;
+        }
+        else if(this.isJuvanile()){
+            return 2;
+        }
+        else if(this.isSubAdult()){
+            return 3;
+        } else return 4;
+    }
+
+
+    public void createDinosaurFamily(Dinosaur mate){
+        UUID newFamilyId = UUID.randomUUID();
+        this.setDinoFamilyUuid(newFamilyId);
+        mate.setDinoFamilyUuid(newFamilyId);
+    }
+    public void setDinoFamilyUuid(UUID familyUuid){
+        this.entityData.set(DINO_FAMILY_UUID,Optional.of(familyUuid));
+    }
+    public @Nullable UUID getFamilyId(){
+        if(this.entityData.get(DINO_FAMILY_UUID).isPresent()) {
+            return this.entityData.get(DINO_FAMILY_UUID).get();
+        } else return null;
+    }
+
+    @Override
+    public boolean canMate(Animal otherAnimal) {
+        return isMate(otherAnimal.getUUID());
+    }
+    public boolean canMateWith(Dinosaur pDinosaur, Dinosaur pMate){
+
+        if(pDinosaur.isBaby() || pMate.isBaby()){
+            return false;
+        }
+        if(!pDinosaur.isAlive() || !pMate.isAlive()){
+            return false;
+        }
+        if(pDinosaur.hasMate() || pMate.hasMate()){
+            return false;
+        }
+
+        return pDinosaur.getDinoGender() != pMate.getDinoGender();
+    }
+
+    public boolean isMate(UUID mateId){
+        if(this.entityData.get(DINO_MATE).isPresent()) {
+            return mateId == this.entityData.get(DINO_MATE).get();
+        } else return false;
+    }
+    public boolean isFamily(LivingEntity pMob){
+        if(pMob instanceof Dinosaur mob){
+            if(mob.getFamilyId() != null && this.getFamilyId() != null){
+            return mob.getFamilyId().equals(this.getFamilyId());
+            } else return false;
+        } else return false;
+    }
+
+    public boolean hasMate(){
+        return this.entityData.get(DINO_MATE).isPresent();
+    }
+    public void registerDinoMate(UUID pMateId){
+        this.entityData.set(DINO_MATE,Optional.of(pMateId));
+    }
+    public void clearDinoMate(){
+        this.entityData.set(DINO_MATE, Optional.empty());
+    }
 
     //SKIN SETTER
     public Color layerColor(int layer, DinoLayer dinoLayer) {
@@ -537,5 +737,13 @@ public abstract class Dinosaur extends PathfinderMob implements FossilRevived, G
         return new Color(Mth.floor(this.getDinoData().getLayerColor(layer)));
     }
 
-
+    public @Nullable SoundEvent getRoarSound(){
+        return null;
+    }
+    public @Nullable SoundEvent getAttackGrowlSound(){
+        return null;
+    }
+    public @Nullable SoundEvent getAttackSound(){
+        return null;
+    }
 }

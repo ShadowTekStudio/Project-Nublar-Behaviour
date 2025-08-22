@@ -1,24 +1,19 @@
 package net.dumbcode.projectnublar.init;
 
-import com.mojang.serialization.Codec;
 import dev.architectury.registry.registries.DeferredRegister;
 import dev.architectury.registry.registries.DeferredSupplier;
-import dev.architectury.registry.registries.RegistrySupplier;
 import net.dumbcode.projectnublar.Constants;
 import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.Registry;
 import net.minecraft.core.registries.Registries;
-import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.item.ItemEntity;
-import net.minecraft.world.level.block.state.BlockState;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.world.entity.player.Player;
 
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
-import java.util.function.Supplier;
 
 public class MemoryTypesInit {
     public static final DeferredRegister<MemoryModuleType<?>> MEMORIES = DeferredRegister.create(Constants.MODID, Registries.MEMORY_MODULE_TYPE);
@@ -28,6 +23,17 @@ public class MemoryTypesInit {
 
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_HUNGRY =
             MEMORIES.register("is_dino_hungry", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Byte>> INITIATED_TURF_WAR =
+            MEMORIES.register("initiate_turf_war", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Integer>> TURF_WAR_MEMBER =
+            MEMORIES.register("turf_war_entity_id",()->new MemoryModuleType<>(Optional.empty()));
+ public static final DeferredSupplier<MemoryModuleType<Integer>> TURF_WAR_OUTCOME =
+            MEMORIES.register("turf_war_outcome_id",()->new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Dinosaur>> SOCIAL_TARGET =
+            MEMORIES.register("social_dino_entity",()->new MemoryModuleType<>(Optional.empty()));
 
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_STARVING =
             MEMORIES.register("is_dino_starving", ()-> new MemoryModuleType<>(Optional.empty()));
@@ -65,11 +71,26 @@ public class MemoryTypesInit {
     public static final DeferredSupplier<MemoryModuleType<Boolean>> HUNTING =
             MEMORIES.register("is_dino_hunting", ()-> new MemoryModuleType<>(Optional.empty()));
 
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> WANTS_TO_BREAK_FENCE =
+            MEMORIES.register("wants_to_break_fence", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<UUID>> PACK_UUID =
+            MEMORIES.register("dino_pack_id", () -> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Float>> HUNTING_RANGE =
+            MEMORIES.register("hunting_range", () -> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<BlockPos>> NEST_LOCATION =
+            MEMORIES.register("nest_location", () -> new MemoryModuleType<>(Optional.empty()));
+
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_EATING =
             MEMORIES.register("is_dino_eating", ()-> new MemoryModuleType<>(Optional.empty()));
 
     public static final DeferredSupplier<MemoryModuleType<Boolean>> IS_ROARING =
             MEMORIES.register("is_dino_roaring", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Boolean>> BRAIN_OVERRIDE =
+            MEMORIES.register("is_brain_overridden", ()-> new MemoryModuleType<>(Optional.empty()));
 
     public static final DeferredSupplier<MemoryModuleType<UUID>> MATE_UUID  =
             MEMORIES.register("dino_mate_id", ()-> new MemoryModuleType<>(Optional.empty()));
@@ -77,8 +98,14 @@ public class MemoryTypesInit {
     public static final DeferredSupplier<MemoryModuleType<Dinosaur>> MATE  =
             MEMORIES.register("dino_mate", ()-> new MemoryModuleType<>(Optional.empty()));
 
+    public static final DeferredSupplier<MemoryModuleType<List<Dinosaur>>> OFFSPRING_LIST  =
+            MEMORIES.register("dino_offspring_list", ()-> new MemoryModuleType<>(Optional.empty()));
+
     public static final DeferredSupplier<MemoryModuleType<List<Dinosaur>>> NEAREST_DINOSAURS  =
             MEMORIES.register("dino_nearby_peers", ()-> new MemoryModuleType<>(Optional.empty()));
+
+    public static final DeferredSupplier<MemoryModuleType<Map<Player,Integer>>> PLAYER_REPUTATION =
+            MEMORIES.register("player_reputation", () -> new MemoryModuleType<>(Optional.empty()));
 
 
     public static void loadClass(){MEMORIES.register();}

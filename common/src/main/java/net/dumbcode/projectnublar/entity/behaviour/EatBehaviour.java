@@ -6,6 +6,7 @@ import net.dumbcode.projectnublar.api.DinoDietData;
 import net.dumbcode.projectnublar.data.DietReloadListener;
 import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.init.MemoryTypesInit;
+import net.dumbcode.projectnublar.util.DinoNeedsUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -61,7 +62,7 @@ public class EatBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
         ItemEntity nearbyFood = BrainUtils.getMemory(dinosaur, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
         ItemStack foodItem = nearbyFood.getItem();
         foodItem.shrink(1);
-        dinosaur.feed(foodItem);
+        DinoNeedsUtils.feed(dinosaur, foodItem);
     }
 
     @Override
@@ -74,7 +75,7 @@ public class EatBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
     protected void stop(E dinosaur) {
         BrainUtils.clearMemory(dinosaur, MemoryTypesInit.IS_EATING.get());
         BrainUtils.clearMemory(dinosaur, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM);
-        if(!dinosaur.isHungry()) {
+        if(!DinoNeedsUtils.isHungry(dinosaur)) {
             BrainUtils.clearMemory(dinosaur, MemoryTypesInit.IS_HUNGRY.get());
         }
     }

@@ -52,10 +52,35 @@ public class BehaviourDataReloadListener extends SimpleJsonResourceReloadListene
                 String dietID = GsonHelper.getAsString(jsonObject, "diet_id");
                 String dietType = GsonHelper.getAsString(jsonObject, "diet_type");
 
+                double maxHealth = GsonHelper.getAsDouble(jsonObject,"default_health");
                 double stomachCapacity = GsonHelper.getAsDouble(jsonObject, "default_stomach_capacity");
                 double thirstCapacity = GsonHelper.getAsDouble(jsonObject, "default_thirst_capacity");
                 double energyCapacity = GsonHelper.getAsDouble(jsonObject, "default_energy_capacity");
+                double attack = GsonHelper.getAsDouble(jsonObject, "default_attack_damage");
+                double resistance= GsonHelper.getAsDouble(jsonObject, "default_resistance");
 
+                double speed= GsonHelper.getAsDouble(jsonObject, "default_speed");
+                double size= GsonHelper.getAsDouble(jsonObject, "default_size");
+                double intelligence= GsonHelper.getAsDouble(jsonObject, "default_intelligence");
+
+                double social = GsonHelper.getAsDouble(jsonObject, "default_social");
+                double groupSize = GsonHelper.getAsDouble(jsonObject, "default_group_size");
+                double domesticity = GsonHelper.getAsDouble(jsonObject, "default_domesticity");
+
+                double fertility = GsonHelper.getAsDouble(jsonObject, "default_fertility");
+                double gestationTime = GsonHelper.getAsDouble(jsonObject, "default_gestation_time");
+                double clutchSize = GsonHelper.getAsDouble(jsonObject, "default_egg_clutch");
+
+                double visionQuality = GsonHelper.getAsDouble(jsonObject, "default_vision");
+                double immunity = GsonHelper.getAsDouble(jsonObject, "default_immunity");
+                double tamingScore = GsonHelper.getAsDouble(jsonObject, "default_tame_score");
+
+                double aggressionScore = GsonHelper.getAsDouble(jsonObject, "default_aggression");
+                double healthRegen = GsonHelper.getAsDouble(jsonObject, "default_health_regen");
+                double growthRate = GsonHelper.getAsDouble(jsonObject, "default_growth_rate");
+
+                double socialDrain = GsonHelper.getAsDouble(jsonObject, "default_social_drain");
+                double trustIncrease = GsonHelper.getAsDouble(jsonObject, "default_trust_increase");
 
                 double eatRate = GsonHelper.getAsDouble(jsonObject, "default_eat_rate");
                 double dehydrationRate = GsonHelper.getAsDouble(jsonObject, "default_dehydration_rate");
@@ -69,11 +94,19 @@ public class BehaviourDataReloadListener extends SimpleJsonResourceReloadListene
                 double mediumRisk = GsonHelper.getAsDouble(jsonObject, "medium_risk_threshold");
                 double highRisk = GsonHelper.getAsDouble(jsonObject, "high_risk_threshold");
 
-                int eating1Delay = GsonHelper.getAsInt(jsonObject,"eating1_anim_delay");
-                int drinkingDelay = GsonHelper.getAsInt(jsonObject,"drinking_anim_delay");
+                boolean pack = GsonHelper.getAsBoolean(jsonObject,"can_form_pack");
+                boolean herd = GsonHelper.getAsBoolean(jsonObject,"can_form_herd");
+                boolean nocturnal = GsonHelper.getAsBoolean(jsonObject,"nocturnal");
 
                 DinoBehaviourData data = new DinoBehaviourData(
-                        entityIdstring,dietID,dietType,stomachCapacity,thirstCapacity,energyCapacity,eatRate,dehydrationRate,exhaustionRate,hungerTickRate,thirstTickRate,energyTickRate,lowRisk,mediumRisk,highRisk,eating1Delay,drinkingDelay
+                        entityIdstring,dietID,dietType,maxHealth,
+                        stomachCapacity,thirstCapacity,energyCapacity,
+                        attack,resistance,speed,size,intelligence,social,groupSize,domesticity,fertility,gestationTime,
+                        clutchSize,visionQuality,immunity,tamingScore,aggressionScore,
+                        healthRegen,growthRate,socialDrain,trustIncrease,
+                        eatRate,dehydrationRate,exhaustionRate,hungerTickRate,
+                        thirstTickRate,energyTickRate,lowRisk,
+                        mediumRisk,highRisk,pack,herd,nocturnal
                 );
 
 

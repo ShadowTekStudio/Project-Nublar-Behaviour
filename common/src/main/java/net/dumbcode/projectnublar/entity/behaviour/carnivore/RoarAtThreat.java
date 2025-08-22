@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.init.MemoryTypesInit;
 import net.dumbcode.projectnublar.init.SoundInit;
+import net.dumbcode.projectnublar.util.DinoAnimationUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.entity.LivingEntity;
@@ -29,35 +30,21 @@ public class RoarAtThreat<E extends Dinosaur> extends DelayedBehaviour<E> {
 
     @Override
     protected boolean checkExtraStartConditions(ServerLevel level, E entity) {
-        List<LivingEntity> nearbyEntities = BrainUtils.getMemory(entity,MemoryModuleType.NEAREST_LIVING_ENTITIES);
-        boolean canRoar = false;
-
-        if(!nearbyEntities.isEmpty()) {
-            for (LivingEntity target : nearbyEntities) {
-                if (!entity.isFamily(target) && target.distanceToSqr(entity) < 10) {
-                    canRoar = true;
-                }
-            }
+        if(!BrainUtils.hasMemory(entity, MemoryTypesInit.IS_ROARING.get())){
+            return false;
         }
-
-        return canRoar && !entity.isRoaring();
+        return !entity.isRoaring();
     }
 
     @Override
     protected void start(E entity) {
-        BrainUtils.setMemory(entity, MemoryTypesInit.IS_ROARING.get(), true);
+        DinoAnimationUtils.setAnimationState(entity, "roar", true);
         entity.playSound(SoundInit.TYRANNOSAUR_ROAR.get(), 10,1);
-        entity.playSound(SoundEvents.GENERIC_EAT);
     }
 
     @Override
     protected void doDelayedAction(E entity) {
-        BrainUtils.clearMemory(entity,MemoryTypesInit.IS_ROARING.get());
-
-    }
-
-    @Override
-    protected void stop(E entity) {
+        DinoAnimationUtils.setAnimationState(entity, "roar", false);
         BrainUtils.clearMemory(entity,MemoryTypesInit.IS_ROARING.get());
     }
 }

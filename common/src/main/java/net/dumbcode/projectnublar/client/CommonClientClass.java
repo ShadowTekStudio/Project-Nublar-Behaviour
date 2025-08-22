@@ -39,8 +39,6 @@ public class CommonClientClass {
                 new DinoLayer("back", 1),
                 new DinoLayer("yellow", 2),
                 new DinoLayer("belly", 2),
-                new DinoLayer("brightgreen", 2),
-                new DinoLayer("brown", 2),
                 new DinoLayer("feet", 3),
                 new DinoLayer("pattern", 3),
                 new DinoLayer("mouth", -1),

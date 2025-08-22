@@ -1,11 +1,13 @@
 package net.dumbcode.projectnublar.block;
 
+
 import net.dumbcode.projectnublar.block.api.BlockConnectableBase;
 import net.dumbcode.projectnublar.block.api.ConnectableBlockEntity;
 import net.dumbcode.projectnublar.block.api.Connection;
 import net.dumbcode.projectnublar.block.entity.BlockEntityElectricFence;
 import net.dumbcode.projectnublar.block.entity.BlockEntityElectricFencePole;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.util.RandomSource;
 import net.minecraft.world.level.BlockGetter;
 import net.minecraft.world.level.Level;
@@ -19,6 +21,8 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
 import org.joml.Vector3f;
 
 public class ElectricFenceBlock extends BlockConnectableBase implements EntityBlock {
@@ -61,15 +65,14 @@ public class ElectricFenceBlock extends BlockConnectableBase implements EntityBl
                 if(pb || connection.brokenSide(world, true) && rand.nextFloat() < chance) {
                     Vector3f point = (pb ? connection.getPrevCache() : connection.getNextCache()).point();
                     Vector3f norm = new Vector3f(point.x(), point.y(), point.z());
-                    //todo: particles
-//                    if(norm.normalize()) {
-//                        for (int i = 0; i < 8; i++) {
-//                            world.addParticle(ProjectNublarParticles.SPARK.get(),
-//                                center.x+point.x(), center.y+point.y(), center.z+point.z(),
-//                                norm.x(), norm.y(), norm.z()
-//                            );
-//                        }
-//                    }
+                    if(this.normalize(norm)) {
+                     for (int i = 0; i < 8; i++) {
+                          world.addParticle(ParticleTypes.ELECTRIC_SPARK,
+                              center.x+point.x(), center.y+point.y(), center.z+point.z(),
+                             norm.x(), norm.y(), norm.z()
+                         );
+                    }
+                  }
                 }
             }
         }
@@ -91,5 +94,27 @@ public class ElectricFenceBlock extends BlockConnectableBase implements EntityBl
     @Override
     public BlockEntity newBlockEntity(BlockPos blockPos, BlockState blockState) {
         return new BlockEntityElectricFence(blockPos, blockState);
+    }
+    @OnlyIn(Dist.CLIENT)
+    public boolean normalize(Vector3f norm) {
+        float f = norm.x * norm.x + norm.y * norm.y + norm.z * norm.z;
+        if ((double)f < 1.0E-5D) {
+            return false;
+        } else {
+            float f1 = this.fastInvSqrt(f);
+            norm.x *= f1;
+            norm.y *= f1;
+            norm.z *= f1;
+            return true;
+        }
+    }
+
+    @OnlyIn(Dist.CLIENT)
+    public float fastInvSqrt(float p_226165_0_) {
+        float f = 0.5F * p_226165_0_;
+        int i = Float.floatToIntBits(p_226165_0_);
+        i = 1597463007 - (i >> 1);
+        p_226165_0_ = Float.intBitsToFloat(i);
+        return p_226165_0_ * (1.5F - f * p_226165_0_ * p_226165_0_);
     }
 }

@@ -35,6 +35,7 @@ public class BlockInit {
     public static DeferredSupplier<Block> EGG_PRINTER = registerBlock("egg_printer", () -> new EggPrinterBlock(BlockBehaviour.Properties.of().noOcclusion(),1,2, 1), block->()-> new GeoMultiBlockItem(block.get(),ItemInit.getItemProperties(),1,2, 1));
     public static DeferredSupplier<Block> INCUBATOR = registerBlock("incubator", () -> new IncubatorBlock(BlockBehaviour.Properties.of().noOcclusion(),2,2, 1), block->()-> new GeoMultiBlockItem(block.get(),ItemInit.getItemProperties(),2,2, 1));
     public static DeferredSupplier<Block> ELECTRIC_FENCE = registerBlock("electric_fence", () -> new ElectricFenceBlock(BlockBehaviour.Properties.of().noLootTable().noOcclusion()));
+   // public static DeferredSupplier<Block> ELECTRIC_FENCE;
     public static DeferredSupplier<Block> LOW_SECURITY_ELECTRIC_FENCE_POST = registerBlock("low_security_electric_fence_post", () -> new LowSecurityElectricFencePostBlock(BlockBehaviour.Properties.of().noOcclusion(), EnumConnectionType.LOW_SECURITY));
     public static DeferredSupplier<Block> HIGH_SECURITY_ELECTRIC_FENCE_POST = registerBlock("high_security_electric_fence_post", () -> new HighSecurityElectricFencePostBlock(BlockBehaviour.Properties.of().noOcclusion(), EnumConnectionType.HIGH_SECURITY));
     public static DeferredSupplier<Block> COAL_GENERATOR = registerBlock("coal_generator", ()-> new GeneratorBlock(BlockBehaviour.Properties.of(),256,16,0));
@@ -46,6 +47,8 @@ public class BlockInit {
     public static DeferredSupplier<BlockEntityType<EggPrinterBlockEntity>> EGG_PRINTER_BLOCK_ENTITY = BLOCK_ENTITIES.register("egg_printer", () -> BlockEntityType.Builder.of(EggPrinterBlockEntity::new, EGG_PRINTER.get()).build(null));
     public static DeferredSupplier<BlockEntityType<IncubatorBlockEntity>> INCUBATOR_BLOCK_ENTITY = BLOCK_ENTITIES.register("incubator", () -> BlockEntityType.Builder.of(IncubatorBlockEntity::new, INCUBATOR.get()).build(null));
     public static DeferredSupplier<BlockEntityType<BlockEntityElectricFence>> ELECTRIC_FENCE_BLOCK_ENTITY = BLOCK_ENTITIES.register("electric_fence", () -> BlockEntityType.Builder.of(BlockEntityElectricFence::new, BlockInit.ELECTRIC_FENCE.get()).build(null));
+  // public static DeferredSupplier<BlockEntityType<? extends BlockEntityElectricFence>> ELECTRIC_FENCE_BLOCK_ENTITY;
+
     public static DeferredSupplier<BlockEntityType<BlockEntityElectricFencePole>> ELECTRIC_FENCE_POST_BLOCK_ENTITY = BLOCK_ENTITIES.register("electric_fence_pole", () -> BlockEntityType.Builder.of(BlockEntityElectricFencePole::new, BlockInit.LOW_SECURITY_ELECTRIC_FENCE_POST.get(),BlockInit.HIGH_SECURITY_ELECTRIC_FENCE_POST.get()).build(null));
     public static DeferredSupplier<BlockEntityType<GeneratorBlockEntity>> GENERATOR = BLOCK_ENTITIES.register("coal_generator", ()-> BlockEntityType.Builder.of(GeneratorBlockEntity::new, COAL_GENERATOR.get(), CREATIVE_GENERATOR.get()).build(null));
     public static void loadClass() {

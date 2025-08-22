@@ -1,62 +1,112 @@
 package net.dumbcode.projectnublar.entity;
 
-import net.dumbcode.projectnublar.entity.behaviour.carnivore.RoarAtThreat;
-import net.dumbcode.projectnublar.init.MemoryTypesInit;
-import net.dumbcode.projectnublar.init.SoundInit;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.network.syncher.EntityDataAccessor;
-import net.minecraft.network.syncher.EntityDataSerializers;
-import net.minecraft.network.syncher.SynchedEntityData;
-import net.minecraft.server.level.ServerLevel;
-import net.minecraft.world.entity.AgeableMob;
-import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.LivingEntity;
-import net.minecraft.world.entity.PathfinderMob;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.dumbcode.projectnublar.util.DinoNeedsUtils;
+
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.*;
+
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
-import net.tslat.smartbrainlib.api.core.BrainActivityGroup;
-import net.tslat.smartbrainlib.util.BrainUtils;
+
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Optional;
-import java.util.UUID;
 
-public abstract class CarnivoreDinosaur extends Dinosaur{
+public abstract class CarnivoreDinosaur extends Dinosaur {
 
-    public static EntityDataAccessor<CompoundTag> DINO_PACK = SynchedEntityData.defineId(CarnivoreDinosaur.class, EntityDataSerializers.COMPOUND_TAG);
-    public static EntityDataAccessor<Optional<UUID>> PACK_LEADER = SynchedEntityData.defineId(CarnivoreDinosaur.class, EntityDataSerializers.OPTIONAL_UUID);
+   @Nullable PackEntity packEntity;
 
+    public CarnivoreDinosaur(EntityType<? extends CarnivoreDinosaur> $$0, Level $$1, int flinchAnimLength) {
+        super($$0, $$1, flinchAnimLength);
 
-    public CarnivoreDinosaur(EntityType<? extends Dinosaur> $$0, Level $$1) {
-        super($$0, $$1);
     }
+
+    public int getPackId() {
+        return this.entityData.get(Dinosaur.DINOSAUR_PACK_ID);
+    }
+
+    public @Nullable PackEntity getPackEntity(){
+        if(this.getPackId() != 0) {
+            int mobId = this.getPackId();
+            Entity pack = this.level().getEntity(mobId);
+
+            if (pack instanceof PackEntity packEntity) {
+                return packEntity;
+            } else return null;
+
+        } else return null;
+    }
+
+    public boolean hasPack() {
+        return this.entityData.get(Dinosaur.DINOSAUR_PACK_ID) != 0;
+    }
+
+    public boolean isPackLeader() {
+        if(this.getPackEntity() != null) {
+            if (this.getPackEntity().getPackLeader().isPresent()) {
+                return this.getUUID() == this.getPackEntity().getPackLeader().get();
+            } else return false;
+        } else return false;
+    }
+
+
+    public boolean canHuntWithPack() {
+        return this.hasPack() && !this.isBaby() && !this.isJuvanile();
+    }
+
+
 
     @Override
     public boolean canTarget(LivingEntity target) {
-        super.canTarget(target);
 
-        if(this.getLastAttacker() == target ){
-            return true;
-        }
-
-        if(BrainUtils.hasMemory(this, MemoryTypesInit.IS_RESTING.get())){
-            return false;
-        }
-        if(BrainUtils.hasMemory(this, MemoryModuleType.NEAREST_VISIBLE_WANTED_ITEM)){
-            return false;
-        }
-        if(BrainUtils.hasMemory(this, MemoryTypesInit.IS_EATING.get())){
-            return false;
-        }
-        if(BrainUtils.hasMemory(this, MemoryTypesInit.IS_DRINKING.get())){
+        if(target instanceof Player player && (player.isSpectator() || player.isCreative())){
             return false;
         }
 
-        if(!BrainUtils.hasMemory(this,MemoryTypesInit.IS_HUNGRY.get()) ){
+        //Check if target outside fence
+       if(!DinoNeedsUtils.isTargetInsideEnclosure(target, this) && !DinoNeedsUtils.starving(this)){
+           return false;
+       }
+
+       //Avoid Cannibalism unless starving
+        if(target instanceof Dinosaur targetDinosaur) {
+            if (this.getDinoData().getBaseDino() == targetDinosaur.getDinoData().getBaseDino()) {
+                return false;
+            }
+        }
+       //check this is old enough to hunt
+        if(this.isChild()){
             return false;
         }
 
-        return target.getVehicle() != this;
+        //check that target is not family
+        if(this.isFamily(target)){
+            return false;
+        }
+
+        //check that target is not trusted players
+        if(target instanceof ServerPlayer player && this.getReputationForPlayer(player) > 50){
+               return DinoNeedsUtils.starving(this);
+       }
+
+        //Check that target is not owner
+        if(this.isTame() && this.getOwner() == target && !DinoNeedsUtils.starving(this)){
+                    return false;
+        }
+
+        //Engage in wreckless target finding if starving
+        float modifier = 1.0F;
+        if (DinoNeedsUtils.starving(this)){
+            modifier = 10.0F;
+        }
+
+        //Evaluate target threat compaired to own threat.
+        if(DinoNeedsUtils.getThreatScore(this) * modifier < DinoNeedsUtils.getThreatScore(target)){
+            return false;
+        }
+
+        //Ensure target is not self and If target is last attacker then go for revenge.
+        return target.getVehicle() != this || this.getLastAttacker() == target;
     }
+
 
 }

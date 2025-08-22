@@ -4,6 +4,7 @@ import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.init.MemoryTypesInit;
+import net.dumbcode.projectnublar.util.DinoNeedsUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -56,18 +57,18 @@ public class DrinkBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
     @Override
     protected void start(E dinosaur) {
         BrainUtils.setMemory(dinosaur, MemoryTypesInit.IS_DRINKING.get(), true);
-        dinosaur.drink(dinosaur.getMaxThirst());
+        DinoNeedsUtils.drink(dinosaur, DinoNeedsUtils.getMaxThirst(dinosaur));
+
     }
 
     @Override
     protected void doDelayedAction(E dinosaur) {
         BrainUtils.clearMemory(dinosaur, MemoryTypesInit.IS_DRINKING.get());
-        dinosaur.drink(dinosaur.getMaxThirst());
+        DinoNeedsUtils.drink(dinosaur, DinoNeedsUtils.getMaxThirst(dinosaur));
     }
 
     @Override
     protected void stop(E entity) {
-        System.err.println("Dinosaur has drank");
         BrainUtils.clearMemory(entity, MemoryTypesInit.IS_DRINKING.get());
         BrainUtils.clearMemory(entity, MemoryTypesInit.IS_THIRSTY.get());
         BrainUtils.clearMemory(entity, MemoryTypesInit.HAS_FOUND_WATER.get());

@@ -5,6 +5,7 @@ import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.init.MemoryTypesInit;
 import net.dumbcode.projectnublar.util.DinoAnimationUtils;
+import net.dumbcode.projectnublar.util.DinoNeedsUtils;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
@@ -35,10 +36,10 @@ public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
     protected void tick(E dinosaur) {
         super.tick(dinosaur);
 
-        if(dinosaur.getEntityData().get(Dinosaur.STAMINA) >= dinosaur.getMaxStamina()){
+        if(DinoNeedsUtils.getCurrentStamina(dinosaur) >= DinoNeedsUtils.getMaxStamina(dinosaur)){
             BrainUtils.clearMemory(dinosaur, MemoryTypesInit.IS_RESTING.get());
         }
-        if(dinosaur.isDehydratedOrStarving()){
+        if(DinoNeedsUtils.isDehydratedOrStarving(dinosaur)){
             BrainUtils.clearMemory(dinosaur,MemoryTypesInit.IS_RESTING.get());
             BrainUtils.setMemory(dinosaur, MemoryTypesInit.GETTING_UP.get(), true);
             DinoAnimationUtils.setAnimationState(dinosaur,"rest",false);
@@ -67,12 +68,12 @@ public class RestingBehaviour<E extends Dinosaur> extends DelayedBehaviour<E> {
 
     @Override
     protected boolean shouldKeepRunning(E entity) {
-        return !entity.isStaminaFull();
+        return !DinoNeedsUtils.isStaminaFull(entity);
     }
 
     @Override
     protected boolean canStillUse(ServerLevel level, E dinosaur, long gameTime) {
-        return !dinosaur.isStaminaFull();
+        return !DinoNeedsUtils.isStaminaFull(dinosaur);
     }
 
     @Override

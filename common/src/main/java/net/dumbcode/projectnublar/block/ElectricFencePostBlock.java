@@ -48,8 +48,8 @@ import java.util.List;
 
 public class ElectricFencePostBlock extends BlockConnectableBase implements EntityBlock {
 
-    private final ConnectionType type;
-    private final IntegerProperty indexProperty;
+    public final ConnectionType type;
+    public final IntegerProperty indexProperty;
     public static final BooleanProperty POWERED_PROPERTY = BooleanProperty.create("powered");
 
     private static boolean destroying = false;
@@ -119,13 +119,13 @@ public class ElectricFencePostBlock extends BlockConnectableBase implements Enti
             ItemStack stack = player.getItemInHand(hand);
             if (stack.isEmpty()) {
                 BlockEntity te = world.getBlockEntity(pos);
-                if (te instanceof BlockEntityElectricFencePole) {
-                    ((BlockEntityElectricFencePole) te).setFlippedAround(!((BlockEntityElectricFencePole) te).isFlippedAround());
-                    te.setChanged();
+                if (te instanceof BlockEntityElectricFencePole fencePole) {
+                    fencePole.setFlippedAround(!fencePole.isFlippedAround());
+                    fencePole.setChanged();
                     for (int y = 0; y < this.type.getHeight(); y++) {
                         BlockEntity t = world.getBlockEntity(pos.above(y));
                         if (t != null) {
-//                            t.requestModelDataUpdate();
+                            fencePole.triggerModelUpdate();
                         }
                     }
                     return InteractionResult.SUCCESS;

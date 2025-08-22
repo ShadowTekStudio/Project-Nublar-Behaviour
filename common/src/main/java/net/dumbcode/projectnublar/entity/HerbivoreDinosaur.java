@@ -9,7 +9,7 @@ import net.minecraft.world.level.Level;
 public class HerbivoreDinosaur extends Dinosaur{
 
     public HerbivoreDinosaur(EntityType<? extends Dinosaur> $$0, Level $$1) {
-        super($$0, $$1);
+        super($$0, $$1, 39);
     }
 
     @Override

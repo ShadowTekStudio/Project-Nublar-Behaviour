@@ -2,10 +2,18 @@ package net.dumbcode.projectnublar.entity.tasks;
 
 import com.mojang.datafixers.util.Pair;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
+import net.dumbcode.projectnublar.entity.CarnivoreDinosaur;
 import net.dumbcode.projectnublar.entity.Dinosaur;
+import net.dumbcode.projectnublar.entity.PackEntity;
+import net.dumbcode.projectnublar.init.EntityInit;
 import net.dumbcode.projectnublar.init.MemoryTypesInit;
+import net.minecraft.client.gui.font.providers.UnihexProvider;
+import net.minecraft.commands.arguments.DimensionArgument;
+import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.MobSpawnType;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.memory.MemoryStatus;
 import net.minecraft.world.entity.ai.memory.NearestVisibleLivingEntities;
@@ -13,7 +21,9 @@ import net.tslat.smartbrainlib.api.core.behaviour.ExtendedBehaviour;
 import net.tslat.smartbrainlib.util.BrainUtils;
 import org.jetbrains.annotations.Nullable;
 
+import java.awt.*;
 import java.util.List;
+import java.util.Optional;
 import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 
@@ -49,7 +59,7 @@ protected BiPredicate<E, LivingEntity> canChooseAsMatePredicate = (dinosaur, pMa
                 return false;
             }
         }
-        return this.canChoosePredicate.test(this.pMate);
+        return this.canChooseAsMatePredicate.test(entity, this.pMate);
     }
 
     @Override
@@ -62,6 +72,25 @@ protected BiPredicate<E, LivingEntity> canChooseAsMatePredicate = (dinosaur, pMa
             dinosaur.createDinosaurFamily(entity);
             dinosaur.registerDinoMate(entity.getUUID());
             entity.registerDinoMate(dinosaur.getUUID());
+            if(entity instanceof CarnivoreDinosaur carnivore){
+             //   CarnivoreDinosaur mate = (CarnivoreDinosaur) this.pMate;
+              //  if(carnivore.hasPack() && !mate.hasPack()) {
+                //    carnivore.getPackEntity().registerWithPack(mate);
+            //    }
+              //  if(!carnivore.hasPack() && mate.hasPack()){
+               //     mate.getPackEntity().registerWithPack(carnivore);
+         //       }
+              //  if(!carnivore.hasPack() && !mate.hasPack()){
+                 //   EntityType<PackEntity> pack = EntityInit.CARNIVORE_PACK.get();
+                  //  BlockPos pos = carnivore.getOnPos();
+                  //  ServerLevel serverLevel = carnivore.getServer().overworld();
+                 //   PackEntity packEntity = pack.spawn(serverLevel,pos, MobSpawnType.EVENT);
+                  //  packEntity.registerWithPack(carnivore);
+                  //  packEntity.registerWithPack(mate);
+                  //  packEntity.setPackLeader(Optional.of(carnivore.getUUID()));
+
+              //  }
+            }
         }
     }
 }

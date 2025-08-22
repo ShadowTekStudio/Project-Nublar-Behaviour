@@ -6,6 +6,7 @@ import net.dumbcode.projectnublar.data.BehaviourDataReloadListener;
 import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.dumbcode.projectnublar.init.AttributesInit;
 import net.dumbcode.projectnublar.item.api.DNADataItem;
+import net.dumbcode.projectnublar.util.DinoNeedsUtils;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.InteractionHand;
@@ -36,8 +37,9 @@ public class IncubatedEggItem extends DNADataItem {
 
             dinosaur.setDinoData(dinoData);
             dinosaur.setDinoBehaviour(behaviourData.toNBT(behaviourData));
-            dinosaur.setDinoBaseNeeds(behaviourData);
-            dinosaur.setBaby(true);
+            DinoNeedsUtils.setDinoBaseNeeds(dinosaur,behaviourData);
+
+            DinoNeedsUtils.setCurrentHunger(dinosaur,0.0F);
 
             pContext.getItemInHand().shrink(1);
             return InteractionResult.CONSUME;

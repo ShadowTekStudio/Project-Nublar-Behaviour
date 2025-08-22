@@ -14,6 +14,9 @@ import net.dumbcode.projectnublar.client.screen.GeneratorScreen;
 import net.dumbcode.projectnublar.client.screen.IncubatorScreen;
 import net.dumbcode.projectnublar.client.screen.ProcessorScreen;
 import net.dumbcode.projectnublar.client.screen.SequencerScreen;
+import net.dumbcode.projectnublar.entity.PackEntity;
+import net.dumbcode.projectnublar.entity.social.interactionmanagers.tyrannosaurusrex.TyrannosaurInteractionEntity;
+import net.dumbcode.projectnublar.entity.species.DinosaurPart;
 import net.dumbcode.projectnublar.init.BlockInit;
 import net.dumbcode.projectnublar.init.EntityInit;
 import net.dumbcode.projectnublar.init.ItemInit;
@@ -23,6 +26,7 @@ import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.MultiBufferSource;
 import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
+import net.minecraft.client.renderer.entity.EntityRenderer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.item.ItemProperties;
 import net.minecraft.client.renderer.texture.AbstractTexture;
@@ -36,6 +40,18 @@ import software.bernie.geckolib.renderer.GeoBlockRenderer;
 public class ClientRegistrationHolder {
 
     public static void registerEntityRenderers() {
+        EntityRenderers.register(EntityInit.INTERACTION_ENTITY.get(), context -> new EntityRenderer<TyrannosaurInteractionEntity>(context) {
+            @Override
+            public ResourceLocation getTextureLocation(TyrannosaurInteractionEntity entity) {
+                return null;
+            }
+        });
+        EntityRenderers.register(EntityInit.DINOSAUR_PART.get(),context -> new EntityRenderer<DinosaurPart>(context) {
+            @Override
+            public ResourceLocation getTextureLocation(DinosaurPart entity) {
+                return null;
+            }
+        });
         EntityRenderers.register(EntityInit.TYRANNOSAURUS_REX.get(), (context) -> new DinosaurRenderer(context, new DefaultedEntityGeoModel<>(Constants.modLoc("tyrannosaurus_rex")).withAltTexture(
                 new ResourceLocation(Constants.MODID, "tyrannosaurus_rex/male/base")
         ), CommonClientClass.getDinoLayers(EntityInit.TYRANNOSAURUS_REX.get())));

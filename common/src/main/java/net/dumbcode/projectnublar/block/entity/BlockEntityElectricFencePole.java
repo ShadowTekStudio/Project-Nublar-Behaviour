@@ -30,13 +30,13 @@ import java.util.Set;
 public class BlockEntityElectricFencePole extends BlockEntityElectricFence implements ConnectableBlockEntity, GeoBlockEntity, BotariumEnergyBlock<WrappedBlockEnergyContainer> {
 
     private final AnimatableInstanceCache cache = GeckoLibUtil.createInstanceCache(this);
-    private boolean flippedAround;
+    public boolean flippedAround;
 
-    private VoxelShape cachedShape = Shapes.block();
+    public VoxelShape cachedShape = Shapes.block();
 
     private double cachedRotation = 0;
 
-    private boolean shouldRefreshNextTick = false;
+    public boolean shouldRefreshNextTick = false;
 
     public boolean isFlippedAround() {
         return flippedAround;
@@ -65,7 +65,6 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
     public void saveData(CompoundTag compound) {
         compound.putBoolean("rotation_flipped", this.flippedAround);
         compound.put("energy", this.energyContainer.serialize(new CompoundTag()));
-//        compound.putInt("energy", this.energy.getEnergyStored());
         super.saveData(compound);
     }
 
@@ -74,7 +73,6 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
     public void loadData(CompoundTag compound) {
         this.flippedAround = compound.getBoolean("rotation_flipped");
         this.energyContainer.deserialize(compound.getCompound("energy"));
-//        this.energy.setEnergy(compound.getInt("energy"));
         super.loadData(compound);
     }
 
@@ -86,23 +84,17 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
 
     public void setFlippedAround(boolean flippedAround) {
         this.flippedAround = flippedAround;
-//        this.requestModelDataUpdate();
+        this.triggerModelUpdate();
         this.level.sendBlockUpdated(this.getBlockPos(), Blocks.AIR.defaultBlockState(), this.getBlockState(), 3);
     }
 
     protected static final VoxelShape DEFAULT_SHAPE = Shapes.create(.875 -.03125 * 3,0,.5 - .0625, 1-.03125 * 3,1,.5 + .0625);
 
 
-    //todo: forge
-//    @Override
-//    public void onLoad() {
-//        this.shouldRefreshNextTick = true;
-//    }
-
     public void tick(Level world, BlockPos blockPos, BlockState pState, BlockEntityElectricFencePole be) {
         if(this.shouldRefreshNextTick) {
             this.shouldRefreshNextTick = false;
-//            this.requestModelDataUpdate();
+            this.triggerModelUpdate();
             this.cachedRotation = this.computeRotation();
         }
         double oldRotation = this.cachedRotation;
@@ -110,7 +102,6 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
         if (oldRotation != this.cachedRotation) {
             this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
         }
-        //todo: energy
         boolean powered = this.getEnergyStorage().getStoredEnergy() > 0;
         if(powered) {
             boolean update = false;
@@ -161,36 +152,8 @@ public class BlockEntityElectricFencePole extends BlockEntityElectricFence imple
         return shape;
     }
 
-    //todo: forge
-//    @Override
-//    public void requestModelDataUpdate() {
-//        this.cachedRotation = this.computeRotation();
-//
-//        BlockState state = this.getBlockState();
-//        if (state.getBlock() instanceof BlockElectricFencePole) {
-//            ConnectionType type = ((BlockElectricFencePole) state.getBlock()).getType();
-//
-//            float t = type.getHalfSize();
-//            double x = Math.sin(Math.toRadians(this.cachedRotation + 90F - type.getRotationOffset())) * type.getRadius();
-//            double z = Math.cos(Math.toRadians(this.cachedRotation + 90F - type.getRotationOffset())) * type.getRadius();
-//            this.cachedShape = VoxelShapes.box(x-t, 0, z-t, x+t, 1, z+t).move(0.5, 0, 0.5);
-//        }
-//
-//        super.requestModelDataUpdate();
-//
-//    }
 
-
-//    @Nonnull
-//    @Override
-//    public IModelData getModelData() {
-//        return new ModelDataMap.Builder()
-//            .withInitial(ProjectNublarModelData.CONNECTIONS, this.compiledRenderData())
-//            .withInitial(ProjectNublarModelData.FENCE_POLE_ROTATION_DEGS, this.cachedRotation)
-//            .build();
-//    }
-
-    private double computeRotation() {
+    public double computeRotation() {
         double rotation = 0;
 
         if(this.level == null || !this.level.isLoaded(this.getBlockPos())) {

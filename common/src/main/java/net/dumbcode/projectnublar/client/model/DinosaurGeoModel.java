@@ -2,7 +2,16 @@ package net.dumbcode.projectnublar.client.model;
 
 import net.dumbcode.projectnublar.entity.Dinosaur;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
+import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
+import software.bernie.geckolib.cache.object.GeoBone;
+import software.bernie.geckolib.core.animatable.model.CoreGeoBone;
+import software.bernie.geckolib.core.animation.AnimationState;
 import software.bernie.geckolib.model.DefaultedEntityGeoModel;
+
+import java.util.Optional;
 
 public class DinosaurGeoModel extends DefaultedEntityGeoModel<Dinosaur> {
 
@@ -17,5 +26,12 @@ public class DinosaurGeoModel extends DefaultedEntityGeoModel<Dinosaur> {
     @Override
     public ResourceLocation getTextureResource(Dinosaur animatable) {
         return super.getTextureResource(animatable);
+    }
+
+    @Override
+    public void setCustomAnimations(Dinosaur animatable, long instanceId, AnimationState<Dinosaur> animationState) {
+        super.setCustomAnimations(animatable, instanceId, animationState);
+
+
     }
 }

@@ -9,24 +9,27 @@ import net.dumbcode.projectnublar.util.LineUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
 import net.minecraft.nbt.Tag;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.shapes.Shapes;
 import net.minecraft.world.phys.shapes.VoxelShape;
+import net.minecraftforge.api.distmarker.Dist;
+import net.minecraftforge.api.distmarker.OnlyIn;
+import org.jetbrains.annotations.Nullable;
+import software.bernie.geckolib.model.data.EntityModelData;
 
 
-
+import java.lang.constant.Constable;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-public class BlockEntityElectricFence extends SyncingBlockEntity implements ConnectableBlockEntity {
-
-    private final Set<Connection> fenceConnections = Sets.newLinkedHashSet();
-
-    volatile VoxelShape collidableCache;
+public class BlockEntityElectricFence extends BlockEntityElectricFenceBase implements ConnectableBlockEntity {
 
     public BlockEntityElectricFence(BlockPos pos, BlockState state) {
         super(BlockInit.ELECTRIC_FENCE_BLOCK_ENTITY.get(), pos, state);
@@ -37,27 +40,35 @@ public class BlockEntityElectricFence extends SyncingBlockEntity implements Conn
     }
 
     @Override
+    public void resetCollidableCache(){
+        this.collidableCache = null;
+    }
+
+    @Override
     public void saveData(CompoundTag compound) {
-        CompoundTag nbt = new CompoundTag();
+        super.saveData(compound);
+        ListTag nbt = new ListTag();
         int i = 0;
         for (Connection connection : this.fenceConnections) {
-            nbt.put(i + "c",connection.writeToNBT(new CompoundTag()));
+            nbt.add(connection.writeToNBT(new CompoundTag()));
         }
         compound.put("connections", nbt);
     }
 
     @Override
     public void loadData(CompoundTag compound) {
-        CompoundTag nbt = compound.getCompound("connections");
+        super.loadData(compound);
+        this.fenceConnections.clear();
+        ListTag nbt = compound.getList("connections", compound.TAG_COMPOUND);
         for (int i = 0; i < nbt.size(); i++) {
-            Connection connection = Connection.fromNBT(nbt.getCompound(i+"c"), this);
+            Connection connection = Connection.fromNBT(nbt.getCompound(i), this);
             if(connection.isValid()) {
                 this.fenceConnections.add(connection);
             }
         }
 
         if(this.level != null) {
-//            this.requestModelDataUpdate();
+            this.triggerModelUpdate();
         }
     }
 
@@ -74,56 +85,25 @@ public class BlockEntityElectricFence extends SyncingBlockEntity implements Conn
         return this.collidableCache;
     }
 
-//    @Override
-//    public double getViewDistance() {
-//        return Double.MAX_VALUE;
-//    }
-//
-//    @Override
-//    public AABB getRenderBoundingBox() {
-//        return new AxisAlignedBB(this.getBlockPos().offset(-1, -1, -1), this.getBlockPos().offset(1, 1, 1));
-//    }
-
     @Override
     public void addConnection(Connection connection) {
         this.fenceConnections.add(connection);
-//        this.requestModelDataUpdate();
+        this.triggerModelUpdate();
         this.setChanged();
     }
-//todo: forge stuff
 
-//    @Nonnull
-//    @Override
-//    public IModelData getModelData() {
-//        return new ModelDataMap.Builder()
-//            .withInitial(ProjectNublarModelData.CONNECTIONS, this.compiledRenderData())
-//            .build();
-//    }
-//
-//    @Override
-//    public void requestModelDataUpdate() {
-//        super.requestModelDataUpdate();
-//        if(this.level != null) {
-////            this.level.sendBlockUpdated(this.getBlockPos(), this.getBlockState(), this.getBlockState(), 3);
-//        }
-//        this.collidableCache = null;
-//    }
-
-
-    protected Set<Connection.CompiledRenderData> compiledRenderData() {
+    @Override
+    @OnlyIn(Dist.CLIENT)
+    public Set<Connection.CompiledRenderData> compiledRenderData() {
         return this.getConnections().stream()
             .map(c -> c.compileRenderData(this.level))
             .collect(Collectors.toSet());
     }
 
+
     @Override
     public Set<Connection> getConnections() {
         return Collections.unmodifiableSet(this.fenceConnections);
-    }
-
-    public void removeAllConnections() {
-        fenceConnections.clear();
-        setChanged();
     }
 
     /**
